@@ -1,0 +1,12 @@
+{
+  "name": "eiken-grammar-game",
+  "version": "1.0.0",
+  "description": "英検3級レベルの文法問題ゲーム（現在完了・過去形・受動態）",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve ."
+  },
+  "keywords": ["eiken", "english", "grammar", "game", "japanese"],
+  "author": "",
+  "license": "MIT"
+}

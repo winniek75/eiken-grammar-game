@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>英検3級 文法マスター</title>
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;900&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #FF6B6B;
+            --secondary: #4ECDC4;
+            --accent: #FFE66D;
+            --dark: #2C3E50;
+            --light: #F7F9FC;
+            --success: #2ECC71;
+            --error: #E74C3C;
+            --perfect: #9B59B6;
+            --present-perfect: #3498DB;
+            --past: #E67E22;
+            --passive: #1ABC9C;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'M PLUS Rounded 1c', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .start-screen {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 30px;
+            padding: 50px 40px;
+            text-align: center;
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .logo {
+            font-size: 4rem;
+            margin-bottom: 10px;
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: var(--dark);
+            font-size: 1rem;
+            margin-bottom: 30px;
+            opacity: 0.8;
+        }
+
+        .grammar-tags {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+        }
+
+        .tag {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        .tag.present-perfect { background: var(--present-perfect); }
+        .tag.past { background: var(--past); }
+        .tag.passive { background: var(--passive); }
+
+        .question-count-selector {
+            margin-bottom: 25px;
+        }
+
+        .question-count-selector label {
+            display: block;
+            margin-bottom: 10px;
+            color: var(--dark);
+            font-weight: 600;
+        }
+
+        .count-options {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .count-btn {
+            padding: 10px 20px;
+            border: 3px solid #E8ECF0;
+            border-radius: 15px;
+            background: white;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'M PLUS Rounded 1c', sans-serif;
+        }
+
+        .count-btn:hover { border-color: var(--secondary); }
+        .count-btn.selected {
+            background: var(--secondary);
+            border-color: var(--secondary);
+            color: white;
+        }
+
+        .start-btn {
+            background: linear-gradient(135deg, var(--primary), #FF8E8E);
+            color: white;
+            border: none;
+            padding: 18px 50px;
+            font-size: 1.3rem;
+            font-weight: 700;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
+            font-family: 'M PLUS Rounded 1c', sans-serif;
+        }
+
+        .start-btn:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 12px 35px rgba(255, 107, 107, 0.5);
+        }
+
+        .game-screen { display: none; }
+        .game-screen.active {
+            display: block;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 0 10px;
+        }
+
+        .progress-container { flex: 1; margin-right: 20px; }
+
+        .progress-text {
+            color: white;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .progress-bar {
+            height: 12px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), #FFD93D);
+            border-radius: 10px;
+            transition: width 0.4s ease;
+        }
+
+        .score-display {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 12px 20px;
+            border-radius: 20px;
+            font-weight: 700;
+            color: var(--dark);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .score-display span {
+            color: var(--primary);
+            font-size: 1.2rem;
+        }
+
+        .question-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 25px;
+            padding: 35px 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;
+        }
+
+        .question-type {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 15px;
+        }
+
+        .question-type.present-perfect { background: var(--present-perfect); }
+        .question-type.past { background: var(--past); }
+        .question-type.passive { background: var(--passive); }
+
+        .question-text {
+            font-size: 1.3rem;
+            color: var(--dark);
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .question-text .blank {
+            display: inline-block;
+            min-width: 120px;
+            border-bottom: 3px dashed var(--primary);
+            margin: 0 5px;
+            text-align: center;
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .hint {
+            font-size: 0.9rem;
+            color: #888;
+            margin-top: 10px;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .option-btn {
+            background: white;
+            border: 3px solid #E8ECF0;
+            padding: 18px 15px;
+            border-radius: 15px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--dark);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            border-color: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(78, 205, 196, 0.3);
+        }
+
+        .option-btn:disabled { cursor: not-allowed; }
+
+        .option-btn.correct {
+            background: linear-gradient(135deg, var(--success), #58D68D);
+            border-color: var(--success);
+            color: white;
+            animation: pulse 0.5s ease;
+        }
+
+        .option-btn.incorrect {
+            background: linear-gradient(135deg, var(--error), #EC7063);
+            border-color: var(--error);
+            color: white;
+            animation: shake 0.5s ease;
+        }
+
+        .option-btn.show-correct {
+            border-color: var(--success);
+            border-width: 4px;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .feedback {
+            text-align: center;
+            padding: 20px;
+            margin-top: 15px;
+            border-radius: 15px;
+            display: none;
+        }
+
+        .feedback.show {
+            display: block;
+            animation: slideUp 0.3s ease;
+        }
+
+        .feedback.correct {
+            background: linear-gradient(135deg, rgba(46, 204, 113, 0.1), rgba(88, 214, 141, 0.1));
+        }
+
+        .feedback.incorrect {
+            background: linear-gradient(135deg, rgba(231, 76, 60, 0.1), rgba(236, 112, 99, 0.1));
+        }
+
+        .feedback-icon { font-size: 2.5rem; margin-bottom: 10px; }
+
+        .feedback-text {
+            font-size: 1.1rem;
+            color: var(--dark);
+            margin-bottom: 10px;
+        }
+
+        .explanation {
+            font-size: 0.95rem;
+            color: #666;
+            line-height: 1.5;
+            background: rgba(255, 255, 255, 0.7);
+            padding: 12px 15px;
+            border-radius: 10px;
+        }
+
+        .next-btn {
+            background: linear-gradient(135deg, var(--secondary), #45B7AA);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            border-radius: 30px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 20px rgba(78, 205, 196, 0.4);
+            font-family: 'M PLUS Rounded 1c', sans-serif;
+        }
+
+        .next-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(78, 205, 196, 0.5);
+        }
+
+        .result-screen {
+            display: none;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 30px;
+            padding: 50px 40px;
+            text-align: center;
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.3);
+        }
+
+        .result-screen.active {
+            display: block;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        .result-icon {
+            font-size: 5rem;
+            margin-bottom: 20px;
+            animation: bounce 1.5s ease-in-out infinite;
+        }
+
+        .result-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            color: var(--dark);
+        }
+
+        .result-score {
+            font-size: 3.5rem;
+            font-weight: 900;
+            margin: 20px 0;
+        }
+
+        .result-score.excellent {
+            background: linear-gradient(135deg, var(--perfect), #A569BD);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .result-score.good {
+            background: linear-gradient(135deg, var(--success), #58D68D);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .result-score.average {
+            background: linear-gradient(135deg, var(--past), #F0B27A);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .result-score.needswork {
+            background: linear-gradient(135deg, var(--error), #EC7063);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .result-message {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #F8F9FA, #E9ECEF);
+            padding: 20px 15px;
+            border-radius: 15px;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #888;
+            margin-bottom: 5px;
+        }
+
+        .stat-value { font-size: 1.5rem; font-weight: 700; }
+        .stat-value.present-perfect { color: var(--present-perfect); }
+        .stat-value.past { color: var(--past); }
+        .stat-value.passive { color: var(--passive); }
+
+        .restart-btn {
+            background: linear-gradient(135deg, var(--primary), #FF8E8E);
+            color: white;
+            border: none;
+            padding: 18px 50px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
+            font-family: 'M PLUS Rounded 1c', sans-serif;
+        }
+
+        .restart-btn:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 12px 35px rgba(255, 107, 107, 0.5);
+        }
+
+        .decoration {
+            position: fixed;
+            border-radius: 50%;
+            opacity: 0.1;
+            pointer-events: none;
+        }
+
+        .decoration-1 {
+            width: 300px;
+            height: 300px;
+            background: var(--accent);
+            top: -100px;
+            right: -100px;
+        }
+
+        .decoration-2 {
+            width: 200px;
+            height: 200px;
+            background: var(--secondary);
+            bottom: -50px;
+            left: -50px;
+        }
+
+        .total-questions {
+            font-size: 0.85rem;
+            color: #888;
+            margin-top: 15px;
+        }
+
+        @media (max-width: 500px) {
+            .title { font-size: 1.8rem; }
+            .options-grid { grid-template-columns: 1fr; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .question-text { font-size: 1.1rem; }
+            .start-screen, .result-screen { padding: 30px 20px; }
+            .question-card { padding: 25px 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="decoration decoration-1"></div>
+    <div class="decoration decoration-2"></div>
+
+    <div class="container">
+        <div class="start-screen" id="startScreen">
+            <div class="logo">📚</div>
+            <h1 class="title">英検3級 文法マスター</h1>
+            <p class="subtitle">現在完了・過去形・受動態をマスターしよう！</p>
+            <div class="grammar-tags">
+                <span class="tag present-perfect">現在完了</span>
+                <span class="tag past">過去形</span>
+                <span class="tag passive">受動態</span>
+            </div>
+            <div class="question-count-selector">
+                <label>出題数を選んでください</label>
+                <div class="count-options">
+                    <button class="count-btn" data-count="10">10問</button>
+                    <button class="count-btn selected" data-count="20">20問</button>
+                    <button class="count-btn" data-count="30">30問</button>
+                    <button class="count-btn" data-count="50">50問</button>
+                </div>
+            </div>
+            <button class="start-btn" onclick="startGame()">スタート！</button>
+            <p class="total-questions">全100問からランダム出題</p>
+        </div>
+
+        <div class="game-screen" id="gameScreen">
+            <div class="header">
+                <div class="progress-container">
+                    <div class="progress-text">問題 <span id="currentQ">1</span> / <span id="totalQ">10</span></div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                </div>
+                <div class="score-display">正解: <span id="score">0</span></div>
+            </div>
+
+            <div class="question-card">
+                <span class="question-type" id="questionType">現在完了</span>
+                <p class="question-text" id="questionText"></p>
+                <p class="hint" id="hint"></p>
+            </div>
+
+            <div class="options-grid" id="optionsGrid"></div>
+
+            <div class="feedback" id="feedback">
+                <div class="feedback-icon" id="feedbackIcon"></div>
+                <p class="feedback-text" id="feedbackText"></p>
+                <p class="explanation" id="explanation"></p>
+                <button class="next-btn" id="nextBtn" onclick="nextQuestion()">次へ →</button>
+            </div>
+        </div>
+
+        <div class="result-screen" id="resultScreen">
+            <div class="result-icon" id="resultIcon">🎉</div>
+            <h2 class="result-title">結果発表</h2>
+            <div class="result-score" id="resultScore">8/10</div>
+            <p class="result-message" id="resultMessage">素晴らしい！よく頑張りました！</p>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">現在完了</div>
+                    <div class="stat-value present-perfect" id="statPresentPerfect">0/0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">過去形</div>
+                    <div class="stat-value past" id="statPast">0/0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">受動態</div>
+                    <div class="stat-value passive" id="statPassive">0/0</div>
+                </div>
+            </div>
+            <button class="restart-btn" onclick="restartGame()">もう一度挑戦</button>
+        </div>
+    </div>
+
+    <script>
+        // 問題データベース (100問)
+        const questions = [
+            // ========== 現在完了 (34問) ==========
+            { type: 'present-perfect', typeName: '現在完了', sentence: 'I ___ never ___ to Kyoto.', hint: '「私は京都に行ったことがありません」', options: ['have, been', 'has, been', 'have, went', 'was, been'], correct: 0, explanation: '経験を表す現在完了形です。主語が I なので have を使い、go の過去分詞は been です。' },
+            { type: 'present-perfect', typeName: '現在完了', sentence: 'She ___ just ___ her homework.', hint: '「彼女はちょうど宿題を終えたところです」', options: ['has, finished', 'have, finished', 'has, finish', 'had, finished'], correct: 0, explanation: '完了を表す現在完了形です。主語が She（三人称単数）なので has を使います。' },
+            { type: 'present-perfect', typeName: '現在完了', sentence: 'Tom ___ in Japan for three years.', hint: '「トムは3年間日本に住んでいます」', options: ['has lived', 'have lived', 'lived', 'is living'], correct: 0, explanation: '継続を表す現在完了形です。「for + 期間」とともに使われます。' },
+            { type: 'present-perfect', typeName: '現在完了', sentence: '___ you ever ___ sushi?', hint: '「あなたは寿司を食べたことがありますか」', options: ['Have, eaten', 'Has, eaten', 'Did, eat', 'Have, ate'], correct: 0, explanation: '経験を尋ねる現在完了形の疑問文です。eat の過去分詞は eaten です。' },
+            { type: 'present-perfect', typeName: '現在完了', sentence: 'I have ___ this book twice.', hint: '「私はこの本を2回読んだことがあります」', options: ['read', 'readed', 'reading', 'reads'], correct: 0, explanation: 'read の過去分詞は read（発音は「レッド」）です。' },
+            { type: 'present-perfect', typeName: '現在完了', sentence: 'They ___ already ___ lunch.', hint: '「彼らはもう昼食を食べてしまいました」', options: ['have, had', 'has, had', 'have, have', 'had, had'], correct: 0, explanation: '完了を表す現在完了形です。already（もう）は完了でよく使われます。' },
+            { type: 'present-perfect', typeName: '現在完了', sentence: 'I have ___ him since 2020.', hint: '「私は2020年から彼を知っています」', options: ['known', 'knew', 'know', 'knowing'], correct: 0, explanation: '継続を表す現在完了形です。know の過去分詞は known です。' },
+            { type: 'present-perfect', typeName: '現在完了', sentence: 'My brother ___ gone to the library.', hint: '「兄は図書館に行ってしまいました」', options: ['has', 'have', 'is', 'was'], correct: 0, explanation: '結果を表す現在完了形です。主語が My brother（三人称単数）なので has です。' },
+            { type: 'present-perfect', typeName: '現在完了', sentence: 'We ___ been friends for ten years.', hint: '「私たちは10年間友達です」', options: ['have', 'has', 'are', 'were'], correct: 0, explanation: '継続を表す現在完了形です。主語が We なので have を使います。' },
+            { type: 'present-perfect', typeName: '現在完了', sentence: 'How long ___ you ___ here?', hint: '「どのくらいここにいますか」', options: ['have, been', 'has, been', 'did, be', 'are, been'], correct: 0, explanation: '継続の期間を尋ねる現在完了形です。How long とともに使われます。' },
+            { type: 'present-perfect', typeName: '現在完了', sentence: 'She has ___ to London three times.', hint: '「彼女はロンドンに3回行ったことがあります」', options: ['been', 'gone', 'went', 'go'], correct: 0, explanation: '経験を表す場合、「〜に行ったことがある」は have been to を使います。' },
+            { type: 'present-perfect', typeName: '現在完了', sentence: 'I have not ___ my breakfast yet.', hint: '「私はまだ朝食を食べていません」', options: ['eaten', 'ate', 'eat', 'eating'], correct: 0, explanation: '未完了を表す現在完了形です。yet（まだ）は否定文でよく使われます。' },
+            { type: 'present-perfect', typeName: '現在完了', sentence: '___ he ___ the movie yet?', hint: '「彼はもうその映画を見ましたか」', options: ['Has, seen', 'Have, seen', 'Did, see', 'Has, saw'], correct: 0, explanation: '完了を尋ねる現在完了形の疑問文です。see の過去分詞は seen です。' },
+            { type: 'present-perfect', typeName: '現在完了', sentence: 'The train has already ___.', hint: '「電車はすでに出発しました」', options: ['left', 'leave', 'leaving', 'leaved'], correct: 0, explanation: '完了を表す現在完了形です。leave の過去分詞は left です。' },
+            { type: 'present-perfect', typeName: '現在完了', sentence: 'I have ___ my wallet.', hint: '「私は財布をなくしてしまいました」', options: ['lost', 'lose', 'losing', 'losed'], correct: 0, explanation: '結果を表す現在完了形です。lose の過去分詞は lost です。' },
+            { type: 'present-perfect', typeName: '現在完了', sentence: 'She ___ never ___ a horse.', hint: '「彼女は馬に乗ったことがありません」', options: ['has, ridden', 'have, ridden', 'has, rode', 'have, rode'], correct: 0, explanation: '経験を表す現在完了形です。ride の過去分詞は ridden です。' },
+            { type: 'present-perfect', typeName: '現在完了', sentence: 'We have ___ each other since childhood.', hint: '「私たちは子供の頃からお互いを知っています」', options: ['known', 'knew', 'know', 'knowing'], correct: 0, explanation: '継続を表す現在完了形です。since（〜以来）とともに使われます。' },
+            { type: 'present-perfect', typeName: '現在完了', sentence: 'He has ___ a famous singer.', hint: '「彼は有名な歌手になりました」', options: ['become', 'became', 'becoming', 'becomes'], correct: 0, explanation: '結果を表す現在完了形です。become の過去分詞は become です。' },
+            { type: 'present-perfect', typeName: '現在完了', sentence: '___ it ___ raining yet?', hint: '「雨はもう止みましたか」', options: ['Has, stopped', 'Have, stopped', 'Did, stop', 'Is, stopped'], correct: 0, explanation: '完了を尋ねる現在完了形の疑問文です。主語が it なので has を使います。' },
+            { type: 'present-perfect', typeName: '現在完了', sentence: 'I have ___ to that restaurant many times.', hint: '「私はそのレストランに何度も行ったことがあります」', options: ['been', 'gone', 'went', 'going'], correct: 0, explanation: '経験を表す現在完了形です。「〜に行ったことがある」は have been to です。' },
+            { type: 'present-perfect', typeName: '現在完了', sentence: 'My mother has ___ sick for a week.', hint: '「母は1週間ずっと病気です」', options: ['been', 'being', 'be', 'was'], correct: 0, explanation: '継続を表す現在完了形です。be動詞の過去分詞は been です。' },
+            { type: 'present-perfect', typeName: '現在完了', sentence: 'Have you ever ___ Mt. Fuji?', hint: '「あなたは富士山に登ったことがありますか」', options: ['climbed', 'climb', 'climbing', 'climbs'], correct: 0, explanation: '経験を尋ねる現在完了形です。climb の過去分詞は climbed です。' },
+            { type: 'present-perfect', typeName: '現在完了', sentence: 'She has ___ in this company since 2015.', hint: '「彼女は2015年からこの会社で働いています」', options: ['worked', 'work', 'working', 'works'], correct: 0, explanation: '継続を表す現在完了形です。since は「〜以来」という意味です。' },
+            { type: 'present-perfect', typeName: '現在完了', sentence: 'I ___ just ___ a letter to my friend.', hint: '「私は友人に手紙を書いたところです」', options: ['have, written', 'has, written', 'have, wrote', 'has, wrote'], correct: 0, explanation: '完了を表す現在完了形です。write の過去分詞は written です。' },
+            { type: 'present-perfect', typeName: '現在完了', sentence: 'The children have ___ to bed.', hint: '「子供たちは寝てしまいました」', options: ['gone', 'been', 'went', 'go'], correct: 0, explanation: '結果を表す現在完了形です。「行ってしまった（今ここにいない）」は have gone to です。' },
+            { type: 'present-perfect', typeName: '現在完了', sentence: 'He has ___ tennis for five years.', hint: '「彼は5年間テニスをしています」', options: ['played', 'play', 'playing', 'plays'], correct: 0, explanation: '継続を表す現在完了形です。for five years で期間を表しています。' },
+            { type: 'present-perfect', typeName: '現在完了', sentence: 'I have ___ seen such a beautiful view.', hint: '「私はこんなに美しい景色を見たことがありません」', options: ['never', 'ever', 'already', 'yet'], correct: 0, explanation: '経験を否定する現在完了形です。never は「一度も〜ない」という意味です。' },
+            { type: 'present-perfect', typeName: '現在完了', sentence: '___ you ___ your homework yet?', hint: '「もう宿題は終わりましたか」', options: ['Have, done', 'Has, done', 'Did, do', 'Have, did'], correct: 0, explanation: '完了を尋ねる現在完了形です。do の過去分詞は done です。' },
+            { type: 'present-perfect', typeName: '現在完了', sentence: 'My father has ___ to America twice.', hint: '「父は2回アメリカに行ったことがあります」', options: ['been', 'gone', 'went', 'going'], correct: 0, explanation: '経験を表す現在完了形です。「〜に行ったことがある」は have been to です。' },
+            { type: 'present-perfect', typeName: '現在完了', sentence: 'She has ___ English since she was six.', hint: '「彼女は6歳から英語を勉強しています」', options: ['studied', 'study', 'studying', 'studies'], correct: 0, explanation: '継続を表す現在完了形です。since は「〜以来」という意味です。' },
+            { type: 'present-perfect', typeName: '現在完了', sentence: 'I have ___ bought a new computer.', hint: '「私はちょうど新しいコンピューターを買いました」', options: ['just', 'yet', 'never', 'ever'], correct: 0, explanation: '完了を表す現在完了形です。just は「ちょうど」という意味です。' },
+            { type: 'present-perfect', typeName: '現在完了', sentence: 'The bus has ___ arrived.', hint: '「バスはすでに到着しました」', options: ['already', 'yet', 'never', 'ever'], correct: 0, explanation: '完了を表す現在完了形です。already は肯定文で「すでに」という意味です。' },
+            { type: 'present-perfect', typeName: '現在完了', sentence: 'Have you ___ been to Okinawa?', hint: '「あなたは沖縄に行ったことがありますか」', options: ['ever', 'never', 'already', 'yet'], correct: 0, explanation: '経験を尋ねる現在完了形です。ever は疑問文で「今までに」という意味です。' },
+            { type: 'present-perfect', typeName: '現在完了', sentence: "He hasn't ___ dinner yet.", hint: '「彼はまだ夕食を食べていません」', options: ['had', 'have', 'has', 'having'], correct: 0, explanation: '未完了を表す現在完了形です。yet は否定文で「まだ」という意味です。' },
+
+            // ========== 過去形 (33問) ==========
+            { type: 'past', typeName: '過去形', sentence: 'I ___ to the library yesterday.', hint: '「私は昨日図書館に行きました」', options: ['went', 'go', 'have gone', 'going'], correct: 0, explanation: 'yesterday は過去を表す語なので、過去形 went を使います。' },
+            { type: 'past', typeName: '過去形', sentence: 'She ___ TV last night.', hint: '「彼女は昨夜テレビを見ました」', options: ['watched', 'watches', 'has watched', 'watch'], correct: 0, explanation: 'last night は過去を表す語なので、過去形 watched を使います。' },
+            { type: 'past', typeName: '過去形', sentence: 'We ___ soccer when we were young.', hint: '「私たちは若い頃サッカーをしました」', options: ['played', 'play', 'have played', 'are playing'], correct: 0, explanation: 'when we were young は過去のことなので、過去形を使います。' },
+            { type: 'past', typeName: '過去形', sentence: '___ you ___ breakfast this morning?', hint: '「今朝、朝食を食べましたか」', options: ['Did, eat', 'Do, eat', 'Have, eaten', 'Are, eating'], correct: 0, explanation: 'this morning で、すでに終わった出来事を聞いているので過去形を使います。' },
+            { type: 'past', typeName: '過去形', sentence: 'My father ___ me a new bike last month.', hint: '「父は先月新しい自転車を買ってくれました」', options: ['bought', 'buy', 'has bought', 'buys'], correct: 0, explanation: 'last month は過去を表すので過去形 bought を使います。' },
+            { type: 'past', typeName: '過去形', sentence: 'He ___ his key two days ago.', hint: '「彼は2日前に鍵をなくしました」', options: ['lost', 'has lost', 'loses', 'is losing'], correct: 0, explanation: 'two days ago は明確な過去を表すので、過去形 lost を使います。' },
+            { type: 'past', typeName: '過去形', sentence: 'They ___ to Osaka last summer.', hint: '「彼らは去年の夏大阪に行きました」', options: ['went', 'go', 'gone', 'going'], correct: 0, explanation: 'last summer は過去を表す語なので、過去形 went を使います。' },
+            { type: 'past', typeName: '過去形', sentence: 'I ___ a delicious cake at the party.', hint: '「私はパーティーでおいしいケーキを食べました」', options: ['ate', 'eat', 'eaten', 'eating'], correct: 0, explanation: 'パーティーは過去の出来事なので、過去形 ate を使います。' },
+            { type: 'past', typeName: '過去形', sentence: 'She ___ me a present on my birthday.', hint: '「彼女は私の誕生日にプレゼントをくれました」', options: ['gave', 'give', 'given', 'gives'], correct: 0, explanation: '誕生日は過去の出来事なので、過去形 gave を使います。' },
+            { type: 'past', typeName: '過去形', sentence: "The movie ___ at 7 o'clock.", hint: '「映画は7時に始まりました」', options: ['started', 'start', 'starts', 'starting'], correct: 0, explanation: '過去の特定の時間を表しているので、過去形 started を使います。' },
+            { type: 'past', typeName: '過去形', sentence: 'I ___ a strange dream last night.', hint: '「私は昨夜変な夢を見ました」', options: ['had', 'have', 'has', 'having'], correct: 0, explanation: 'last night は過去を表す語なので、過去形 had を使います。' },
+            { type: 'past', typeName: '過去形', sentence: 'He ___ his homework before dinner.', hint: '「彼は夕食前に宿題をしました」', options: ['did', 'do', 'does', 'done'], correct: 0, explanation: '過去の出来事なので、過去形 did を使います。' },
+            { type: 'past', typeName: '過去形', sentence: 'We ___ a lot of photos during the trip.', hint: '「私たちは旅行中にたくさんの写真を撮りました」', options: ['took', 'take', 'taken', 'taking'], correct: 0, explanation: '旅行中は過去のことなので、過去形 took を使います。' },
+            { type: 'past', typeName: '過去形', sentence: 'She ___ hard for the exam.', hint: '「彼女は試験のために一生懸命勉強しました」', options: ['studied', 'study', 'studies', 'studying'], correct: 0, explanation: '過去の出来事なので、過去形 studied を使います。' },
+            { type: 'past', typeName: '過去形', sentence: 'The children ___ in the park yesterday.', hint: '「子供たちは昨日公園で遊びました」', options: ['played', 'play', 'plays', 'playing'], correct: 0, explanation: 'yesterday は過去を表す語なので、過去形 played を使います。' },
+            { type: 'past', typeName: '過去形', sentence: 'I ___ my friend at the station.', hint: '「私は駅で友人に会いました」', options: ['met', 'meet', 'meeting', 'meets'], correct: 0, explanation: '過去の出来事なので、過去形 met を使います。' },
+            { type: 'past', typeName: '過去形', sentence: 'He ___ to music on the train.', hint: '「彼は電車の中で音楽を聴きました」', options: ['listened', 'listen', 'listens', 'listening'], correct: 0, explanation: '過去の出来事なので、過去形 listened を使います。' },
+            { type: 'past', typeName: '過去形', sentence: 'My mother ___ a cake for my birthday.', hint: '「母は私の誕生日にケーキを作りました」', options: ['made', 'make', 'makes', 'making'], correct: 0, explanation: '誕生日は過去の出来事なので、過去形 made を使います。' },
+            { type: 'past', typeName: '過去形', sentence: '___ she ___ to school yesterday?', hint: '「彼女は昨日学校に行きましたか」', options: ['Did, go', 'Does, go', 'Has, gone', 'Is, going'], correct: 0, explanation: 'yesterday があるので、過去形の疑問文 Did を使います。' },
+            { type: 'past', typeName: '過去形', sentence: 'I ___ very tired after the game.', hint: '「私は試合の後とても疲れていました」', options: ['was', 'am', 'is', 'were'], correct: 0, explanation: '過去の状態を表すので、be動詞の過去形 was を使います。' },
+            { type: 'past', typeName: '過去形', sentence: 'They ___ happy to see me.', hint: '「彼らは私に会えて嬉しそうでした」', options: ['were', 'was', 'are', 'is'], correct: 0, explanation: '過去の状態で、主語が They（複数）なので were を使います。' },
+            { type: 'past', typeName: '過去形', sentence: 'The weather ___ nice last weekend.', hint: '「先週末は天気が良かったです」', options: ['was', 'is', 'were', 'are'], correct: 0, explanation: 'last weekend は過去を表すので、過去形 was を使います。' },
+            { type: 'past', typeName: '過去形', sentence: 'I ___ English when I was in high school.', hint: '「私は高校生の時英語を勉強しました」', options: ['studied', 'study', 'have studied', 'am studying'], correct: 0, explanation: 'when I was in high school は過去のことなので、過去形を使います。' },
+            { type: 'past', typeName: '過去形', sentence: 'He ___ the window because it was cold.', hint: '「寒かったので彼は窓を閉めました」', options: ['closed', 'close', 'closes', 'closing'], correct: 0, explanation: '過去の出来事なので、過去形 closed を使います。' },
+            { type: 'past', typeName: '過去形', sentence: 'She ___ a new dress for the party.', hint: '「彼女はパーティーのために新しいドレスを買いました」', options: ['bought', 'buy', 'buys', 'buying'], correct: 0, explanation: '過去の出来事なので、過去形 bought を使います。' },
+            { type: 'past', typeName: '過去形', sentence: 'We ___ not ___ to the concert last week.', hint: '「私たちは先週コンサートに行きませんでした」', options: ['did, go', 'do, go', 'have, gone', 'are, going'], correct: 0, explanation: 'last week があるので、過去形の否定文 did not go を使います。' },
+            { type: 'past', typeName: '過去形', sentence: 'The dog ___ loudly last night.', hint: '「犬は昨夜大きな声で吠えました」', options: ['barked', 'bark', 'barks', 'barking'], correct: 0, explanation: 'last night は過去を表す語なので、過去形 barked を使います。' },
+            { type: 'past', typeName: '過去形', sentence: 'I ___ a letter to my grandmother yesterday.', hint: '「私は昨日祖母に手紙を書きました」', options: ['wrote', 'write', 'written', 'writing'], correct: 0, explanation: 'yesterday は過去を表す語なので、過去形 wrote を使います。' },
+            { type: 'past', typeName: '過去形', sentence: 'He ___ very fast in the race.', hint: '「彼はレースでとても速く走りました」', options: ['ran', 'run', 'runs', 'running'], correct: 0, explanation: 'レースは過去の出来事なので、過去形 ran を使います。' },
+            { type: 'past', typeName: '過去形', sentence: 'She ___ a beautiful song at the concert.', hint: '「彼女はコンサートで美しい歌を歌いました」', options: ['sang', 'sing', 'sung', 'sings'], correct: 0, explanation: 'コンサートは過去の出来事なので、過去形 sang を使います。' },
+            { type: 'past', typeName: '過去形', sentence: 'The baby ___ all night.', hint: '「赤ちゃんは一晩中泣きました」', options: ['cried', 'cry', 'cries', 'crying'], correct: 0, explanation: '過去の出来事なので、過去形 cried を使います。' },
+            { type: 'past', typeName: '過去形', sentence: 'I ___ my umbrella on the train.', hint: '「私は電車に傘を忘れました」', options: ['left', 'leave', 'leaves', 'leaving'], correct: 0, explanation: '過去の出来事なので、過去形 left を使います。' },
+            { type: 'past', typeName: '過去形', sentence: 'What ___ you ___ for dinner last night?', hint: '「昨夜の夕食に何を食べましたか」', options: ['did, have', 'do, have', 'have, had', 'did, had'], correct: 0, explanation: 'last night があるので、過去形の疑問文を使います。' },
+
+            // ========== 受動態 (33問) ==========
+            { type: 'passive', typeName: '受動態', sentence: 'This book ___ by many people.', hint: '「この本は多くの人に読まれています」', options: ['is read', 'is reading', 'reads', 'has read'], correct: 0, explanation: '受動態は「be動詞 + 過去分詞」で作ります。「〜される」という意味です。' },
+            { type: 'passive', typeName: '受動態', sentence: 'English ___ in many countries.', hint: '「英語は多くの国で話されています」', options: ['is spoken', 'speaks', 'is speaking', 'spoken'], correct: 0, explanation: '受動態です。speak の過去分詞は spoken です。' },
+            { type: 'passive', typeName: '受動態', sentence: 'The letter ___ by her yesterday.', hint: '「その手紙は昨日彼女によって書かれました」', options: ['was written', 'is written', 'wrote', 'has written'], correct: 0, explanation: '過去の受動態は「was/were + 過去分詞」で作ります。' },
+            { type: 'passive', typeName: '受動態', sentence: 'These photos ___ taken in Paris.', hint: '「これらの写真はパリで撮られました」', options: ['were', 'was', 'are', 'is'], correct: 0, explanation: '主語 These photos は複数なので、過去の受動態には were を使います。' },
+            { type: 'passive', typeName: '受動態', sentence: 'The window ___ broken by the ball.', hint: '「窓はボールで割られました」', options: ['was', 'is', 'were', 'has'], correct: 0, explanation: '主語 The window は単数で、過去の出来事なので was を使います。' },
+            { type: 'passive', typeName: '受動態', sentence: 'This cake ___ made by my mother.', hint: '「このケーキは母によって作られました」', options: ['was', 'is', 'were', 'has'], correct: 0, explanation: '主語 This cake は単数で、過去の出来事なので was を使います。' },
+            { type: 'passive', typeName: '受動態', sentence: 'The movie ___ loved by children.', hint: '「その映画は子供たちに愛されています」', options: ['is', 'are', 'was', 'were'], correct: 0, explanation: '主語 The movie は単数で、現在の状態なので is を使います。' },
+            { type: 'passive', typeName: '受動態', sentence: 'Japanese ___ spoken in Japan.', hint: '「日本では日本語が話されています」', options: ['is', 'are', 'was', 'were'], correct: 0, explanation: '主語 Japanese（日本語）は単数扱いなので is を使います。' },
+            { type: 'passive', typeName: '受動態', sentence: 'The car ___ washed every Sunday.', hint: '「その車は毎週日曜日に洗われます」', options: ['is', 'are', 'was', 'were'], correct: 0, explanation: '習慣的な行為の受動態なので、現在形 is を使います。' },
+            { type: 'passive', typeName: '受動態', sentence: 'This song ___ sung by many people.', hint: '「この歌は多くの人に歌われています」', options: ['is', 'are', 'was', 'were'], correct: 0, explanation: '主語 This song は単数で、現在の状態なので is を使います。' },
+            { type: 'passive', typeName: '受動態', sentence: 'The museum ___ visited by tourists.', hint: '「その博物館は観光客に訪れられています」', options: ['is', 'are', 'was', 'were'], correct: 0, explanation: '主語 The museum は単数で、現在の状態なので is を使います。' },
+            { type: 'passive', typeName: '受動態', sentence: 'These books ___ written in English.', hint: '「これらの本は英語で書かれています」', options: ['are', 'is', 'was', 'were'], correct: 0, explanation: '主語 These books は複数なので are を使います。' },
+            { type: 'passive', typeName: '受動態', sentence: 'The bridge ___ built 100 years ago.', hint: '「その橋は100年前に建てられました」', options: ['was', 'is', 'were', 'are'], correct: 0, explanation: '100 years ago は過去を表すので was を使います。' },
+            { type: 'passive', typeName: '受動態', sentence: 'The doors ___ opened at 9 a.m.', hint: '「ドアは午前9時に開けられます」', options: ['are', 'is', 'was', 'were'], correct: 0, explanation: '主語 The doors は複数なので are を使います。' },
+            { type: 'passive', typeName: '受動態', sentence: 'The game ___ played by two teams.', hint: '「その試合は2つのチームによって行われます」', options: ['is', 'are', 'was', 'were'], correct: 0, explanation: '主語 The game は単数なので is を使います。' },
+            { type: 'passive', typeName: '受動態', sentence: 'French ___ taught at this school.', hint: '「この学校ではフランス語が教えられています」', options: ['is', 'are', 'was', 'were'], correct: 0, explanation: '主語 French（フランス語）は単数扱いなので is を使います。' },
+            { type: 'passive', typeName: '受動態', sentence: 'The presents ___ given to the children.', hint: '「プレゼントは子供たちに与えられました」', options: ['were', 'was', 'are', 'is'], correct: 0, explanation: '主語 The presents は複数で、過去の出来事なので were を使います。' },
+            { type: 'passive', typeName: '受動態', sentence: 'The house ___ painted white.', hint: '「その家は白く塗られました」', options: ['was', 'is', 'were', 'are'], correct: 0, explanation: '主語 The house は単数で、過去の出来事なので was を使います。' },
+            { type: 'passive', typeName: '受動態', sentence: 'This temple ___ built in 1200.', hint: '「この寺は1200年に建てられました」', options: ['was', 'is', 'were', 'are'], correct: 0, explanation: '過去の出来事なので was を使います。' },
+            { type: 'passive', typeName: '受動態', sentence: 'Coffee ___ grown in Brazil.', hint: '「コーヒーはブラジルで栽培されています」', options: ['is', 'are', 'was', 'were'], correct: 0, explanation: '主語 Coffee は単数扱いで、現在の事実なので is を使います。' },
+            { type: 'passive', typeName: '受動態', sentence: 'The newspaper ___ delivered every morning.', hint: '「新聞は毎朝配達されます」', options: ['is', 'are', 'was', 'were'], correct: 0, explanation: '習慣的な行為の受動態なので、現在形 is を使います。' },
+            { type: 'passive', typeName: '受動態', sentence: 'The computer ___ used by many students.', hint: '「そのコンピューターは多くの生徒に使われています」', options: ['is', 'are', 'was', 'were'], correct: 0, explanation: '主語 The computer は単数なので is を使います。' },
+            { type: 'passive', typeName: '受動態', sentence: 'Many trees ___ planted in this park.', hint: '「この公園には多くの木が植えられました」', options: ['were', 'was', 'are', 'is'], correct: 0, explanation: '主語 Many trees は複数で、過去の出来事なので were を使います。' },
+            { type: 'passive', typeName: '受動態', sentence: 'The room ___ cleaned every day.', hint: '「その部屋は毎日掃除されます」', options: ['is', 'are', 'was', 'were'], correct: 0, explanation: '習慣的な行為の受動態なので、現在形 is を使います。' },
+            { type: 'passive', typeName: '受動態', sentence: 'These pictures ___ taken by my father.', hint: '「これらの写真は父によって撮られました」', options: ['were', 'was', 'are', 'is'], correct: 0, explanation: '主語 These pictures は複数で、過去の出来事なので were を使います。' },
+            { type: 'passive', typeName: '受動態', sentence: 'Rice ___ eaten in many Asian countries.', hint: '「米は多くのアジアの国で食べられています」', options: ['is', 'are', 'was', 'were'], correct: 0, explanation: '主語 Rice は単数扱いで、現在の事実なので is を使います。' },
+            { type: 'passive', typeName: '受動態', sentence: 'The concert ___ held in the park.', hint: '「コンサートは公園で開催されました」', options: ['was', 'is', 'were', 'are'], correct: 0, explanation: '過去の出来事なので was を使います。hold の過去分詞は held です。' },
+            { type: 'passive', typeName: '受動態', sentence: 'The homework ___ done by the students.', hint: '「宿題は生徒たちによってなされました」', options: ['was', 'is', 'were', 'are'], correct: 0, explanation: '主語 The homework は単数で、過去の出来事なので was を使います。' },
+            { type: 'passive', typeName: '受動態', sentence: 'German ___ spoken in Germany.', hint: '「ドイツではドイツ語が話されています」', options: ['is', 'are', 'was', 'were'], correct: 0, explanation: '主語 German（ドイツ語）は単数扱いなので is を使います。' },
+            { type: 'passive', typeName: '受動態', sentence: 'The letter ___ sent yesterday.', hint: '「その手紙は昨日送られました」', options: ['was', 'is', 'were', 'are'], correct: 0, explanation: 'yesterday は過去を表すので was を使います。' },
+            { type: 'passive', typeName: '受動態', sentence: 'These cars ___ made in Japan.', hint: '「これらの車は日本で作られています」', options: ['are', 'is', 'was', 'were'], correct: 0, explanation: '主語 These cars は複数なので are を使います。' },
+            { type: 'passive', typeName: '受動態', sentence: 'The children ___ taught by Mr. Smith.', hint: '「子供たちはスミス先生に教えられています」', options: ['are', 'is', 'was', 'were'], correct: 0, explanation: '主語 The children は複数なので are を使います。' },
+            { type: 'passive', typeName: '受動態', sentence: 'The book ___ written in 1990.', hint: '「その本は1990年に書かれました」', options: ['was', 'is', 'were', 'are'], correct: 0, explanation: '1990年は過去なので was を使います。' }
+        ];
+
+        let currentQuestions = [];
+        let currentIndex = 0;
+        let score = 0;
+        let questionCount = 20;
+        let stats = { 'present-perfect': { correct: 0, total: 0 }, 'past': { correct: 0, total: 0 }, 'passive': { correct: 0, total: 0 } };
+
+        document.querySelectorAll('.count-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.count-btn').forEach(b => b.classList.remove('selected'));
+                this.classList.add('selected');
+                questionCount = parseInt(this.dataset.count);
+            });
+        });
+
+        function shuffle(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+
+        function startGame() {
+            currentQuestions = shuffle(questions).slice(0, questionCount);
+            currentIndex = 0;
+            score = 0;
+            stats = { 'present-perfect': { correct: 0, total: 0 }, 'past': { correct: 0, total: 0 }, 'passive': { correct: 0, total: 0 } };
+            document.getElementById('startScreen').style.display = 'none';
+            document.getElementById('gameScreen').classList.add('active');
+            document.getElementById('resultScreen').classList.remove('active');
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const q = currentQuestions[currentIndex];
+            document.getElementById('currentQ').textContent = currentIndex + 1;
+            document.getElementById('totalQ').textContent = currentQuestions.length;
+            document.getElementById('score').textContent = score;
+            document.getElementById('progressFill').style.width = `${((currentIndex) / currentQuestions.length) * 100}%`;
+            
+            const typeEl = document.getElementById('questionType');
+            typeEl.textContent = q.typeName;
+            typeEl.className = 'question-type ' + q.type;
+            
+            document.getElementById('questionText').innerHTML = q.sentence.replace(/_+/g, '<span class="blank">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>');
+            document.getElementById('hint').textContent = q.hint;
+            
+            const optionsGrid = document.getElementById('optionsGrid');
+            optionsGrid.innerHTML = '';
+            
+            const shuffledOptions = q.options.map((opt, idx) => ({ opt, idx }));
+            for (let i = shuffledOptions.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffledOptions[i], shuffledOptions[j]] = [shuffledOptions[j], shuffledOptions[i]];
+            }
+            
+            const newCorrectIndex = shuffledOptions.findIndex(item => item.idx === q.correct);
+            
+            shuffledOptions.forEach((item, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.textContent = item.opt;
+                btn.onclick = () => selectAnswer(index, newCorrectIndex, shuffledOptions);
+                optionsGrid.appendChild(btn);
+            });
+            
+            document.getElementById('feedback').classList.remove('show', 'correct', 'incorrect');
+            stats[q.type].total++;
+        }
+
+        function selectAnswer(selected, correctIndex, shuffledOptions) {
+            const q = currentQuestions[currentIndex];
+            const buttons = document.querySelectorAll('.option-btn');
+            const feedback = document.getElementById('feedback');
+            
+            buttons.forEach(btn => btn.disabled = true);
+            
+            if (selected === correctIndex) {
+                buttons[selected].classList.add('correct');
+                feedback.classList.add('correct');
+                document.getElementById('feedbackIcon').textContent = '🎉';
+                document.getElementById('feedbackText').textContent = '正解！';
+                score++;
+                stats[q.type].correct++;
+            } else {
+                buttons[selected].classList.add('incorrect');
+                buttons[correctIndex].classList.add('show-correct');
+                feedback.classList.add('incorrect');
+                document.getElementById('feedbackIcon').textContent = '😅';
+                document.getElementById('feedbackText').textContent = '残念...';
+            }
+            
+            document.getElementById('explanation').textContent = q.explanation;
+            document.getElementById('score').textContent = score;
+            feedback.classList.add('show');
+            
+            if (currentIndex === currentQuestions.length - 1) {
+                document.getElementById('nextBtn').textContent = '結果を見る →';
+            }
+        }
+
+        function nextQuestion() {
+            currentIndex++;
+            if (currentIndex >= currentQuestions.length) {
+                showResult();
+            } else {
+                showQuestion();
+                document.getElementById('nextBtn').textContent = '次へ →';
+            }
+        }
+
+        function showResult() {
+            document.getElementById('gameScreen').classList.remove('active');
+            document.getElementById('resultScreen').classList.add('active');
+            
+            const percentage = (score / currentQuestions.length) * 100;
+            const resultScore = document.getElementById('resultScore');
+            resultScore.textContent = `${score}/${currentQuestions.length}`;
+            
+            let icon, message, scoreClass;
+            if (percentage === 100) { icon = '🏆'; message = 'パーフェクト！完璧です！'; scoreClass = 'excellent'; }
+            else if (percentage >= 80) { icon = '🎉'; message = '素晴らしい！よく頑張りました！'; scoreClass = 'good'; }
+            else if (percentage >= 60) { icon = '😊'; message = 'いい感じ！もう少し練習しよう！'; scoreClass = 'average'; }
+            else { icon = '💪'; message = '復習して再チャレンジ！'; scoreClass = 'needswork'; }
+            
+            document.getElementById('resultIcon').textContent = icon;
+            document.getElementById('resultMessage').textContent = message;
+            resultScore.className = 'result-score ' + scoreClass;
+            
+            document.getElementById('statPresentPerfect').textContent = `${stats['present-perfect'].correct}/${stats['present-perfect'].total}`;
+            document.getElementById('statPast').textContent = `${stats['past'].correct}/${stats['past'].total}`;
+            document.getElementById('statPassive').textContent = `${stats['passive'].correct}/${stats['passive'].total}`;
+        }
+
+        function restartGame() {
+            document.getElementById('resultScreen').classList.remove('active');
+            document.getElementById('startScreen').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
