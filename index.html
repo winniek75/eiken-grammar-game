@@ -512,6 +512,28 @@
             margin-top: 15px;
         }
 
+        .back-btn {
+            background: rgba(255, 255, 255, 0.9);
+            color: var(--dark);
+            border: none;
+            padding: 10px 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 15px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-family: 'M PLUS Rounded 1c', sans-serif;
+        }
+
+        .back-btn:hover {
+            background: white;
+            transform: translateX(-3px);
+        }
+
         @media (max-width: 500px) {
             .title { font-size: 1.8rem; }
             .options-grid { grid-template-columns: 1fr; }
@@ -550,6 +572,7 @@
         </div>
 
         <div class="game-screen" id="gameScreen">
+            <button class="back-btn" onclick="backToStart()">← スタートに戻る</button>
             <div class="header">
                 <div class="progress-container">
                     <div class="progress-text">問題 <span id="currentQ">1</span> / <span id="totalQ">10</span></div>
@@ -674,39 +697,39 @@
             { type: 'past', typeName: '過去形', sentence: 'What ___ you ___ for dinner last night?', hint: '「昨夜の夕食に何を食べましたか」', options: ['did, have', 'do, have', 'have, had', 'did, had'], correct: 0, explanation: 'last night があるので、過去形の疑問文を使います。' },
 
             // ========== 受動態 (33問) ==========
-            { type: 'passive', typeName: '受動態', sentence: 'This book ___ by many people.', hint: '「この本は多くの人に読まれています」', options: ['is read', 'is reading', 'reads', 'has read'], correct: 0, explanation: '受動態は「be動詞 + 過去分詞」で作ります。「〜される」という意味です。' },
-            { type: 'passive', typeName: '受動態', sentence: 'English ___ in many countries.', hint: '「英語は多くの国で話されています」', options: ['is spoken', 'speaks', 'is speaking', 'spoken'], correct: 0, explanation: '受動態です。speak の過去分詞は spoken です。' },
-            { type: 'passive', typeName: '受動態', sentence: 'The letter ___ by her yesterday.', hint: '「その手紙は昨日彼女によって書かれました」', options: ['was written', 'is written', 'wrote', 'has written'], correct: 0, explanation: '過去の受動態は「was/were + 過去分詞」で作ります。' },
-            { type: 'passive', typeName: '受動態', sentence: 'These photos ___ taken in Paris.', hint: '「これらの写真はパリで撮られました」', options: ['were', 'was', 'are', 'is'], correct: 0, explanation: '主語 These photos は複数なので、過去の受動態には were を使います。' },
-            { type: 'passive', typeName: '受動態', sentence: 'The window ___ broken by the ball.', hint: '「窓はボールで割られました」', options: ['was', 'is', 'were', 'has'], correct: 0, explanation: '主語 The window は単数で、過去の出来事なので was を使います。' },
-            { type: 'passive', typeName: '受動態', sentence: 'This cake ___ made by my mother.', hint: '「このケーキは母によって作られました」', options: ['was', 'is', 'were', 'has'], correct: 0, explanation: '主語 This cake は単数で、過去の出来事なので was を使います。' },
-            { type: 'passive', typeName: '受動態', sentence: 'The movie ___ loved by children.', hint: '「その映画は子供たちに愛されています」', options: ['is', 'are', 'was', 'were'], correct: 0, explanation: '主語 The movie は単数で、現在の状態なので is を使います。' },
-            { type: 'passive', typeName: '受動態', sentence: 'Japanese ___ spoken in Japan.', hint: '「日本では日本語が話されています」', options: ['is', 'are', 'was', 'were'], correct: 0, explanation: '主語 Japanese（日本語）は単数扱いなので is を使います。' },
-            { type: 'passive', typeName: '受動態', sentence: 'The car ___ washed every Sunday.', hint: '「その車は毎週日曜日に洗われます」', options: ['is', 'are', 'was', 'were'], correct: 0, explanation: '習慣的な行為の受動態なので、現在形 is を使います。' },
-            { type: 'passive', typeName: '受動態', sentence: 'This song ___ sung by many people.', hint: '「この歌は多くの人に歌われています」', options: ['is', 'are', 'was', 'were'], correct: 0, explanation: '主語 This song は単数で、現在の状態なので is を使います。' },
-            { type: 'passive', typeName: '受動態', sentence: 'The museum ___ visited by tourists.', hint: '「その博物館は観光客に訪れられています」', options: ['is', 'are', 'was', 'were'], correct: 0, explanation: '主語 The museum は単数で、現在の状態なので is を使います。' },
-            { type: 'passive', typeName: '受動態', sentence: 'These books ___ written in English.', hint: '「これらの本は英語で書かれています」', options: ['are', 'is', 'was', 'were'], correct: 0, explanation: '主語 These books は複数なので are を使います。' },
-            { type: 'passive', typeName: '受動態', sentence: 'The bridge ___ built 100 years ago.', hint: '「その橋は100年前に建てられました」', options: ['was', 'is', 'were', 'are'], correct: 0, explanation: '100 years ago は過去を表すので was を使います。' },
-            { type: 'passive', typeName: '受動態', sentence: 'The doors ___ opened at 9 a.m.', hint: '「ドアは午前9時に開けられます」', options: ['are', 'is', 'was', 'were'], correct: 0, explanation: '主語 The doors は複数なので are を使います。' },
-            { type: 'passive', typeName: '受動態', sentence: 'The game ___ played by two teams.', hint: '「その試合は2つのチームによって行われます」', options: ['is', 'are', 'was', 'were'], correct: 0, explanation: '主語 The game は単数なので is を使います。' },
-            { type: 'passive', typeName: '受動態', sentence: 'French ___ taught at this school.', hint: '「この学校ではフランス語が教えられています」', options: ['is', 'are', 'was', 'were'], correct: 0, explanation: '主語 French（フランス語）は単数扱いなので is を使います。' },
-            { type: 'passive', typeName: '受動態', sentence: 'The presents ___ given to the children.', hint: '「プレゼントは子供たちに与えられました」', options: ['were', 'was', 'are', 'is'], correct: 0, explanation: '主語 The presents は複数で、過去の出来事なので were を使います。' },
-            { type: 'passive', typeName: '受動態', sentence: 'The house ___ painted white.', hint: '「その家は白く塗られました」', options: ['was', 'is', 'were', 'are'], correct: 0, explanation: '主語 The house は単数で、過去の出来事なので was を使います。' },
-            { type: 'passive', typeName: '受動態', sentence: 'This temple ___ built in 1200.', hint: '「この寺は1200年に建てられました」', options: ['was', 'is', 'were', 'are'], correct: 0, explanation: '過去の出来事なので was を使います。' },
-            { type: 'passive', typeName: '受動態', sentence: 'Coffee ___ grown in Brazil.', hint: '「コーヒーはブラジルで栽培されています」', options: ['is', 'are', 'was', 'were'], correct: 0, explanation: '主語 Coffee は単数扱いで、現在の事実なので is を使います。' },
-            { type: 'passive', typeName: '受動態', sentence: 'The newspaper ___ delivered every morning.', hint: '「新聞は毎朝配達されます」', options: ['is', 'are', 'was', 'were'], correct: 0, explanation: '習慣的な行為の受動態なので、現在形 is を使います。' },
-            { type: 'passive', typeName: '受動態', sentence: 'The computer ___ used by many students.', hint: '「そのコンピューターは多くの生徒に使われています」', options: ['is', 'are', 'was', 'were'], correct: 0, explanation: '主語 The computer は単数なので is を使います。' },
-            { type: 'passive', typeName: '受動態', sentence: 'Many trees ___ planted in this park.', hint: '「この公園には多くの木が植えられました」', options: ['were', 'was', 'are', 'is'], correct: 0, explanation: '主語 Many trees は複数で、過去の出来事なので were を使います。' },
-            { type: 'passive', typeName: '受動態', sentence: 'The room ___ cleaned every day.', hint: '「その部屋は毎日掃除されます」', options: ['is', 'are', 'was', 'were'], correct: 0, explanation: '習慣的な行為の受動態なので、現在形 is を使います。' },
-            { type: 'passive', typeName: '受動態', sentence: 'These pictures ___ taken by my father.', hint: '「これらの写真は父によって撮られました」', options: ['were', 'was', 'are', 'is'], correct: 0, explanation: '主語 These pictures は複数で、過去の出来事なので were を使います。' },
-            { type: 'passive', typeName: '受動態', sentence: 'Rice ___ eaten in many Asian countries.', hint: '「米は多くのアジアの国で食べられています」', options: ['is', 'are', 'was', 'were'], correct: 0, explanation: '主語 Rice は単数扱いで、現在の事実なので is を使います。' },
-            { type: 'passive', typeName: '受動態', sentence: 'The concert ___ held in the park.', hint: '「コンサートは公園で開催されました」', options: ['was', 'is', 'were', 'are'], correct: 0, explanation: '過去の出来事なので was を使います。hold の過去分詞は held です。' },
-            { type: 'passive', typeName: '受動態', sentence: 'The homework ___ done by the students.', hint: '「宿題は生徒たちによってなされました」', options: ['was', 'is', 'were', 'are'], correct: 0, explanation: '主語 The homework は単数で、過去の出来事なので was を使います。' },
-            { type: 'passive', typeName: '受動態', sentence: 'German ___ spoken in Germany.', hint: '「ドイツではドイツ語が話されています」', options: ['is', 'are', 'was', 'were'], correct: 0, explanation: '主語 German（ドイツ語）は単数扱いなので is を使います。' },
-            { type: 'passive', typeName: '受動態', sentence: 'The letter ___ sent yesterday.', hint: '「その手紙は昨日送られました」', options: ['was', 'is', 'were', 'are'], correct: 0, explanation: 'yesterday は過去を表すので was を使います。' },
-            { type: 'passive', typeName: '受動態', sentence: 'These cars ___ made in Japan.', hint: '「これらの車は日本で作られています」', options: ['are', 'is', 'was', 'were'], correct: 0, explanation: '主語 These cars は複数なので are を使います。' },
-            { type: 'passive', typeName: '受動態', sentence: 'The children ___ taught by Mr. Smith.', hint: '「子供たちはスミス先生に教えられています」', options: ['are', 'is', 'was', 'were'], correct: 0, explanation: '主語 The children は複数なので are を使います。' },
-            { type: 'passive', typeName: '受動態', sentence: 'The book ___ written in 1990.', hint: '「その本は1990年に書かれました」', options: ['was', 'is', 'were', 'are'], correct: 0, explanation: '1990年は過去なので was を使います。' }
+            { type: 'passive', typeName: '受動態', sentence: 'This book ___ by many people every year.', hint: '「この本は毎年多くの人に読まれています」', options: ['is read', 'is reading', 'reads', 'was read'], correct: 0, explanation: '受動態は「be動詞 + 過去分詞」で作ります。every year（毎年）があるので現在形 is を使います。' },
+            { type: 'passive', typeName: '受動態', sentence: 'English ___ in many countries around the world.', hint: '「英語は世界中の多くの国で話されています」', options: ['is spoken', 'speaks', 'is speaking', 'was spoken'], correct: 0, explanation: '一般的な事実を表す受動態です。speak の過去分詞は spoken です。' },
+            { type: 'passive', typeName: '受動態', sentence: 'The letter ___ by her yesterday.', hint: '「その手紙は昨日彼女によって書かれました」', options: ['was written', 'is written', 'wrote', 'has written'], correct: 0, explanation: 'yesterday があるので過去の受動態「was + 過去分詞」を使います。' },
+            { type: 'passive', typeName: '受動態', sentence: 'These photos ___ taken in Paris last summer.', hint: '「これらの写真は去年の夏パリで撮られました」', options: ['were', 'was', 'are', 'is'], correct: 0, explanation: 'last summer があり、主語 These photos は複数なので were を使います。' },
+            { type: 'passive', typeName: '受動態', sentence: 'The window ___ broken by the ball yesterday.', hint: '「窓は昨日ボールで割られました」', options: ['was', 'is', 'were', 'has'], correct: 0, explanation: 'yesterday があるので過去形 was を使います。' },
+            { type: 'passive', typeName: '受動態', sentence: 'This cake ___ made by my mother this morning.', hint: '「このケーキは今朝母によって作られました」', options: ['was', 'is', 'were', 'has'], correct: 0, explanation: 'this morning（今朝）は過去の出来事なので was を使います。' },
+            { type: 'passive', typeName: '受動態', sentence: 'That movie ___ loved by children all over the world.', hint: '「あの映画は世界中の子供たちに愛されています」', options: ['is', 'are', 'was', 'were'], correct: 0, explanation: '一般的な事実・現在の状態を表すので is を使います。' },
+            { type: 'passive', typeName: '受動態', sentence: 'Japanese ___ spoken in Japan.', hint: '「日本では日本語が話されています」', options: ['is', 'are', 'was', 'were'], correct: 0, explanation: '一般的な事実を表す受動態です。Japanese（日本語）は単数扱いなので is を使います。' },
+            { type: 'passive', typeName: '受動態', sentence: 'The car ___ washed every Sunday.', hint: '「その車は毎週日曜日に洗われます」', options: ['is', 'are', 'was', 'were'], correct: 0, explanation: 'every Sunday（毎週日曜日）は習慣を表すので現在形 is を使います。' },
+            { type: 'passive', typeName: '受動態', sentence: 'This song ___ sung at the concert last night.', hint: '「この歌は昨夜のコンサートで歌われました」', options: ['was', 'is', 'were', 'are'], correct: 0, explanation: 'last night があるので過去形 was を使います。' },
+            { type: 'passive', typeName: '受動態', sentence: 'The museum ___ visited by many tourists every day.', hint: '「その博物館は毎日多くの観光客に訪れられています」', options: ['is', 'are', 'was', 'were'], correct: 0, explanation: 'every day があるので現在形 is を使います。' },
+            { type: 'passive', typeName: '受動態', sentence: 'These books ___ written in English.', hint: '「これらの本は英語で書かれています」', options: ['are', 'is', 'was', 'were'], correct: 0, explanation: '現在の状態を表し、主語 These books は複数なので are を使います。' },
+            { type: 'passive', typeName: '受動態', sentence: 'The bridge ___ built 100 years ago.', hint: '「その橋は100年前に建てられました」', options: ['was', 'is', 'were', 'are'], correct: 0, explanation: '100 years ago は明確な過去なので was を使います。' },
+            { type: 'passive', typeName: '受動態', sentence: 'The doors ___ opened at 9 a.m. every day.', hint: '「ドアは毎日午前9時に開けられます」', options: ['are', 'is', 'was', 'were'], correct: 0, explanation: 'every day があり、主語 The doors は複数なので are を使います。' },
+            { type: 'passive', typeName: '受動態', sentence: 'The game ___ played by two teams now.', hint: '「その試合は今2つのチームによって行われています」', options: ['is', 'are', 'was', 'were'], correct: 0, explanation: 'now（今）があるので現在形 is を使います。' },
+            { type: 'passive', typeName: '受動態', sentence: 'French ___ taught at this school.', hint: '「この学校ではフランス語が教えられています」', options: ['is', 'are', 'was', 'were'], correct: 0, explanation: '現在の事実を表す受動態です。French（フランス語）は単数扱いなので is を使います。' },
+            { type: 'passive', typeName: '受動態', sentence: 'The presents ___ given to the children at the party yesterday.', hint: '「プレゼントは昨日のパーティーで子供たちに与えられました」', options: ['were', 'was', 'are', 'is'], correct: 0, explanation: 'yesterday があり、主語 The presents は複数なので were を使います。' },
+            { type: 'passive', typeName: '受動態', sentence: 'The house ___ painted white last month.', hint: '「その家は先月白く塗られました」', options: ['was', 'is', 'were', 'are'], correct: 0, explanation: 'last month があるので過去形 was を使います。' },
+            { type: 'passive', typeName: '受動態', sentence: 'This temple ___ built in 1200.', hint: '「この寺は1200年に建てられました」', options: ['was', 'is', 'were', 'are'], correct: 0, explanation: 'in 1200 は明確な過去なので was を使います。' },
+            { type: 'passive', typeName: '受動態', sentence: 'Coffee ___ grown in Brazil.', hint: '「コーヒーはブラジルで栽培されています」', options: ['is', 'are', 'was', 'were'], correct: 0, explanation: '一般的な事実を表す受動態です。Coffee は単数扱いなので is を使います。' },
+            { type: 'passive', typeName: '受動態', sentence: 'The newspaper ___ delivered every morning.', hint: '「新聞は毎朝配達されます」', options: ['is', 'are', 'was', 'were'], correct: 0, explanation: 'every morning があるので現在形 is を使います。' },
+            { type: 'passive', typeName: '受動態', sentence: 'The computer ___ used by many students in this class.', hint: '「そのコンピューターはこのクラスの多くの生徒に使われています」', options: ['is', 'are', 'was', 'were'], correct: 0, explanation: '現在の状態を表す受動態です。The computer は単数なので is を使います。' },
+            { type: 'passive', typeName: '受動態', sentence: 'Many trees ___ planted in this park last year.', hint: '「この公園には去年多くの木が植えられました」', options: ['were', 'was', 'are', 'is'], correct: 0, explanation: 'last year があり、主語 Many trees は複数なので were を使います。' },
+            { type: 'passive', typeName: '受動態', sentence: 'The room ___ cleaned every day.', hint: '「その部屋は毎日掃除されます」', options: ['is', 'are', 'was', 'were'], correct: 0, explanation: 'every day があるので現在形 is を使います。' },
+            { type: 'passive', typeName: '受動態', sentence: 'These pictures ___ taken by my father during the trip.', hint: '「これらの写真は旅行中に父によって撮られました」', options: ['were', 'was', 'are', 'is'], correct: 0, explanation: 'during the trip（旅行中）は過去で、主語は複数なので were を使います。' },
+            { type: 'passive', typeName: '受動態', sentence: 'Rice ___ eaten in many Asian countries.', hint: '「米は多くのアジアの国で食べられています」', options: ['is', 'are', 'was', 'were'], correct: 0, explanation: '一般的な事実を表す受動態です。Rice は単数扱いなので is を使います。' },
+            { type: 'passive', typeName: '受動態', sentence: 'The concert ___ held in the park last Sunday.', hint: '「コンサートは先週の日曜日に公園で開催されました」', options: ['was', 'is', 'were', 'are'], correct: 0, explanation: 'last Sunday があるので過去形 was を使います。' },
+            { type: 'passive', typeName: '受動態', sentence: 'The homework ___ done by the students yesterday.', hint: '「宿題は昨日生徒たちによってなされました」', options: ['was', 'is', 'were', 'are'], correct: 0, explanation: 'yesterday があるので過去形 was を使います。' },
+            { type: 'passive', typeName: '受動態', sentence: 'German ___ spoken in Germany and Austria.', hint: '「ドイツ語はドイツとオーストリアで話されています」', options: ['is', 'are', 'was', 'were'], correct: 0, explanation: '一般的な事実を表す受動態です。German（ドイツ語）は単数扱いなので is を使います。' },
+            { type: 'passive', typeName: '受動態', sentence: 'The letter ___ sent yesterday.', hint: '「その手紙は昨日送られました」', options: ['was', 'is', 'were', 'are'], correct: 0, explanation: 'yesterday があるので過去形 was を使います。' },
+            { type: 'passive', typeName: '受動態', sentence: 'These cars ___ made in Japan.', hint: '「これらの車は日本で作られています」', options: ['are', 'is', 'was', 'were'], correct: 0, explanation: '現在の事実を表し、主語 These cars は複数なので are を使います。' },
+            { type: 'passive', typeName: '受動態', sentence: 'The children ___ taught by Mr. Smith every week.', hint: '「子供たちは毎週スミス先生に教えられています」', options: ['are', 'is', 'was', 'were'], correct: 0, explanation: 'every week があり、主語 The children は複数なので are を使います。' },
+            { type: 'passive', typeName: '受動態', sentence: 'The book ___ written in 1990.', hint: '「その本は1990年に書かれました」', options: ['was', 'is', 'were', 'are'], correct: 0, explanation: 'in 1990 は明確な過去なので was を使います。' }
         ];
 
         let currentQuestions = [];
@@ -847,6 +870,13 @@
         function restartGame() {
             document.getElementById('resultScreen').classList.remove('active');
             document.getElementById('startScreen').style.display = 'block';
+        }
+
+        function backToStart() {
+            if (confirm('スタート画面に戻りますか？\n（現在の進捗は失われます）')) {
+                document.getElementById('gameScreen').classList.remove('active');
+                document.getElementById('startScreen').style.display = 'block';
+            }
         }
     </script>
 </body>
