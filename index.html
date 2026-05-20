@@ -1214,6 +1214,8 @@
                 const yourAnswer = shuffledOptions[selected].opt;
                 const correctAnswer = shuffledOptions[correctIndex].opt;
                 saveWrongAnswer(q, yourAnswer, correctAnswer);
+                // WiseXP: report wrong answer
+                if(window.WiseXP) window.WiseXP.reportWrong({question:q.sentence, correct:correctAnswer, playerAnswer:yourAnswer});
                 sessionWrongAnswers.push({
                     sentence: q.sentence,
                     hint: q.hint,
@@ -1265,6 +1267,9 @@
             document.getElementById('statPast').textContent = `${stats['past'].correct}/${stats['past'].total}`;
             document.getElementById('statPassive').textContent = `${stats['passive'].correct}/${stats['passive'].total}`;
 
+            // WiseXP: report game result
+            if(window.WiseXP) window.WiseXP.reportGame({score:Math.round(percentage), correct:score, total:currentQuestions.length, maxCombo:0, grade:scoreClass});
+
             // Save history
             saveHistory(score, currentQuestions.length, stats);
 
@@ -1305,6 +1310,10 @@
 
         // Initialize on load
         initFromStorage();
+
+        // WiseXP SDK init
+        if(window.WiseXP) window.WiseXP.init('eiken-grammar-game');
     </script>
+<script src="https://cdn.jsdelivr.net/gh/winniek75/wise-xp-sdk@main/wise-xp.js"></script>
 </body>
 </html>
