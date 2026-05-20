@@ -534,6 +534,149 @@
             transform: translateX(-3px);
         }
 
+        .tts-btn {
+            background: linear-gradient(135deg, #3498DB, #5DADE2);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 10px;
+            font-family: 'M PLUS Rounded 1c', sans-serif;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .tts-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4);
+        }
+
+        .tts-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .wrong-answer-item {
+            background: linear-gradient(135deg, #FFF5F5, #FFEBEE);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-left: 4px solid var(--error);
+        }
+
+        .wrong-answer-item .wa-sentence {
+            font-size: 1rem;
+            color: var(--dark);
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .wrong-answer-item .wa-detail {
+            font-size: 0.85rem;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        .wrong-answer-item .wa-your-answer {
+            color: var(--error);
+            font-weight: 600;
+        }
+
+        .wrong-answer-item .wa-correct-answer {
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        .history-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #E8ECF0;
+        }
+
+        .history-title {
+            font-size: 0.95rem;
+            color: var(--dark);
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: #F8F9FA;
+            border-radius: 8px;
+            margin-bottom: 6px;
+            font-size: 0.85rem;
+        }
+
+        .history-item .hi-date { color: #888; }
+        .history-item .hi-score { font-weight: 700; color: var(--dark); }
+
+        .sound-toggle {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            padding: 10px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s ease;
+        }
+
+        .sound-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        .weak-questions-btn {
+            background: linear-gradient(135deg, #E67E22, #F0B27A);
+            color: white;
+            border: none;
+            padding: 14px 30px;
+            font-size: 1rem;
+            font-weight: 700;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 20px rgba(230, 126, 34, 0.3);
+            font-family: 'M PLUS Rounded 1c', sans-serif;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .weak-questions-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(230, 126, 34, 0.4);
+        }
+
+        .clear-history-btn {
+            background: none;
+            border: 1px solid #ccc;
+            padding: 6px 12px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            color: #888;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'M PLUS Rounded 1c', sans-serif;
+        }
+
+        .clear-history-btn:hover {
+            border-color: var(--error);
+            color: var(--error);
+        }
+
         @media (max-width: 500px) {
             .title { font-size: 1.8rem; }
             .options-grid { grid-template-columns: 1fr; }
@@ -545,6 +688,7 @@
     </style>
 </head>
 <body>
+    <button class="sound-toggle" id="soundToggle" onclick="toggleSound()" title="サウンドON/OFF">🔊</button>
     <div class="decoration decoration-1"></div>
     <div class="decoration decoration-2"></div>
 
@@ -568,7 +712,15 @@
                 </div>
             </div>
             <button class="start-btn" onclick="startGame()">スタート！</button>
+            <button class="weak-questions-btn" id="weakQuestionsBtn" onclick="startWeakQuestionsPractice()">苦手問題を復習</button>
             <p class="total-questions">全100問からランダム出題</p>
+            <div class="history-section" id="historySection" style="display:none;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div class="history-title">過去の成績</div>
+                    <button class="clear-history-btn" onclick="clearHistory()">履歴を消去</button>
+                </div>
+                <div id="historyList"></div>
+            </div>
         </div>
 
         <div class="game-screen" id="gameScreen">
@@ -587,6 +739,7 @@
                 <span class="question-type" id="questionType">現在完了</span>
                 <p class="question-text" id="questionText"></p>
                 <p class="hint" id="hint"></p>
+                <button class="tts-btn" id="ttsBtn" onclick="speakEnglish()">🔈 英語を聞く</button>
             </div>
 
             <div class="options-grid" id="optionsGrid"></div>
@@ -619,6 +772,11 @@
                 </div>
             </div>
             <button class="restart-btn" onclick="restartGame()">もう一度挑戦</button>
+
+            <div class="wrong-answers-section" id="wrongAnswersSection" style="display:none; margin-top: 30px; text-align: left;">
+                <h3 style="text-align:center; margin-bottom: 15px; color: var(--dark);">間違えた問題</h3>
+                <div id="wrongAnswersList"></div>
+            </div>
         </div>
     </div>
 
@@ -732,17 +890,241 @@
             { type: 'passive', typeName: '受動態', sentence: 'The book ___ written in 1990.', hint: '「その本は1990年に書かれました」', options: ['was', 'is', 'were', 'are'], correct: 0, explanation: 'in 1990 は明確な過去なので was を使います。' }
         ];
 
+        // ========== State ==========
         let currentQuestions = [];
         let currentIndex = 0;
         let score = 0;
         let questionCount = 20;
         let stats = { 'present-perfect': { correct: 0, total: 0 }, 'past': { correct: 0, total: 0 }, 'passive': { correct: 0, total: 0 } };
+        let sessionWrongAnswers = [];
+        let soundEnabled = true;
 
+        // ========== localStorage helpers ==========
+        const STORAGE_KEYS = {
+            HISTORY: 'eiken-grammar-history',
+            WRONG: 'eiken-grammar-wrong-answers',
+            SOUND: 'eiken-grammar-sound',
+            QUESTION_COUNT: 'eiken-grammar-question-count'
+        };
+
+        function loadFromStorage(key, fallback) {
+            try {
+                const data = localStorage.getItem(key);
+                return data ? JSON.parse(data) : fallback;
+            } catch (e) { return fallback; }
+        }
+
+        function saveToStorage(key, value) {
+            try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) {}
+        }
+
+        // ========== Sound Effects (Web Audio API) ==========
+        let audioCtx = null;
+        function getAudioCtx() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            return audioCtx;
+        }
+
+        function playCorrectSound() {
+            if (!soundEnabled) return;
+            const ctx = getAudioCtx();
+            const notes = [523.25, 659.25, 783.99]; // C-E-G chime
+            notes.forEach((freq, i) => {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.value = freq;
+                gain.gain.setValueAtTime(0.2, ctx.currentTime + i * 0.1);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.1 + 0.3);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start(ctx.currentTime + i * 0.1);
+                osc.stop(ctx.currentTime + i * 0.1 + 0.3);
+            });
+        }
+
+        function playWrongSound() {
+            if (!soundEnabled) return;
+            const ctx = getAudioCtx();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(150, ctx.currentTime);
+            osc.frequency.linearRampToValueAtTime(100, ctx.currentTime + 0.2);
+            gain.gain.setValueAtTime(0.2, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(ctx.currentTime);
+            osc.stop(ctx.currentTime + 0.2);
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            saveToStorage(STORAGE_KEYS.SOUND, soundEnabled);
+            document.getElementById('soundToggle').textContent = soundEnabled ? '🔊' : '🔇';
+        }
+
+        // ========== TTS ==========
+        function speakEnglish() {
+            if (!('speechSynthesis' in window)) return;
+            const q = currentQuestions[currentIndex];
+            if (!q) return;
+            const text = q.sentence.replace(/_+/g, q.options[q.correct]);
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'en-US';
+            utterance.rate = 0.85;
+            const btn = document.getElementById('ttsBtn');
+            btn.disabled = true;
+            utterance.onend = () => { btn.disabled = false; };
+            utterance.onerror = () => { btn.disabled = false; };
+            window.speechSynthesis.cancel();
+            window.speechSynthesis.speak(utterance);
+        }
+
+        // ========== Wrong Answer Tracking ==========
+        function getWrongAnswers() {
+            return loadFromStorage(STORAGE_KEYS.WRONG, []);
+        }
+
+        function saveWrongAnswer(question, yourAnswer, correctAnswer) {
+            const wrong = getWrongAnswers();
+            const existing = wrong.find(w => w.sentence === question.sentence);
+            if (existing) {
+                existing.count = (existing.count || 1) + 1;
+                existing.lastWrong = new Date().toISOString();
+                existing.yourAnswer = yourAnswer;
+            } else {
+                wrong.push({
+                    sentence: question.sentence,
+                    hint: question.hint,
+                    type: question.type,
+                    typeName: question.typeName,
+                    correctAnswer: correctAnswer,
+                    yourAnswer: yourAnswer,
+                    explanation: question.explanation,
+                    options: question.options,
+                    correct: question.correct,
+                    count: 1,
+                    lastWrong: new Date().toISOString()
+                });
+            }
+            saveToStorage(STORAGE_KEYS.WRONG, wrong);
+        }
+
+        function removeWrongAnswer(sentence) {
+            let wrong = getWrongAnswers();
+            wrong = wrong.filter(w => w.sentence !== sentence);
+            saveToStorage(STORAGE_KEYS.WRONG, wrong);
+        }
+
+        // ========== History ==========
+        function getHistory() {
+            return loadFromStorage(STORAGE_KEYS.HISTORY, []);
+        }
+
+        function saveHistory(scoreVal, total, statsObj) {
+            const history = getHistory();
+            history.unshift({
+                date: new Date().toISOString(),
+                score: scoreVal,
+                total: total,
+                stats: JSON.parse(JSON.stringify(statsObj))
+            });
+            // Keep last 20 entries
+            if (history.length > 20) history.length = 20;
+            saveToStorage(STORAGE_KEYS.HISTORY, history);
+        }
+
+        function clearHistory() {
+            if (confirm('履歴を消去しますか？')) {
+                saveToStorage(STORAGE_KEYS.HISTORY, []);
+                saveToStorage(STORAGE_KEYS.WRONG, []);
+                renderHistory();
+                updateWeakQuestionsBtn();
+            }
+        }
+
+        function renderHistory() {
+            const history = getHistory();
+            const section = document.getElementById('historySection');
+            const list = document.getElementById('historyList');
+            if (history.length === 0) {
+                section.style.display = 'none';
+                return;
+            }
+            section.style.display = 'block';
+            list.innerHTML = history.slice(0, 5).map(h => {
+                const d = new Date(h.date);
+                const dateStr = `${d.getMonth()+1}/${d.getDate()} ${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`;
+                const pct = Math.round((h.score / h.total) * 100);
+                return `<div class="history-item"><span class="hi-date">${dateStr}</span><span class="hi-score">${h.score}/${h.total} (${pct}%)</span></div>`;
+            }).join('');
+        }
+
+        // ========== Weak Questions Button ==========
+        function updateWeakQuestionsBtn() {
+            const wrong = getWrongAnswers();
+            const btn = document.getElementById('weakQuestionsBtn');
+            if (wrong.length > 0) {
+                btn.style.display = 'inline-block';
+                btn.textContent = `苦手問題を復習 (${wrong.length}問)`;
+            } else {
+                btn.style.display = 'none';
+            }
+        }
+
+        function startWeakQuestionsPractice() {
+            const wrong = getWrongAnswers();
+            if (wrong.length === 0) return;
+            // Reconstruct question objects from stored wrong answers
+            const weakQuestions = wrong.map(w => {
+                // Try to find original question
+                const original = questions.find(q => q.sentence === w.sentence);
+                return original || {
+                    type: w.type,
+                    typeName: w.typeName,
+                    sentence: w.sentence,
+                    hint: w.hint,
+                    options: w.options,
+                    correct: w.correct,
+                    explanation: w.explanation
+                };
+            });
+            currentQuestions = shuffle(weakQuestions);
+            currentIndex = 0;
+            score = 0;
+            sessionWrongAnswers = [];
+            stats = { 'present-perfect': { correct: 0, total: 0 }, 'past': { correct: 0, total: 0 }, 'passive': { correct: 0, total: 0 } };
+            document.getElementById('startScreen').style.display = 'none';
+            document.getElementById('gameScreen').classList.add('active');
+            document.getElementById('resultScreen').classList.remove('active');
+            showQuestion();
+        }
+
+        // ========== Init settings from localStorage ==========
+        function initFromStorage() {
+            soundEnabled = loadFromStorage(STORAGE_KEYS.SOUND, true);
+            document.getElementById('soundToggle').textContent = soundEnabled ? '🔊' : '🔇';
+
+            const savedCount = loadFromStorage(STORAGE_KEYS.QUESTION_COUNT, 20);
+            questionCount = savedCount;
+            document.querySelectorAll('.count-btn').forEach(b => {
+                b.classList.remove('selected');
+                if (parseInt(b.dataset.count) === savedCount) b.classList.add('selected');
+            });
+
+            renderHistory();
+            updateWeakQuestionsBtn();
+        }
+
+        // ========== Event Listeners ==========
         document.querySelectorAll('.count-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 document.querySelectorAll('.count-btn').forEach(b => b.classList.remove('selected'));
                 this.classList.add('selected');
                 questionCount = parseInt(this.dataset.count);
+                saveToStorage(STORAGE_KEYS.QUESTION_COUNT, questionCount);
             });
         });
 
@@ -759,6 +1141,7 @@
             currentQuestions = shuffle(questions).slice(0, questionCount);
             currentIndex = 0;
             score = 0;
+            sessionWrongAnswers = [];
             stats = { 'present-perfect': { correct: 0, total: 0 }, 'past': { correct: 0, total: 0 }, 'passive': { correct: 0, total: 0 } };
             document.getElementById('startScreen').style.display = 'none';
             document.getElementById('gameScreen').classList.add('active');
@@ -772,25 +1155,25 @@
             document.getElementById('totalQ').textContent = currentQuestions.length;
             document.getElementById('score').textContent = score;
             document.getElementById('progressFill').style.width = `${((currentIndex) / currentQuestions.length) * 100}%`;
-            
+
             const typeEl = document.getElementById('questionType');
             typeEl.textContent = q.typeName;
             typeEl.className = 'question-type ' + q.type;
-            
+
             document.getElementById('questionText').innerHTML = q.sentence.replace(/_+/g, '<span class="blank">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>');
             document.getElementById('hint').textContent = q.hint;
-            
+
             const optionsGrid = document.getElementById('optionsGrid');
             optionsGrid.innerHTML = '';
-            
+
             const shuffledOptions = q.options.map((opt, idx) => ({ opt, idx }));
             for (let i = shuffledOptions.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
                 [shuffledOptions[i], shuffledOptions[j]] = [shuffledOptions[j], shuffledOptions[i]];
             }
-            
+
             const newCorrectIndex = shuffledOptions.findIndex(item => item.idx === q.correct);
-            
+
             shuffledOptions.forEach((item, index) => {
                 const btn = document.createElement('button');
                 btn.className = 'option-btn';
@@ -798,7 +1181,7 @@
                 btn.onclick = () => selectAnswer(index, newCorrectIndex, shuffledOptions);
                 optionsGrid.appendChild(btn);
             });
-            
+
             document.getElementById('feedback').classList.remove('show', 'correct', 'incorrect');
             stats[q.type].total++;
         }
@@ -807,9 +1190,9 @@
             const q = currentQuestions[currentIndex];
             const buttons = document.querySelectorAll('.option-btn');
             const feedback = document.getElementById('feedback');
-            
+
             buttons.forEach(btn => btn.disabled = true);
-            
+
             if (selected === correctIndex) {
                 buttons[selected].classList.add('correct');
                 feedback.classList.add('correct');
@@ -817,18 +1200,34 @@
                 document.getElementById('feedbackText').textContent = '正解！';
                 score++;
                 stats[q.type].correct++;
+                playCorrectSound();
+                // If answered correctly, remove from wrong answers list
+                removeWrongAnswer(q.sentence);
             } else {
                 buttons[selected].classList.add('incorrect');
                 buttons[correctIndex].classList.add('show-correct');
                 feedback.classList.add('incorrect');
                 document.getElementById('feedbackIcon').textContent = '😅';
                 document.getElementById('feedbackText').textContent = '残念...';
+                playWrongSound();
+                // Track wrong answer
+                const yourAnswer = shuffledOptions[selected].opt;
+                const correctAnswer = shuffledOptions[correctIndex].opt;
+                saveWrongAnswer(q, yourAnswer, correctAnswer);
+                sessionWrongAnswers.push({
+                    sentence: q.sentence,
+                    hint: q.hint,
+                    typeName: q.typeName,
+                    yourAnswer: yourAnswer,
+                    correctAnswer: correctAnswer,
+                    explanation: q.explanation
+                });
             }
-            
+
             document.getElementById('explanation').textContent = q.explanation;
             document.getElementById('score').textContent = score;
             feedback.classList.add('show');
-            
+
             if (currentIndex === currentQuestions.length - 1) {
                 document.getElementById('nextBtn').textContent = '結果を見る →';
             }
@@ -847,37 +1246,65 @@
         function showResult() {
             document.getElementById('gameScreen').classList.remove('active');
             document.getElementById('resultScreen').classList.add('active');
-            
+
             const percentage = (score / currentQuestions.length) * 100;
             const resultScore = document.getElementById('resultScore');
             resultScore.textContent = `${score}/${currentQuestions.length}`;
-            
+
             let icon, message, scoreClass;
             if (percentage === 100) { icon = '🏆'; message = 'パーフェクト！完璧です！'; scoreClass = 'excellent'; }
             else if (percentage >= 80) { icon = '🎉'; message = '素晴らしい！よく頑張りました！'; scoreClass = 'good'; }
             else if (percentage >= 60) { icon = '😊'; message = 'いい感じ！もう少し練習しよう！'; scoreClass = 'average'; }
             else { icon = '💪'; message = '復習して再チャレンジ！'; scoreClass = 'needswork'; }
-            
+
             document.getElementById('resultIcon').textContent = icon;
             document.getElementById('resultMessage').textContent = message;
             resultScore.className = 'result-score ' + scoreClass;
-            
+
             document.getElementById('statPresentPerfect').textContent = `${stats['present-perfect'].correct}/${stats['present-perfect'].total}`;
             document.getElementById('statPast').textContent = `${stats['past'].correct}/${stats['past'].total}`;
             document.getElementById('statPassive').textContent = `${stats['passive'].correct}/${stats['passive'].total}`;
+
+            // Save history
+            saveHistory(score, currentQuestions.length, stats);
+
+            // Show wrong answers for this session
+            const wrongSection = document.getElementById('wrongAnswersSection');
+            const wrongList = document.getElementById('wrongAnswersList');
+            if (sessionWrongAnswers.length > 0) {
+                wrongSection.style.display = 'block';
+                wrongList.innerHTML = sessionWrongAnswers.map(w =>
+                    `<div class="wrong-answer-item">
+                        <div class="wa-sentence">[${w.typeName}] ${w.sentence}</div>
+                        <div class="wa-detail">${w.hint}</div>
+                        <div class="wa-detail">あなたの答え: <span class="wa-your-answer">${w.yourAnswer}</span> → 正解: <span class="wa-correct-answer">${w.correctAnswer}</span></div>
+                        <div class="wa-detail" style="margin-top:4px; font-size:0.8rem; color:#888;">${w.explanation}</div>
+                    </div>`
+                ).join('');
+            } else {
+                wrongSection.style.display = 'none';
+            }
         }
 
         function restartGame() {
             document.getElementById('resultScreen').classList.remove('active');
             document.getElementById('startScreen').style.display = 'block';
+            document.getElementById('wrongAnswersSection').style.display = 'none';
+            renderHistory();
+            updateWeakQuestionsBtn();
         }
 
         function backToStart() {
             if (confirm('スタート画面に戻りますか？\n（現在の進捗は失われます）')) {
                 document.getElementById('gameScreen').classList.remove('active');
                 document.getElementById('startScreen').style.display = 'block';
+                renderHistory();
+                updateWeakQuestionsBtn();
             }
         }
+
+        // Initialize on load
+        initFromStorage();
     </script>
 </body>
 </html>
