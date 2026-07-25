@@ -1331,13 +1331,12 @@ window.WiseGame.init({ gameId: 'eiken-grammar-game' });
                 saveWrongAnswer(q, yourAnswer, correctAnswer);
                 // WiseXP: report wrong answer
                 if(window.WiseXP) window.WiseXP.reportWrong({question:q.sentence, correct:correctAnswer, playerAnswer:yourAnswer});
+                const tagMap = {'present-perfect':'present_perfect','past':'past_irregular','passive':'passive'};
                 sessionWrongAnswers.push({
-                    sentence: q.sentence,
-                    hint: q.hint,
-                    typeName: q.typeName,
-                    yourAnswer: yourAnswer,
-                    correctAnswer: correctAnswer,
-                    explanation: q.explanation
+                    q: q.sentence,
+                    correct: correctAnswer,
+                    chosen: yourAnswer,
+                    tag: tagMap[q.type] || 'other_grammar'
                 });
             }
 
