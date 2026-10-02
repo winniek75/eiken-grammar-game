@@ -105,6 +105,86 @@
         .tag.past { background: var(--past); }
         .tag.passive { background: var(--passive); }
 
+        .unit-selector { margin-bottom: 22px; }
+        .unit-selector label {
+            display: block;
+            margin-bottom: 10px;
+            color: var(--dark);
+            font-weight: 600;
+        }
+        .unit-btn {
+            padding: 9px 16px;
+            border: 3px solid #E8ECF0;
+            border-radius: 20px;
+            background: white;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--dark);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'M PLUS Rounded 1c', sans-serif;
+        }
+        .unit-btn.present-perfect { border-color: var(--present-perfect); color: var(--present-perfect); }
+        .unit-btn.past { border-color: var(--past); color: var(--past); }
+        .unit-btn.passive { border-color: var(--passive); color: var(--passive); }
+        .unit-btn.mix { border-color: var(--perfect); color: var(--perfect); }
+        .unit-btn.selected { color: white; }
+        .unit-btn.present-perfect.selected { background: var(--present-perfect); }
+        .unit-btn.past.selected { background: var(--past); }
+        .unit-btn.passive.selected { background: var(--passive); }
+        .unit-btn.mix.selected { background: var(--perfect); }
+        .unit-note { font-size: 0.8rem; color: #888; margin-top: 8px; }
+        .count-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        .home-link {
+            display: inline-block;
+            margin-top: 18px;
+            font-size: 0.85rem;
+            color: #888;
+            text-decoration: none;
+            border-bottom: 1px dashed #bbb;
+        }
+        .home-link:hover { color: var(--dark); }
+
+        .completed-box {
+            background: rgba(255, 255, 255, 0.85);
+            border-radius: 10px;
+            padding: 12px 15px;
+            margin-bottom: 10px;
+        }
+        .completed-label { font-size: 0.75rem; color: #888; font-weight: 700; margin-bottom: 4px; }
+        .completed-sentence {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.1rem;
+            color: var(--dark);
+            line-height: 1.5;
+        }
+        .completed-sentence b, .wa-sentence b {
+            color: var(--success);
+            border-bottom: 2px solid var(--success);
+        }
+        .completed-ja { font-size: 0.85rem; color: #888; margin-top: 4px; }
+        .explanation ol, .wa-steps {
+            margin: 0;
+            padding-left: 0;
+            list-style: none;
+            text-align: left;
+        }
+        .explanation ol li, .wa-steps li {
+            position: relative;
+            padding-left: 1.6em;
+            margin-bottom: 4px;
+        }
+        .explanation ol li:last-child, .wa-steps li:last-child { margin-bottom: 0; }
+        .explanation ol li::before, .wa-steps li::before {
+            position: absolute; left: 0; font-weight: 700; color: var(--secondary);
+        }
+        .explanation ol li:nth-child(1)::before, .wa-steps li:nth-child(1)::before { content: '①'; }
+        .explanation ol li:nth-child(2)::before, .wa-steps li:nth-child(2)::before { content: '②'; }
+        .explanation ol li:nth-child(3)::before, .wa-steps li:nth-child(3)::before { content: '③'; }
+        .explanation ol li:nth-child(4)::before, .wa-steps li:nth-child(4)::before { content: '④'; }
+        .explanation-title { font-size: 0.75rem; color: #888; font-weight: 700; margin-bottom: 6px; text-align: left; }
+
         .question-count-selector {
             margin-bottom: 25px;
         }
@@ -808,14 +888,20 @@ window.WiseGame.init({ gameId: 'eiken-grammar-game' });
             <div class="logo">📚</div>
             <h1 class="title">英検3級 文法マスター</h1>
             <p class="subtitle">現在完了・過去形・受動態をマスターしよう！</p>
-            <div class="grammar-tags">
-                <span class="tag present-perfect">現在完了</span>
-                <span class="tag past">過去形</span>
-                <span class="tag passive">受動態</span>
+            <div class="unit-selector">
+                <label>単元を選んでください</label>
+                <div class="grammar-tags" style="margin-bottom:0;">
+                    <button class="unit-btn present-perfect" data-unit="present-perfect">現在完了</button>
+                    <button class="unit-btn past" data-unit="past">過去形</button>
+                    <button class="unit-btn passive" data-unit="passive">受動態</button>
+                    <button class="unit-btn mix selected" data-unit="mix">🔀 まぜこぜ</button>
+                </div>
+                <p class="unit-note">はじめは単元を1つずつ → なれたら「まぜこぜ」がおすすめ</p>
             </div>
             <div class="question-count-selector">
                 <label>出題数を選んでください</label>
                 <div class="count-options">
+                    <button class="count-btn" data-count="5">5問</button>
                     <button class="count-btn" data-count="10">10問</button>
                     <button class="count-btn selected" data-count="20">20問</button>
                     <button class="count-btn" data-count="30">30問</button>
@@ -824,7 +910,7 @@ window.WiseGame.init({ gameId: 'eiken-grammar-game' });
             </div>
             <button class="start-btn" onclick="startGame()">スタート！</button>
             <button class="weak-questions-btn" id="weakQuestionsBtn" onclick="startWeakQuestionsPractice()">苦手問題を復習</button>
-            <p class="total-questions">全100問からランダム出題</p>
+            <p class="total-questions" id="totalQuestionsNote">全100問からランダム出題・時間制限なし</p>
             <div class="history-section" id="historySection" style="display:none;">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
                     <div class="history-title">過去の成績</div>
@@ -832,6 +918,7 @@ window.WiseGame.init({ gameId: 'eiken-grammar-game' });
                 </div>
                 <div id="historyList"></div>
             </div>
+            <div><a class="home-link" href="https://wise-english-portal.vercel.app">🏠 学習ホームにもどる</a></div>
         </div>
 
         <div class="game-screen" id="gameScreen">
@@ -852,7 +939,6 @@ window.WiseGame.init({ gameId: 'eiken-grammar-game' });
                 <div id="adaptiveHintBox" class="adaptive-hint-box" style="display:none;"></div>
                 <p class="question-text" id="questionText"></p>
                 <p class="hint" id="hint"></p>
-                <button class="tts-btn" id="ttsBtn" onclick="speakEnglish()">🔈 英語を聞く</button>
             </div>
 
             <div class="options-grid" id="optionsGrid"></div>
@@ -860,7 +946,16 @@ window.WiseGame.init({ gameId: 'eiken-grammar-game' });
             <div class="feedback" id="feedback">
                 <div class="feedback-icon" id="feedbackIcon"></div>
                 <p class="feedback-text" id="feedbackText"></p>
-                <p class="explanation" id="explanation"></p>
+                <div class="completed-box">
+                    <div class="completed-label">完成した文</div>
+                    <div class="completed-sentence" id="completedSentence"></div>
+                    <div class="completed-ja" id="completedJa"></div>
+                    <button class="tts-btn" id="ttsBtn" onclick="speakEnglish()">🔈 完成した文を聞く</button>
+                </div>
+                <div class="explanation">
+                    <div class="explanation-title">どうしてこの答え？</div>
+                    <div id="explanation"></div>
+                </div>
                 <button class="next-btn" id="nextBtn" onclick="nextQuestion()">次へ →</button>
             </div>
         </div>
@@ -872,20 +967,21 @@ window.WiseGame.init({ gameId: 'eiken-grammar-game' });
             <div class="result-score" id="resultScore">8/10</div>
             <p class="result-message" id="resultMessage">素晴らしい！よく頑張りました！</p>
             <div class="stats-grid">
-                <div class="stat-card">
+                <div class="stat-card" id="statCardPresentPerfect">
                     <div class="stat-label">現在完了</div>
                     <div class="stat-value present-perfect" id="statPresentPerfect">0/0</div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card" id="statCardPast">
                     <div class="stat-label">過去形</div>
                     <div class="stat-value past" id="statPast">0/0</div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card" id="statCardPassive">
                     <div class="stat-label">受動態</div>
                     <div class="stat-value passive" id="statPassive">0/0</div>
                 </div>
             </div>
             <button class="restart-btn" onclick="restartGame()">もう一度挑戦</button>
+            <div><a class="home-link" href="https://wise-english-portal.vercel.app">🏠 学習ホームにもどる</a></div>
 
             <div class="wrong-answers-section" id="wrongAnswersSection" style="display:none; margin-top: 30px; text-align: left;">
                 <h3 style="text-align:center; margin-bottom: 15px; color: var(--dark);">間違えた問題</h3>
@@ -896,112 +992,213 @@ window.WiseGame.init({ gameId: 'eiken-grammar-game' });
 
     <script>
         // 問題データベース (100問)
+        // explanation は「根拠 → 結論」を順に並べたステップの配列（画面では ①②③ で表示）
         const questions = [
             // ========== 現在完了 (34問) ==========
-            { type: 'present-perfect', typeName: '現在完了', sentence: 'I ___ never ___ to Kyoto.', hint: '「私は京都に行ったことがありません」', options: ['have, been', 'has, been', 'have, went', 'was, been'], correct: 0, explanation: '経験を表す現在完了形です。主語が I なので have を使い、go の過去分詞は been です。' },
-            { type: 'present-perfect', typeName: '現在完了', sentence: 'She ___ just ___ her homework.', hint: '「彼女はちょうど宿題を終えたところです」', options: ['has, finished', 'have, finished', 'has, finish', 'had, finished'], correct: 0, explanation: '完了を表す現在完了形です。主語が She（三人称単数）なので has を使います。' },
-            { type: 'present-perfect', typeName: '現在完了', sentence: 'Tom ___ in Japan for three years.', hint: '「トムは3年間日本に住んでいます」', options: ['has lived', 'have lived', 'lived', 'is living'], correct: 0, explanation: '継続を表す現在完了形です。「for + 期間」とともに使われます。' },
-            { type: 'present-perfect', typeName: '現在完了', sentence: '___ you ever ___ sushi?', hint: '「あなたは寿司を食べたことがありますか」', options: ['Have, eaten', 'Has, eaten', 'Did, eat', 'Have, ate'], correct: 0, explanation: '経験を尋ねる現在完了形の疑問文です。eat の過去分詞は eaten です。' },
-            { type: 'present-perfect', typeName: '現在完了', sentence: 'I have ___ this book twice.', hint: '「私はこの本を2回読んだことがあります」', options: ['read', 'readed', 'reading', 'reads'], correct: 0, explanation: 'read の過去分詞は read（発音は「レッド」）です。' },
-            { type: 'present-perfect', typeName: '現在完了', sentence: 'They ___ already ___ lunch.', hint: '「彼らはもう昼食を食べてしまいました」', options: ['have, had', 'has, had', 'have, have', 'had, had'], correct: 0, explanation: '完了を表す現在完了形です。already（もう）は完了でよく使われます。' },
-            { type: 'present-perfect', typeName: '現在完了', sentence: 'I have ___ him since 2020.', hint: '「私は2020年から彼を知っています」', options: ['known', 'knew', 'know', 'knowing'], correct: 0, explanation: '継続を表す現在完了形です。know の過去分詞は known です。' },
-            { type: 'present-perfect', typeName: '現在完了', sentence: 'My brother ___ gone to the library.', hint: '「兄は図書館に行ってしまいました」', options: ['has', 'have', 'is', 'was'], correct: 0, explanation: '結果を表す現在完了形です。主語が My brother（三人称単数）なので has です。' },
-            { type: 'present-perfect', typeName: '現在完了', sentence: 'We ___ been friends for ten years.', hint: '「私たちは10年間友達です」', options: ['have', 'has', 'are', 'were'], correct: 0, explanation: '継続を表す現在完了形です。主語が We なので have を使います。' },
-            { type: 'present-perfect', typeName: '現在完了', sentence: 'How long ___ you ___ here?', hint: '「どのくらいここにいますか」', options: ['have, been', 'has, been', 'did, be', 'are, been'], correct: 0, explanation: '継続の期間を尋ねる現在完了形です。How long とともに使われます。' },
-            { type: 'present-perfect', typeName: '現在完了', sentence: 'She has ___ to London three times.', hint: '「彼女はロンドンに3回行ったことがあります」', options: ['been', 'gone', 'went', 'go'], correct: 0, explanation: '経験を表す場合、「〜に行ったことがある」は have been to を使います。' },
-            { type: 'present-perfect', typeName: '現在完了', sentence: 'I have not ___ my breakfast yet.', hint: '「私はまだ朝食を食べていません」', options: ['eaten', 'ate', 'eat', 'eating'], correct: 0, explanation: '未完了を表す現在完了形です。yet（まだ）は否定文でよく使われます。' },
-            { type: 'present-perfect', typeName: '現在完了', sentence: '___ he ___ the movie yet?', hint: '「彼はもうその映画を見ましたか」', options: ['Has, seen', 'Have, seen', 'Did, see', 'Has, saw'], correct: 0, explanation: '完了を尋ねる現在完了形の疑問文です。see の過去分詞は seen です。' },
-            { type: 'present-perfect', typeName: '現在完了', sentence: 'The train has already ___.', hint: '「電車はすでに出発しました」', options: ['left', 'leave', 'leaving', 'leaved'], correct: 0, explanation: '完了を表す現在完了形です。leave の過去分詞は left です。' },
-            { type: 'present-perfect', typeName: '現在完了', sentence: 'I have ___ my wallet.', hint: '「私は財布をなくしてしまいました」', options: ['lost', 'lose', 'losing', 'losed'], correct: 0, explanation: '結果を表す現在完了形です。lose の過去分詞は lost です。' },
-            { type: 'present-perfect', typeName: '現在完了', sentence: 'She ___ never ___ a horse.', hint: '「彼女は馬に乗ったことがありません」', options: ['has, ridden', 'have, ridden', 'has, rode', 'have, rode'], correct: 0, explanation: '経験を表す現在完了形です。ride の過去分詞は ridden です。' },
-            { type: 'present-perfect', typeName: '現在完了', sentence: 'We have ___ each other since childhood.', hint: '「私たちは子供の頃からお互いを知っています」', options: ['known', 'knew', 'know', 'knowing'], correct: 0, explanation: '継続を表す現在完了形です。since（〜以来）とともに使われます。' },
-            { type: 'present-perfect', typeName: '現在完了', sentence: 'He has ___ a famous singer.', hint: '「彼は有名な歌手になりました」', options: ['become', 'became', 'becoming', 'becomes'], correct: 0, explanation: '結果を表す現在完了形です。become の過去分詞は become です。' },
-            { type: 'present-perfect', typeName: '現在完了', sentence: '___ it ___ raining yet?', hint: '「雨はもう止みましたか」', options: ['Has, stopped', 'Have, stopped', 'Did, stop', 'Is, stopped'], correct: 0, explanation: '完了を尋ねる現在完了形の疑問文です。主語が it なので has を使います。' },
-            { type: 'present-perfect', typeName: '現在完了', sentence: 'I have ___ to that restaurant many times.', hint: '「私はそのレストランに何度も行ったことがあります」', options: ['been', 'gone', 'went', 'going'], correct: 0, explanation: '経験を表す現在完了形です。「〜に行ったことがある」は have been to です。' },
-            { type: 'present-perfect', typeName: '現在完了', sentence: 'My mother has ___ sick for a week.', hint: '「母は1週間ずっと病気です」', options: ['been', 'being', 'be', 'was'], correct: 0, explanation: '継続を表す現在完了形です。be動詞の過去分詞は been です。' },
-            { type: 'present-perfect', typeName: '現在完了', sentence: 'Have you ever ___ Mt. Fuji?', hint: '「あなたは富士山に登ったことがありますか」', options: ['climbed', 'climb', 'climbing', 'climbs'], correct: 0, explanation: '経験を尋ねる現在完了形です。climb の過去分詞は climbed です。' },
-            { type: 'present-perfect', typeName: '現在完了', sentence: 'She has ___ in this company since 2015.', hint: '「彼女は2015年からこの会社で働いています」', options: ['worked', 'work', 'working', 'works'], correct: 0, explanation: '継続を表す現在完了形です。since は「〜以来」という意味です。' },
-            { type: 'present-perfect', typeName: '現在完了', sentence: 'I ___ just ___ a letter to my friend.', hint: '「私は友人に手紙を書いたところです」', options: ['have, written', 'has, written', 'have, wrote', 'has, wrote'], correct: 0, explanation: '完了を表す現在完了形です。write の過去分詞は written です。' },
-            { type: 'present-perfect', typeName: '現在完了', sentence: 'The children have ___ to bed.', hint: '「子供たちは寝てしまいました」', options: ['gone', 'been', 'went', 'go'], correct: 0, explanation: '結果を表す現在完了形です。「行ってしまった（今ここにいない）」は have gone to です。' },
-            { type: 'present-perfect', typeName: '現在完了', sentence: 'He has ___ tennis for five years.', hint: '「彼は5年間テニスをしています」', options: ['played', 'play', 'playing', 'plays'], correct: 0, explanation: '継続を表す現在完了形です。for five years で期間を表しています。' },
-            { type: 'present-perfect', typeName: '現在完了', sentence: 'I have ___ seen such a beautiful view.', hint: '「私はこんなに美しい景色を見たことがありません」', options: ['never', 'ever', 'already', 'yet'], correct: 0, explanation: '経験を否定する現在完了形です。never は「一度も〜ない」という意味です。' },
-            { type: 'present-perfect', typeName: '現在完了', sentence: '___ you ___ your homework yet?', hint: '「もう宿題は終わりましたか」', options: ['Have, done', 'Has, done', 'Did, do', 'Have, did'], correct: 0, explanation: '完了を尋ねる現在完了形です。do の過去分詞は done です。' },
-            { type: 'present-perfect', typeName: '現在完了', sentence: 'My father has ___ to America twice.', hint: '「父は2回アメリカに行ったことがあります」', options: ['been', 'gone', 'went', 'going'], correct: 0, explanation: '経験を表す現在完了形です。「〜に行ったことがある」は have been to です。' },
-            { type: 'present-perfect', typeName: '現在完了', sentence: 'She has ___ English since she was six.', hint: '「彼女は6歳から英語を勉強しています」', options: ['studied', 'study', 'studying', 'studies'], correct: 0, explanation: '継続を表す現在完了形です。since は「〜以来」という意味です。' },
-            { type: 'present-perfect', typeName: '現在完了', sentence: 'I have ___ bought a new computer.', hint: '「私はちょうど新しいコンピューターを買いました」', options: ['just', 'yet', 'never', 'ever'], correct: 0, explanation: '完了を表す現在完了形です。just は「ちょうど」という意味です。' },
-            { type: 'present-perfect', typeName: '現在完了', sentence: 'The bus has ___ arrived.', hint: '「バスはすでに到着しました」', options: ['already', 'yet', 'never', 'ever'], correct: 0, explanation: '完了を表す現在完了形です。already は肯定文で「すでに」という意味です。' },
-            { type: 'present-perfect', typeName: '現在完了', sentence: 'Have you ___ been to Okinawa?', hint: '「あなたは沖縄に行ったことがありますか」', options: ['ever', 'never', 'already', 'yet'], correct: 0, explanation: '経験を尋ねる現在完了形です。ever は疑問文で「今までに」という意味です。' },
-            { type: 'present-perfect', typeName: '現在完了', sentence: "He hasn't ___ dinner yet.", hint: '「彼はまだ夕食を食べていません」', options: ['had', 'have', 'has', 'having'], correct: 0, explanation: '未完了を表す現在完了形です。yet は否定文で「まだ」という意味です。' },
+            { type: 'present-perfect', typeName: '現在完了', sentence: "I ___ never ___ to Kyoto.", hint: "「私は京都に行ったことがありません」", options: ["have, been", "has, been", "have, went", "was, been"], correct: 0,
+              explanation: ["「行ったことがない」＝今までの経験 → 現在完了（have / has ＋ 過去分詞）", "主語が I → have（has は he / she / it のとき）", "「〜へ行ったことがある」は have been to。went は過去形なので have の後ろには置けない"] },
+            { type: 'present-perfect', typeName: '現在完了', sentence: "She ___ just ___ her homework.", hint: "「彼女はちょうど宿題を終えたところです」", options: ["has, finished", "have, finished", "has, finish", "is, finished"], correct: 0,
+              explanation: ["just「ちょうど〜したところ」→ 現在完了（完了）", "主語 She は三人称単数 → has", "has の後ろは過去分詞 → finished（原形 finish は×）"] },
+            { type: 'present-perfect', typeName: '現在完了', sentence: "Tom ___ in Japan for three years.", hint: "「トムは3年間ずっと日本に住んでいます」", options: ["has lived", "have lived", "live", "is living"], correct: 0,
+              explanation: ["for three years「3年間ずっと」今も続いている → 現在完了（継続）", "主語 Tom は三人称単数 → has", "live の過去分詞は lived → has lived"] },
+            { type: 'present-perfect', typeName: '現在完了', sentence: "___ you ever ___ sushi?", hint: "「あなたは寿司を食べたことがありますか」", options: ["Have, eaten", "Has, eaten", "Do, eaten", "Have, ate"], correct: 0,
+              explanation: ["ever「今までに」＝経験をたずねる → 現在完了の疑問文（Have / Has ＋ 主語 ＋ 過去分詞）", "主語が you → Have", "eat–ate–eaten。過去分詞は eaten（ate は過去形）"] },
+            { type: 'present-perfect', typeName: '現在完了', sentence: "I have ___ this book twice.", hint: "「私はこの本を2回読んだことがあります」", options: ["read", "readed", "reading", "reads"], correct: 0,
+              explanation: ["have の後ろ → 過去分詞が入る", "read は原形・過去形・過去分詞が同じつづり（read–read–read）。過去分詞の発音は「レッド」", "twice「2回」→ 経験「2回読んだことがある」"] },
+            { type: 'present-perfect', typeName: '現在完了', sentence: "They ___ already ___ lunch.", hint: "「彼らはもう昼食を食べてしまいました」", options: ["have, had", "has, had", "have, have", "did, had"], correct: 0,
+              explanation: ["already「もう〜してしまった」→ 現在完了（完了）", "主語 They は複数 → have（has は×）", "2つ目は過去分詞。have（食べる）の過去分詞は had → have had"] },
+            { type: 'present-perfect', typeName: '現在完了', sentence: "I have ___ him since 2020.", hint: "「私は2020年から彼を知っています」", options: ["known", "knew", "know", "knowing"], correct: 0,
+              explanation: ["since 2020「2020年からずっと」→ 現在完了（継続）", "have の後ろは過去分詞", "know–knew–known。過去分詞は known（knew は過去形）"] },
+            { type: 'present-perfect', typeName: '現在完了', sentence: "My brother ___ gone to the library.", hint: "「兄は図書館に行ってしまいました」", options: ["has", "have", "did", "does"], correct: 0,
+              explanation: ["後ろの gone は go の過去分詞 → 過去分詞と組むのは have / has（現在完了）", "主語 My brother は三人称単数 → has", "has gone to 〜 は「〜へ行ってしまった（今ここにいない）」という結果を表す"] },
+            { type: 'present-perfect', typeName: '現在完了', sentence: "We ___ been friends for ten years.", hint: "「私たちは10年間友達です」", options: ["have", "has", "are", "were"], correct: 0,
+              explanation: ["後ろに been（過去分詞）がある → have / has を使う現在完了。are や were は been と並べられない", "for ten years「10年間ずっと」→ 継続", "主語 We は複数 → have"] },
+            { type: 'present-perfect', typeName: '現在完了', sentence: "How long ___ you ___ here?", hint: "「どのくらいここにいますか」", options: ["have, been", "has, been", "did, be", "are, been"], correct: 0,
+              explanation: ["How long「どのくらいの間」→ 今まで続いている期間をたずねる → 現在完了（継続）", "主語が you → have", "be動詞（いる）の過去分詞は been → have you been"] },
+            { type: 'present-perfect', typeName: '現在完了', sentence: "She has ___ to London three times.", hint: "「彼女はロンドンに3回行ったことがあります」", options: ["been", "gone", "went", "go"], correct: 0,
+              explanation: ["has の後ろ → 過去分詞（been か gone）", "three times「3回」→ 経験「行ったことがある」", "経験は have been to。have gone to は「行ってしまって今いない」なので回数とは使わない"] },
+            { type: 'present-perfect', typeName: '現在完了', sentence: "I have not ___ my breakfast yet.", hint: "「私はまだ朝食を食べていません」", options: ["eaten", "ate", "eat", "eating"], correct: 0,
+              explanation: ["have not ＋ 過去分詞 で「まだ〜していない」", "yet は否定文で「まだ」", "eat–ate–eaten。過去分詞は eaten（ate は過去形）"] },
+            { type: 'present-perfect', typeName: '現在完了', sentence: "___ he ___ the movie yet?", hint: "「彼はもうその映画を見ましたか」", options: ["Has, seen", "Have, seen", "Does, seen", "Has, saw"], correct: 0,
+              explanation: ["yet は疑問文で「もう」→ 現在完了（完了）の疑問文", "主語 he は三人称単数 → Has", "see–saw–seen。過去分詞は seen（saw は過去形）"] },
+            { type: 'present-perfect', typeName: '現在完了', sentence: "The train has already ___.", hint: "「電車はすでに出発しました」", options: ["left", "leave", "leaving", "leaved"], correct: 0,
+              explanation: ["has の後ろ → 過去分詞", "already「すでに」→ 完了", "leave–left–left。過去分詞は left（leaved という形はない）"] },
+            { type: 'present-perfect', typeName: '現在完了', sentence: "I have ___ my wallet.", hint: "「私は財布をなくしてしまいました」", options: ["lost", "lose", "losing", "losed"], correct: 0,
+              explanation: ["have の後ろ → 過去分詞", "lose–lost–lost。過去分詞は lost（losed という形はない）", "have lost は「なくして、今も見つかっていない」という結果を表す"] },
+            { type: 'present-perfect', typeName: '現在完了', sentence: "She ___ never ___ a horse.", hint: "「彼女は馬に乗ったことがありません」", options: ["has, ridden", "have, ridden", "has, rode", "have, rode"], correct: 0,
+              explanation: ["never「一度も〜ない」→ 経験の現在完了", "主語 She は三人称単数 → has", "ride–rode–ridden。過去分詞は ridden（rode は過去形）"] },
+            { type: 'present-perfect', typeName: '現在完了', sentence: "We have ___ each other since childhood.", hint: "「私たちは子供の頃からお互いを知っています」", options: ["known", "knew", "know", "knowing"], correct: 0,
+              explanation: ["since childhood「子どものころからずっと」→ 現在完了（継続）", "have の後ろは過去分詞", "know–knew–known。過去分詞は known"] },
+            { type: 'present-perfect', typeName: '現在完了', sentence: "He has ___ a famous singer.", hint: "「彼は有名な歌手になりました」", options: ["become", "became", "becoming", "becomes"], correct: 0,
+              explanation: ["has の後ろ → 過去分詞", "become–became–become。過去分詞は原形と同じ become（became は過去形）", "「歌手になって、今も歌手だ」という結果を表す"] },
+            { type: 'present-perfect', typeName: '現在完了', sentence: "___ it ___ raining yet?", hint: "「雨はもう止みましたか」", options: ["Has, stopped", "Have, stopped", "Does, stopped", "Is, stopped"], correct: 0,
+              explanation: ["yet（疑問文で「もう」）→ 現在完了の疑問文", "主語 it は三人称単数 → Has", "stop の過去分詞は stopped（p を重ねて ed）。stop raining で「雨がやむ」"] },
+            { type: 'present-perfect', typeName: '現在完了', sentence: "I have ___ to that restaurant many times.", hint: "「私はそのレストランに何度も行ったことがあります」", options: ["been", "gone", "went", "going"], correct: 0,
+              explanation: ["have の後ろ → 過去分詞", "many times「何度も」→ 経験", "「行ったことがある」は have been to（gone は「行ってしまった」）"] },
+            { type: 'present-perfect', typeName: '現在完了', sentence: "My mother has ___ sick for a week.", hint: "「母は1週間ずっと病気です」", options: ["been", "being", "be", "was"], correct: 0,
+              explanation: ["has の後ろ → 過去分詞", "sick（形容詞）の前には be動詞が必要。be の過去分詞は been", "for a week「1週間ずっと」→ 継続"] },
+            { type: 'present-perfect', typeName: '現在完了', sentence: "Have you ever ___ Mt. Fuji?", hint: "「あなたは富士山に登ったことがありますか」", options: ["climbed", "climb", "climbing", "climbs"], correct: 0,
+              explanation: ["Have you ever 〜?「今までに〜したことがありますか」→ 経験", "Have ＋ 主語 の後ろは過去分詞", "climb は規則動詞 → 過去分詞は climbed"] },
+            { type: 'present-perfect', typeName: '現在完了', sentence: "She has ___ in this company since 2015.", hint: "「彼女は2015年からこの会社で働いています」", options: ["worked", "work", "working", "works"], correct: 0,
+              explanation: ["since 2015「2015年からずっと」→ 現在完了（継続）", "has の後ろは過去分詞", "work は規則動詞 → worked"] },
+            { type: 'present-perfect', typeName: '現在完了', sentence: "I ___ just ___ a letter to my friend.", hint: "「私は友人に手紙を書いたところです」", options: ["have, written", "has, written", "have, wrote", "has, wrote"], correct: 0,
+              explanation: ["just「ちょうど〜したところ」→ 現在完了（完了）", "主語が I → have", "write–wrote–written。過去分詞は written（wrote は過去形）"] },
+            { type: 'present-perfect', typeName: '現在完了', sentence: "The children have ___ to bed.", hint: "「子供たちは寝てしまいました」", options: ["gone", "been", "went", "go"], correct: 0,
+              explanation: ["have の後ろ → 過去分詞（gone か been）", "「寝てしまった（もうここにいない）」→ 行ってしまった結果を表す have gone to", "have been to は「行ったことがある」（経験）なので、ここでは意味が合わない"] },
+            { type: 'present-perfect', typeName: '現在完了', sentence: "He has ___ tennis for five years.", hint: "「彼は5年間テニスをしています」", options: ["played", "play", "playing", "plays"], correct: 0,
+              explanation: ["for five years「5年間ずっと」→ 現在完了（継続）", "has の後ろは過去分詞", "play は規則動詞 → played"] },
+            { type: 'present-perfect', typeName: '現在完了', sentence: "I have ___ seen such a beautiful view.", hint: "「私はこんなに美しい景色を見たことがありません」", options: ["never", "ever", "yet", "ago"], correct: 0,
+              explanation: ["「見たことがありません」→ 経験の否定", "「一度も〜ない」は never。have と過去分詞の間に置く", "ever は疑問文で使う語、yet は文の最後に置く語、ago は過去形の文で使う語"] },
+            { type: 'present-perfect', typeName: '現在完了', sentence: "___ you ___ your homework yet?", hint: "「もう宿題は終わりましたか」", options: ["Have, done", "Has, done", "Do, done", "Have, did"], correct: 0,
+              explanation: ["yet（疑問文で「もう」）→ 現在完了の疑問文", "主語が you → Have", "do–did–done。過去分詞は done（did は過去形）"] },
+            { type: 'present-perfect', typeName: '現在完了', sentence: "My father has ___ to America twice.", hint: "「父は2回アメリカに行ったことがあります」", options: ["been", "gone", "went", "going"], correct: 0,
+              explanation: ["has の後ろ → 過去分詞", "twice「2回」→ 経験", "「行ったことがある」は have been to（gone は「行ってしまった」）"] },
+            { type: 'present-perfect', typeName: '現在完了', sentence: "She has ___ English since she was six.", hint: "「彼女は6歳から英語を勉強しています」", options: ["studied", "study", "studying", "studies"], correct: 0,
+              explanation: ["since she was six「6歳のときからずっと」→ 現在完了（継続）", "has の後ろは過去分詞", "study は y を i にかえて ed → studied"] },
+            { type: 'present-perfect', typeName: '現在完了', sentence: "I have ___ bought a new computer.", hint: "「私はちょうど新しいコンピューターを買いました」", options: ["just", "yet", "ever", "ago"], correct: 0,
+              explanation: ["「ちょうど買ったところ」→ 完了", "「ちょうど」は just。have と過去分詞の間に置く", "yet は否定文・疑問文の最後、ever は疑問文、ago は過去形の文で使う"] },
+            { type: 'present-perfect', typeName: '現在完了', sentence: "The bus has ___ arrived.", hint: "「バスはすでに到着しました」", options: ["already", "yet", "ever", "ago"], correct: 0,
+              explanation: ["「すでに到着した」→ 完了", "ふつうの文（肯定文）で「すでに・もう」は already。has と過去分詞の間に置く", "yet は否定文・疑問文で、文の最後に置く"] },
+            { type: 'present-perfect', typeName: '現在完了', sentence: "Have you ___ been to Okinawa?", hint: "「あなたは沖縄に行ったことがありますか」", options: ["ever", "ago", "since", "for"], correct: 0,
+              explanation: ["「行ったことがありますか」→ 経験をたずねる文", "疑問文で「今までに」は ever。主語と過去分詞の間に置く", "ago（〜前）・since（〜から）・for（〜の間）は時を表す語句とセットで使うので、ここには入らない"] },
+            { type: 'present-perfect', typeName: '現在完了', sentence: "He hasn't ___ dinner yet.", hint: "「彼はまだ夕食を食べていません」", options: ["had", "have", "has", "having"], correct: 0,
+              explanation: ["hasn't（has not）の後ろ → 過去分詞", "have（食べる）の過去分詞は had", "not 〜 yet で「まだ〜していない」"] },
 
             // ========== 過去形 (33問) ==========
-            { type: 'past', typeName: '過去形', sentence: 'I ___ to the library yesterday.', hint: '「私は昨日図書館に行きました」', options: ['went', 'go', 'have gone', 'going'], correct: 0, explanation: 'yesterday は過去を表す語なので、過去形 went を使います。' },
-            { type: 'past', typeName: '過去形', sentence: 'She ___ TV last night.', hint: '「彼女は昨夜テレビを見ました」', options: ['watched', 'watches', 'has watched', 'watch'], correct: 0, explanation: 'last night は過去を表す語なので、過去形 watched を使います。' },
-            { type: 'past', typeName: '過去形', sentence: 'We ___ soccer when we were young.', hint: '「私たちは若い頃サッカーをしました」', options: ['played', 'play', 'have played', 'are playing'], correct: 0, explanation: 'when we were young は過去のことなので、過去形を使います。' },
-            { type: 'past', typeName: '過去形', sentence: '___ you ___ breakfast this morning?', hint: '「今朝、朝食を食べましたか」', options: ['Did, eat', 'Do, eat', 'Have, eaten', 'Are, eating'], correct: 0, explanation: 'this morning で、すでに終わった出来事を聞いているので過去形を使います。' },
-            { type: 'past', typeName: '過去形', sentence: 'My father ___ me a new bike last month.', hint: '「父は先月新しい自転車を買ってくれました」', options: ['bought', 'buy', 'has bought', 'buys'], correct: 0, explanation: 'last month は過去を表すので過去形 bought を使います。' },
-            { type: 'past', typeName: '過去形', sentence: 'He ___ his key two days ago.', hint: '「彼は2日前に鍵をなくしました」', options: ['lost', 'has lost', 'loses', 'is losing'], correct: 0, explanation: 'two days ago は明確な過去を表すので、過去形 lost を使います。' },
-            { type: 'past', typeName: '過去形', sentence: 'They ___ to Osaka last summer.', hint: '「彼らは去年の夏大阪に行きました」', options: ['went', 'go', 'gone', 'going'], correct: 0, explanation: 'last summer は過去を表す語なので、過去形 went を使います。' },
-            { type: 'past', typeName: '過去形', sentence: 'I ___ a delicious cake at the party.', hint: '「私はパーティーでおいしいケーキを食べました」', options: ['ate', 'eat', 'eaten', 'eating'], correct: 0, explanation: 'パーティーは過去の出来事なので、過去形 ate を使います。' },
-            { type: 'past', typeName: '過去形', sentence: 'She ___ me a present on my birthday.', hint: '「彼女は私の誕生日にプレゼントをくれました」', options: ['gave', 'give', 'given', 'gives'], correct: 0, explanation: '誕生日は過去の出来事なので、過去形 gave を使います。' },
-            { type: 'past', typeName: '過去形', sentence: "The movie ___ at 7 o'clock.", hint: '「映画は7時に始まりました」', options: ['started', 'start', 'starts', 'starting'], correct: 0, explanation: '過去の特定の時間を表しているので、過去形 started を使います。' },
-            { type: 'past', typeName: '過去形', sentence: 'I ___ a strange dream last night.', hint: '「私は昨夜変な夢を見ました」', options: ['had', 'have', 'has', 'having'], correct: 0, explanation: 'last night は過去を表す語なので、過去形 had を使います。' },
-            { type: 'past', typeName: '過去形', sentence: 'He ___ his homework before dinner.', hint: '「彼は夕食前に宿題をしました」', options: ['did', 'do', 'does', 'done'], correct: 0, explanation: '過去の出来事なので、過去形 did を使います。' },
-            { type: 'past', typeName: '過去形', sentence: 'We ___ a lot of photos during the trip.', hint: '「私たちは旅行中にたくさんの写真を撮りました」', options: ['took', 'take', 'taken', 'taking'], correct: 0, explanation: '旅行中は過去のことなので、過去形 took を使います。' },
-            { type: 'past', typeName: '過去形', sentence: 'She ___ hard for the exam.', hint: '「彼女は試験のために一生懸命勉強しました」', options: ['studied', 'study', 'studies', 'studying'], correct: 0, explanation: '過去の出来事なので、過去形 studied を使います。' },
-            { type: 'past', typeName: '過去形', sentence: 'The children ___ in the park yesterday.', hint: '「子供たちは昨日公園で遊びました」', options: ['played', 'play', 'plays', 'playing'], correct: 0, explanation: 'yesterday は過去を表す語なので、過去形 played を使います。' },
-            { type: 'past', typeName: '過去形', sentence: 'I ___ my friend at the station.', hint: '「私は駅で友人に会いました」', options: ['met', 'meet', 'meeting', 'meets'], correct: 0, explanation: '過去の出来事なので、過去形 met を使います。' },
-            { type: 'past', typeName: '過去形', sentence: 'He ___ to music on the train.', hint: '「彼は電車の中で音楽を聴きました」', options: ['listened', 'listen', 'listens', 'listening'], correct: 0, explanation: '過去の出来事なので、過去形 listened を使います。' },
-            { type: 'past', typeName: '過去形', sentence: 'My mother ___ a cake for my birthday.', hint: '「母は私の誕生日にケーキを作りました」', options: ['made', 'make', 'makes', 'making'], correct: 0, explanation: '誕生日は過去の出来事なので、過去形 made を使います。' },
-            { type: 'past', typeName: '過去形', sentence: '___ she ___ to school yesterday?', hint: '「彼女は昨日学校に行きましたか」', options: ['Did, go', 'Does, go', 'Has, gone', 'Is, going'], correct: 0, explanation: 'yesterday があるので、過去形の疑問文 Did を使います。' },
-            { type: 'past', typeName: '過去形', sentence: 'I ___ very tired after the game.', hint: '「私は試合の後とても疲れていました」', options: ['was', 'am', 'is', 'were'], correct: 0, explanation: '過去の状態を表すので、be動詞の過去形 was を使います。' },
-            { type: 'past', typeName: '過去形', sentence: 'They ___ happy to see me.', hint: '「彼らは私に会えて嬉しそうでした」', options: ['were', 'was', 'are', 'is'], correct: 0, explanation: '過去の状態で、主語が They（複数）なので were を使います。' },
-            { type: 'past', typeName: '過去形', sentence: 'The weather ___ nice last weekend.', hint: '「先週末は天気が良かったです」', options: ['was', 'is', 'were', 'are'], correct: 0, explanation: 'last weekend は過去を表すので、過去形 was を使います。' },
-            { type: 'past', typeName: '過去形', sentence: 'I ___ English when I was in high school.', hint: '「私は高校生の時英語を勉強しました」', options: ['studied', 'study', 'have studied', 'am studying'], correct: 0, explanation: 'when I was in high school は過去のことなので、過去形を使います。' },
-            { type: 'past', typeName: '過去形', sentence: 'He ___ the window because it was cold.', hint: '「寒かったので彼は窓を閉めました」', options: ['closed', 'close', 'closes', 'closing'], correct: 0, explanation: '過去の出来事なので、過去形 closed を使います。' },
-            { type: 'past', typeName: '過去形', sentence: 'She ___ a new dress for the party.', hint: '「彼女はパーティーのために新しいドレスを買いました」', options: ['bought', 'buy', 'buys', 'buying'], correct: 0, explanation: '過去の出来事なので、過去形 bought を使います。' },
-            { type: 'past', typeName: '過去形', sentence: 'We ___ not ___ to the concert last week.', hint: '「私たちは先週コンサートに行きませんでした」', options: ['did, go', 'do, go', 'have, gone', 'are, going'], correct: 0, explanation: 'last week があるので、過去形の否定文 did not go を使います。' },
-            { type: 'past', typeName: '過去形', sentence: 'The dog ___ loudly last night.', hint: '「犬は昨夜大きな声で吠えました」', options: ['barked', 'bark', 'barks', 'barking'], correct: 0, explanation: 'last night は過去を表す語なので、過去形 barked を使います。' },
-            { type: 'past', typeName: '過去形', sentence: 'I ___ a letter to my grandmother yesterday.', hint: '「私は昨日祖母に手紙を書きました」', options: ['wrote', 'write', 'written', 'writing'], correct: 0, explanation: 'yesterday は過去を表す語なので、過去形 wrote を使います。' },
-            { type: 'past', typeName: '過去形', sentence: 'He ___ very fast in the race.', hint: '「彼はレースでとても速く走りました」', options: ['ran', 'run', 'runs', 'running'], correct: 0, explanation: 'レースは過去の出来事なので、過去形 ran を使います。' },
-            { type: 'past', typeName: '過去形', sentence: 'She ___ a beautiful song at the concert.', hint: '「彼女はコンサートで美しい歌を歌いました」', options: ['sang', 'sing', 'sung', 'sings'], correct: 0, explanation: 'コンサートは過去の出来事なので、過去形 sang を使います。' },
-            { type: 'past', typeName: '過去形', sentence: 'The baby ___ all night.', hint: '「赤ちゃんは一晩中泣きました」', options: ['cried', 'cry', 'cries', 'crying'], correct: 0, explanation: '過去の出来事なので、過去形 cried を使います。' },
-            { type: 'past', typeName: '過去形', sentence: 'I ___ my umbrella on the train.', hint: '「私は電車に傘を忘れました」', options: ['left', 'leave', 'leaves', 'leaving'], correct: 0, explanation: '過去の出来事なので、過去形 left を使います。' },
-            { type: 'past', typeName: '過去形', sentence: 'What ___ you ___ for dinner last night?', hint: '「昨夜の夕食に何を食べましたか」', options: ['did, have', 'do, have', 'have, had', 'did, had'], correct: 0, explanation: 'last night があるので、過去形の疑問文を使います。' },
+            { type: 'past', typeName: '過去形', sentence: "I ___ to the library yesterday.", hint: "「私は昨日図書館に行きました」", options: ["went", "go", "have gone", "going"], correct: 0,
+              explanation: ["yesterday「昨日」→ 過去のこと → 過去形", "go の過去形は went（不規則動詞）", "yesterday のように過去の時をはっきり表す語があるとき、現在完了（have gone）は使えない"] },
+            { type: 'past', typeName: '過去形', sentence: "She ___ TV last night.", hint: "「彼女は昨夜テレビを見ました」", options: ["watched", "watches", "has watched", "watch"], correct: 0,
+              explanation: ["last night「昨夜」→ 過去形", "watch は規則動詞 → watched", "過去の時を表す語（last night）と現在完了 has watched はいっしょに使えない"] },
+            { type: 'past', typeName: '過去形', sentence: "We ___ soccer when we were young.", hint: "「私たちは若い頃サッカーをしました」", options: ["played", "play", "have played", "are playing"], correct: 0,
+              explanation: ["when we were young「若かったころ」→ 過去のこと", "play は規則動詞 → played", "過去の時を表す when 〜 と現在完了（have played）はいっしょに使えない"] },
+            { type: 'past', typeName: '過去形', sentence: "___ you ___ breakfast this morning?", hint: "「今朝、朝食を食べましたか」", options: ["Did, eat", "Do, eat", "Did, ate", "Were, eat"], correct: 0,
+              explanation: ["「食べましたか」→ 過去の疑問文 → Did ＋ 主語 ＋ 動詞の原形", "Did が過去を表すので、動詞は原形 eat にもどす（ate は×）", "一般動詞 eat の疑問文に be動詞（Were）は使わない"] },
+            { type: 'past', typeName: '過去形', sentence: "My father ___ me a new bike last month.", hint: "「父は先月新しい自転車を買ってくれました」", options: ["bought", "buy", "has bought", "buys"], correct: 0,
+              explanation: ["last month「先月」→ 過去形", "buy の過去形は bought（不規則動詞）", "過去の時を表す語（last month）と現在完了 has bought はいっしょに使えない"] },
+            { type: 'past', typeName: '過去形', sentence: "He ___ his key two days ago.", hint: "「彼は2日前に鍵をなくしました」", options: ["lost", "has lost", "loses", "is losing"], correct: 0,
+              explanation: ["two days ago「2日前」→ 過去形", "lose の過去形は lost", "〜 ago は現在完了（has lost）といっしょに使えない"] },
+            { type: 'past', typeName: '過去形', sentence: "They ___ to Osaka last summer.", hint: "「彼らは去年の夏大阪に行きました」", options: ["went", "go", "gone", "going"], correct: 0,
+              explanation: ["last summer「去年の夏」→ 過去形", "go–went–gone。過去形は went", "gone は過去分詞なので、have / has がないと使えない"] },
+            { type: 'past', typeName: '過去形', sentence: "I ___ a delicious cake at the party yesterday.", hint: "「私は昨日パーティーでおいしいケーキを食べました」", options: ["ate", "eat", "eaten", "eating"], correct: 0,
+              explanation: ["yesterday「昨日」→ 過去形", "eat–ate–eaten。過去形は ate", "eaten は過去分詞（have や be動詞と組む形）なので、ここでは使えない"] },
+            { type: 'past', typeName: '過去形', sentence: "She ___ me a present on my birthday last year.", hint: "「彼女は去年の私の誕生日にプレゼントをくれました」", options: ["gave", "give", "given", "gives"], correct: 0,
+              explanation: ["last year「去年」→ 過去形", "give–gave–given。過去形は gave", "given は過去分詞なので、単独では使えない"] },
+            { type: 'past', typeName: '過去形', sentence: "The movie ___ at 7 o'clock last night.", hint: "「映画は昨夜7時に始まりました」", options: ["started", "start", "starts", "starting"], correct: 0,
+              explanation: ["last night「昨夜」→ 過去形", "start は規則動詞 → started", "starts は現在形。starting だけでは文の動詞になれない"] },
+            { type: 'past', typeName: '過去形', sentence: "I ___ a strange dream last night.", hint: "「私は昨夜変な夢を見ました」", options: ["had", "have", "has", "having"], correct: 0,
+              explanation: ["last night「昨夜」→ 過去形", "have の過去形は had（have a dream ＝ 夢を見る）", "過去形は主語が何でも同じ had"] },
+            { type: 'past', typeName: '過去形', sentence: "He ___ his homework before dinner yesterday.", hint: "「彼は昨日、夕食前に宿題をしました」", options: ["did", "do", "does", "done"], correct: 0,
+              explanation: ["yesterday「昨日」→ 過去形", "do–did–done。過去形は did（do one's homework ＝ 宿題をする）", "done は過去分詞なので、単独では使えない"] },
+            { type: 'past', typeName: '過去形', sentence: "We ___ a lot of photos during the trip last month.", hint: "「私たちは先月の旅行中にたくさんの写真を撮りました」", options: ["took", "take", "taken", "taking"], correct: 0,
+              explanation: ["last month「先月」→ 過去形", "take–took–taken。過去形は took（take a photo ＝ 写真を撮る）", "taken は過去分詞なので、単独では使えない"] },
+            { type: 'past', typeName: '過去形', sentence: "She ___ hard for the exam last week.", hint: "「彼女は先週、試験のために一生懸命勉強しました」", options: ["studied", "study", "studies", "studying"], correct: 0,
+              explanation: ["last week「先週」→ 過去形", "study は y を i にかえて ed → studied", "studies は現在形（三人称単数）"] },
+            { type: 'past', typeName: '過去形', sentence: "The children ___ in the park yesterday.", hint: "「子供たちは昨日公園で遊びました」", options: ["played", "play", "plays", "playing"], correct: 0,
+              explanation: ["yesterday「昨日」→ 過去形", "play は規則動詞 → played", "過去形は主語が複数でも同じ形（play / plays は現在形）"] },
+            { type: 'past', typeName: '過去形', sentence: "I ___ my friend at the station yesterday.", hint: "「私は昨日、駅で友人に会いました」", options: ["met", "meet", "meeting", "meets"], correct: 0,
+              explanation: ["yesterday「昨日」→ 過去形", "meet–met–met。過去形は met", "meet / meets は現在形。meeting だけでは文の動詞になれない"] },
+            { type: 'past', typeName: '過去形', sentence: "He ___ to music on the train yesterday.", hint: "「彼は昨日、電車の中で音楽を聴きました」", options: ["listened", "listen", "listens", "listening"], correct: 0,
+              explanation: ["yesterday「昨日」→ 過去形", "listen は規則動詞 → listened", "listen to 〜 で「〜を聴く」。listens は現在形"] },
+            { type: 'past', typeName: '過去形', sentence: "My mother ___ a cake for my birthday last week.", hint: "「母は先週、私の誕生日にケーキを作りました」", options: ["made", "make", "makes", "making"], correct: 0,
+              explanation: ["last week「先週」→ 過去形", "make–made–made。過去形は made", "makes は現在形（三人称単数）"] },
+            { type: 'past', typeName: '過去形', sentence: "___ she ___ to school yesterday?", hint: "「彼女は昨日学校に行きましたか」", options: ["Did, go", "Does, go", "Has, gone", "Is, going"], correct: 0,
+              explanation: ["yesterday「昨日」→ 過去の疑問文", "一般動詞の過去の疑問文は Did ＋ 主語 ＋ 動詞の原形 → Did she go", "yesterday があるので、現在形 Does や現在完了 Has 〜 gone は使えない"] },
+            { type: 'past', typeName: '過去形', sentence: "I ___ very tired after the game yesterday.", hint: "「私は昨日、試合の後とても疲れていました」", options: ["was", "am", "is", "were"], correct: 0,
+              explanation: ["tired（形容詞）の前 → be動詞が入る", "yesterday「昨日」→ be動詞の過去形（was / were）", "主語が I → was（were は you や複数のとき）"] },
+            { type: 'past', typeName: '過去形', sentence: "They ___ happy to see me yesterday.", hint: "「彼らは昨日、私に会えてうれしそうでした」", options: ["were", "was", "are", "is"], correct: 0,
+              explanation: ["happy（形容詞）の前 → be動詞が入る", "yesterday「昨日」→ be動詞の過去形（was / were）", "主語 They は複数 → were"] },
+            { type: 'past', typeName: '過去形', sentence: "The weather ___ nice last weekend.", hint: "「先週末は天気が良かったです」", options: ["was", "is", "were", "are"], correct: 0,
+              explanation: ["nice（形容詞）の前 → be動詞が入る", "last weekend「先週末」→ 過去形（was / were）", "主語 The weather は単数 → was"] },
+            { type: 'past', typeName: '過去形', sentence: "I ___ English when I was in high school.", hint: "「私は高校生の時英語を勉強しました」", options: ["studied", "study", "have studied", "am studying"], correct: 0,
+              explanation: ["when I was in high school「高校生のとき」→ 過去のこと", "study の過去形は studied（y を i にかえて ed）", "過去の時を表す when 〜 と現在完了（have studied）はいっしょに使えない"] },
+            { type: 'past', typeName: '過去形', sentence: "He ___ the window because it was cold.", hint: "「寒かったので彼は窓を閉めました」", options: ["closed", "close", "closes", "closing"], correct: 0,
+              explanation: ["because it was cold「寒かったので」→ was があるので過去の話", "close は e で終わるので d だけつける → closed", "closes は現在形なので、過去の理由（was cold）と時が合わない"] },
+            { type: 'past', typeName: '過去形', sentence: "She ___ a new dress for the party last week.", hint: "「彼女は先週、パーティーのために新しいドレスを買いました」", options: ["bought", "buy", "buys", "buying"], correct: 0,
+              explanation: ["last week「先週」→ 過去形", "buy–bought–bought。過去形は bought", "buys は現在形（三人称単数）"] },
+            { type: 'past', typeName: '過去形', sentence: "We ___ not ___ to the concert last week.", hint: "「私たちは先週コンサートに行きませんでした」", options: ["did, go", "do, go", "have, gone", "are, going"], correct: 0,
+              explanation: ["last week「先週」→ 過去の否定文", "一般動詞の過去の否定文は did not ＋ 動詞の原形 → did not go", "last week があるので、現在形 do や現在完了 have 〜 gone は使えない"] },
+            { type: 'past', typeName: '過去形', sentence: "The dog ___ loudly last night.", hint: "「犬は昨夜大きな声で吠えました」", options: ["barked", "bark", "barks", "barking"], correct: 0,
+              explanation: ["last night「昨夜」→ 過去形", "bark は規則動詞 → barked", "barks は現在形（三人称単数）"] },
+            { type: 'past', typeName: '過去形', sentence: "I ___ a letter to my grandmother yesterday.", hint: "「私は昨日祖母に手紙を書きました」", options: ["wrote", "write", "written", "writing"], correct: 0,
+              explanation: ["yesterday「昨日」→ 過去形", "write–wrote–written。過去形は wrote", "written は過去分詞なので、単独では使えない"] },
+            { type: 'past', typeName: '過去形', sentence: "He ___ very fast in the race yesterday.", hint: "「彼は昨日のレースでとても速く走りました」", options: ["ran", "run", "runs", "running"], correct: 0,
+              explanation: ["yesterday「昨日」→ 過去形", "run–ran–run。過去形は ran", "runs は現在形（三人称単数）"] },
+            { type: 'past', typeName: '過去形', sentence: "She ___ a beautiful song at the concert last night.", hint: "「彼女は昨夜のコンサートで美しい歌を歌いました」", options: ["sang", "sing", "sung", "sings"], correct: 0,
+              explanation: ["last night「昨夜」→ 過去形", "sing–sang–sung。過去形は sang", "sung は過去分詞なので、単独では使えない"] },
+            { type: 'past', typeName: '過去形', sentence: "The baby ___ a lot last night.", hint: "「赤ちゃんは昨夜たくさん泣きました」", options: ["cried", "cry", "cries", "crying"], correct: 0,
+              explanation: ["last night「昨夜」→ 過去形", "cry は y を i にかえて ed → cried", "cries は現在形（三人称単数）"] },
+            { type: 'past', typeName: '過去形', sentence: "I ___ my umbrella on the train yesterday.", hint: "「私は昨日、電車に傘を置き忘れました」", options: ["left", "leave", "leaves", "leaving"], correct: 0,
+              explanation: ["yesterday「昨日」→ 過去形", "leave–left–left。過去形は left（leave ＝ 置き忘れる）", "leave / leaves は現在形"] },
+            { type: 'past', typeName: '過去形', sentence: "What ___ you ___ for dinner last night?", hint: "「昨夜の夕食に何を食べましたか」", options: ["did, have", "do, have", "have, had", "did, had"], correct: 0,
+              explanation: ["last night「昨夜」→ 過去の疑問文", "一般動詞の過去の疑問文は did ＋ 主語 ＋ 動詞の原形 → did you have", "did の後ろは原形なので had は×。last night があるので現在完了 have 〜 had も使えない"] },
 
             // ========== 受動態 (33問) ==========
-            { type: 'passive', typeName: '受動態', sentence: 'This book ___ by many people every year.', hint: '「この本は毎年多くの人に読まれています」', options: ['is read', 'is reading', 'reads', 'was read'], correct: 0, explanation: '受動態は「be動詞 + 過去分詞」で作ります。every year（毎年）があるので現在形 is を使います。' },
-            { type: 'passive', typeName: '受動態', sentence: 'English ___ in many countries around the world.', hint: '「英語は世界中の多くの国で話されています」', options: ['is spoken', 'speaks', 'is speaking', 'was spoken'], correct: 0, explanation: '一般的な事実を表す受動態です。speak の過去分詞は spoken です。' },
-            { type: 'passive', typeName: '受動態', sentence: 'The letter ___ by her yesterday.', hint: '「その手紙は昨日彼女によって書かれました」', options: ['was written', 'is written', 'wrote', 'has written'], correct: 0, explanation: 'yesterday があるので過去の受動態「was + 過去分詞」を使います。' },
-            { type: 'passive', typeName: '受動態', sentence: 'These photos ___ taken in Paris last summer.', hint: '「これらの写真は去年の夏パリで撮られました」', options: ['were', 'was', 'are', 'is'], correct: 0, explanation: 'last summer があり、主語 These photos は複数なので were を使います。' },
-            { type: 'passive', typeName: '受動態', sentence: 'The window ___ broken by the ball yesterday.', hint: '「窓は昨日ボールで割られました」', options: ['was', 'is', 'were', 'has'], correct: 0, explanation: 'yesterday があるので過去形 was を使います。' },
-            { type: 'passive', typeName: '受動態', sentence: 'This cake ___ made by my mother this morning.', hint: '「このケーキは今朝母によって作られました」', options: ['was', 'is', 'were', 'has'], correct: 0, explanation: 'this morning（今朝）は過去の出来事なので was を使います。' },
-            { type: 'passive', typeName: '受動態', sentence: 'That movie ___ loved by children all over the world.', hint: '「あの映画は世界中の子供たちに愛されています」', options: ['is', 'are', 'was', 'were'], correct: 0, explanation: '一般的な事実・現在の状態を表すので is を使います。' },
-            { type: 'passive', typeName: '受動態', sentence: 'Japanese ___ spoken in Japan.', hint: '「日本では日本語が話されています」', options: ['is', 'are', 'was', 'were'], correct: 0, explanation: '一般的な事実を表す受動態です。Japanese（日本語）は単数扱いなので is を使います。' },
-            { type: 'passive', typeName: '受動態', sentence: 'The car ___ washed every Sunday.', hint: '「その車は毎週日曜日に洗われます」', options: ['is', 'are', 'was', 'were'], correct: 0, explanation: 'every Sunday（毎週日曜日）は習慣を表すので現在形 is を使います。' },
-            { type: 'passive', typeName: '受動態', sentence: 'This song ___ sung at the concert last night.', hint: '「この歌は昨夜のコンサートで歌われました」', options: ['was', 'is', 'were', 'are'], correct: 0, explanation: 'last night があるので過去形 was を使います。' },
-            { type: 'passive', typeName: '受動態', sentence: 'The museum ___ visited by many tourists every day.', hint: '「その博物館は毎日多くの観光客に訪れられています」', options: ['is', 'are', 'was', 'were'], correct: 0, explanation: 'every day があるので現在形 is を使います。' },
-            { type: 'passive', typeName: '受動態', sentence: 'These books ___ written in English.', hint: '「これらの本は英語で書かれています」', options: ['are', 'is', 'was', 'were'], correct: 0, explanation: '現在の状態を表し、主語 These books は複数なので are を使います。' },
-            { type: 'passive', typeName: '受動態', sentence: 'The bridge ___ built 100 years ago.', hint: '「その橋は100年前に建てられました」', options: ['was', 'is', 'were', 'are'], correct: 0, explanation: '100 years ago は明確な過去なので was を使います。' },
-            { type: 'passive', typeName: '受動態', sentence: 'The doors ___ opened at 9 a.m. every day.', hint: '「ドアは毎日午前9時に開けられます」', options: ['are', 'is', 'was', 'were'], correct: 0, explanation: 'every day があり、主語 The doors は複数なので are を使います。' },
-            { type: 'passive', typeName: '受動態', sentence: 'The game ___ played by two teams now.', hint: '「その試合は今2つのチームによって行われています」', options: ['is', 'are', 'was', 'were'], correct: 0, explanation: 'now（今）があるので現在形 is を使います。' },
-            { type: 'passive', typeName: '受動態', sentence: 'French ___ taught at this school.', hint: '「この学校ではフランス語が教えられています」', options: ['is', 'are', 'was', 'were'], correct: 0, explanation: '現在の事実を表す受動態です。French（フランス語）は単数扱いなので is を使います。' },
-            { type: 'passive', typeName: '受動態', sentence: 'The presents ___ given to the children at the party yesterday.', hint: '「プレゼントは昨日のパーティーで子供たちに与えられました」', options: ['were', 'was', 'are', 'is'], correct: 0, explanation: 'yesterday があり、主語 The presents は複数なので were を使います。' },
-            { type: 'passive', typeName: '受動態', sentence: 'The house ___ painted white last month.', hint: '「その家は先月白く塗られました」', options: ['was', 'is', 'were', 'are'], correct: 0, explanation: 'last month があるので過去形 was を使います。' },
-            { type: 'passive', typeName: '受動態', sentence: 'This temple ___ built in 1200.', hint: '「この寺は1200年に建てられました」', options: ['was', 'is', 'were', 'are'], correct: 0, explanation: 'in 1200 は明確な過去なので was を使います。' },
-            { type: 'passive', typeName: '受動態', sentence: 'Coffee ___ grown in Brazil.', hint: '「コーヒーはブラジルで栽培されています」', options: ['is', 'are', 'was', 'were'], correct: 0, explanation: '一般的な事実を表す受動態です。Coffee は単数扱いなので is を使います。' },
-            { type: 'passive', typeName: '受動態', sentence: 'The newspaper ___ delivered every morning.', hint: '「新聞は毎朝配達されます」', options: ['is', 'are', 'was', 'were'], correct: 0, explanation: 'every morning があるので現在形 is を使います。' },
-            { type: 'passive', typeName: '受動態', sentence: 'The computer ___ used by many students in this class.', hint: '「そのコンピューターはこのクラスの多くの生徒に使われています」', options: ['is', 'are', 'was', 'were'], correct: 0, explanation: '現在の状態を表す受動態です。The computer は単数なので is を使います。' },
-            { type: 'passive', typeName: '受動態', sentence: 'Many trees ___ planted in this park last year.', hint: '「この公園には去年多くの木が植えられました」', options: ['were', 'was', 'are', 'is'], correct: 0, explanation: 'last year があり、主語 Many trees は複数なので were を使います。' },
-            { type: 'passive', typeName: '受動態', sentence: 'The room ___ cleaned every day.', hint: '「その部屋は毎日掃除されます」', options: ['is', 'are', 'was', 'were'], correct: 0, explanation: 'every day があるので現在形 is を使います。' },
-            { type: 'passive', typeName: '受動態', sentence: 'These pictures ___ taken by my father during the trip.', hint: '「これらの写真は旅行中に父によって撮られました」', options: ['were', 'was', 'are', 'is'], correct: 0, explanation: 'during the trip（旅行中）は過去で、主語は複数なので were を使います。' },
-            { type: 'passive', typeName: '受動態', sentence: 'Rice ___ eaten in many Asian countries.', hint: '「米は多くのアジアの国で食べられています」', options: ['is', 'are', 'was', 'were'], correct: 0, explanation: '一般的な事実を表す受動態です。Rice は単数扱いなので is を使います。' },
-            { type: 'passive', typeName: '受動態', sentence: 'The concert ___ held in the park last Sunday.', hint: '「コンサートは先週の日曜日に公園で開催されました」', options: ['was', 'is', 'were', 'are'], correct: 0, explanation: 'last Sunday があるので過去形 was を使います。' },
-            { type: 'passive', typeName: '受動態', sentence: 'The homework ___ done by the students yesterday.', hint: '「宿題は昨日生徒たちによってなされました」', options: ['was', 'is', 'were', 'are'], correct: 0, explanation: 'yesterday があるので過去形 was を使います。' },
-            { type: 'passive', typeName: '受動態', sentence: 'German ___ spoken in Germany and Austria.', hint: '「ドイツ語はドイツとオーストリアで話されています」', options: ['is', 'are', 'was', 'were'], correct: 0, explanation: '一般的な事実を表す受動態です。German（ドイツ語）は単数扱いなので is を使います。' },
-            { type: 'passive', typeName: '受動態', sentence: 'The letter ___ sent yesterday.', hint: '「その手紙は昨日送られました」', options: ['was', 'is', 'were', 'are'], correct: 0, explanation: 'yesterday があるので過去形 was を使います。' },
-            { type: 'passive', typeName: '受動態', sentence: 'These cars ___ made in Japan.', hint: '「これらの車は日本で作られています」', options: ['are', 'is', 'was', 'were'], correct: 0, explanation: '現在の事実を表し、主語 These cars は複数なので are を使います。' },
-            { type: 'passive', typeName: '受動態', sentence: 'The children ___ taught by Mr. Smith every week.', hint: '「子供たちは毎週スミス先生に教えられています」', options: ['are', 'is', 'was', 'were'], correct: 0, explanation: 'every week があり、主語 The children は複数なので are を使います。' },
-            { type: 'passive', typeName: '受動態', sentence: 'The book ___ written in 1990.', hint: '「その本は1990年に書かれました」', options: ['was', 'is', 'were', 'are'], correct: 0, explanation: 'in 1990 は明確な過去なので was を使います。' }
+            { type: 'passive', typeName: '受動態', sentence: "This book ___ by many people every year.", hint: "「この本は毎年多くの人に読まれています」", options: ["is read", "is reading", "reads", "was read"], correct: 0,
+              explanation: ["本は「読まれる」側 → 受動態（be動詞＋過去分詞）。by many people「多くの人によって」も目印", "every year「毎年」→ 今もくり返されていること → be動詞は現在形", "主語 This book は単数 → is read（この read は過去分詞で、発音は「レッド」）"] },
+            { type: 'passive', typeName: '受動態', sentence: "English ___ in many countries around the world.", hint: "「英語は世界中の多くの国で話されています」", options: ["is spoken", "speaks", "is speaking", "is spoke"], correct: 0,
+              explanation: ["英語は「話される」側 → 受動態（be動詞＋過去分詞）", "「話されています」→ 今の事実 → 現在形。English（英語）は単数あつかい → is", "speak–spoke–spoken。過去分詞は spoken（spoke は過去形）"] },
+            { type: 'passive', typeName: '受動態', sentence: "The letter ___ by her yesterday.", hint: "「その手紙は昨日彼女によって書かれました」", options: ["was written", "is written", "wrote", "has written"], correct: 0,
+              explanation: ["手紙は「書かれる」側 → 受動態（be動詞＋過去分詞）。by her「彼女によって」も目印", "yesterday「昨日」→ 過去", "主語 The letter は単数 → was written（wrote / has written だと「手紙が書いた」になってしまう）"] },
+            { type: 'passive', typeName: '受動態', sentence: "These photos ___ taken in Paris last summer.", hint: "「これらの写真は去年の夏パリで撮られました」", options: ["were", "was", "are", "is"], correct: 0,
+              explanation: ["写真は「撮られる」側 → 受動態（be動詞＋過去分詞 taken）", "last summer「去年の夏」→ 過去（was / were）", "主語 These photos は複数 → were"] },
+            { type: 'passive', typeName: '受動態', sentence: "The window ___ broken by the ball yesterday.", hint: "「窓は昨日ボールで割られました」", options: ["was", "is", "were", "has"], correct: 0,
+              explanation: ["窓は「割られる」側 → 受動態（be動詞＋過去分詞 broken）。has は be動詞ではないので×", "yesterday「昨日」→ 過去（was / were）", "主語 The window は単数 → was"] },
+            { type: 'passive', typeName: '受動態', sentence: "This cake ___ made by my mother this morning.", hint: "「このケーキは今朝母によって作られました」", options: ["was", "is", "were", "has"], correct: 0,
+              explanation: ["ケーキは「作られる」側 → 受動態（be動詞＋過去分詞 made）。has は be動詞ではないので×", "「今朝 作られました」→ もう終わったこと → 過去（was / were）", "主語 This cake は単数 → was"] },
+            { type: 'passive', typeName: '受動態', sentence: "That movie ___ loved by children all over the world.", hint: "「あの映画は世界中の子供たちに愛されています」", options: ["is", "are", "does", "has"], correct: 0,
+              explanation: ["映画は「愛される」側 → 受動態（be動詞＋過去分詞 loved）。does や has は be動詞ではないので×", "「愛されています」→ 今のこと → 現在形（is / are）", "主語 That movie は単数 → is（by の後ろの children は主語ではない）"] },
+            { type: 'passive', typeName: '受動態', sentence: "Japanese ___ spoken in Japan.", hint: "「日本では日本語が話されています」", options: ["is", "are", "does", "has"], correct: 0,
+              explanation: ["日本語は「話される」側 → 受動態（be動詞＋過去分詞 spoken）。does や has は be動詞ではないので×", "「話されています」→ 今の事実 → 現在形（is / are）", "Japanese（日本語）は単数あつかい → is"] },
+            { type: 'passive', typeName: '受動態', sentence: "The car ___ washed every Sunday.", hint: "「その車は毎週日曜日に洗われます」", options: ["is", "are", "was", "were"], correct: 0,
+              explanation: ["車は「洗われる」側 → 受動態（be動詞＋過去分詞 washed）", "every Sunday「毎週日曜日」→ 今の習慣 → 現在形（is / are）", "主語 The car は単数 → is"] },
+            { type: 'passive', typeName: '受動態', sentence: "This song ___ sung at the concert last night.", hint: "「この歌は昨夜のコンサートで歌われました」", options: ["was", "is", "were", "are"], correct: 0,
+              explanation: ["歌は「歌われる」側 → 受動態（be動詞＋過去分詞 sung）", "last night「昨夜」→ 過去（was / were）", "主語 This song は単数 → was"] },
+            { type: 'passive', typeName: '受動態', sentence: "The museum ___ visited by many tourists every day.", hint: "「その博物館は毎日多くの観光客に訪問されています」", options: ["is", "are", "was", "were"], correct: 0,
+              explanation: ["博物館は「訪問される」側 → 受動態（be動詞＋過去分詞 visited）", "every day「毎日」→ 現在形（is / are）", "主語 The museum は単数 → is（by の後ろの many tourists は主語ではない）"] },
+            { type: 'passive', typeName: '受動態', sentence: "These books ___ written in English.", hint: "「これらの本は英語で書かれています」", options: ["are", "is", "do", "have"], correct: 0,
+              explanation: ["本は「書かれる」側 → 受動態（be動詞＋過去分詞 written）。do や have は be動詞ではないので×", "「書かれています」→ 今の状態 → 現在形（is / are）", "主語 These books は複数 → are"] },
+            { type: 'passive', typeName: '受動態', sentence: "The bridge ___ built 100 years ago.", hint: "「その橋は100年前に建てられました」", options: ["was", "is", "were", "are"], correct: 0,
+              explanation: ["橋は「建てられる」側 → 受動態（be動詞＋過去分詞 built）", "100 years ago「100年前」→ 過去（was / were）", "主語 The bridge は単数 → was"] },
+            { type: 'passive', typeName: '受動態', sentence: "The doors ___ opened at 9 a.m. every day.", hint: "「ドアは毎日午前9時に開けられます」", options: ["are", "is", "was", "were"], correct: 0,
+              explanation: ["ドアは「開けられる」側 → 受動態（be動詞＋過去分詞 opened）", "every day「毎日」→ 現在形（is / are）", "主語 The doors は複数 → are"] },
+            { type: 'passive', typeName: '受動態', sentence: "Baseball ___ played by two teams.", hint: "「野球は2つのチームによって行われます」", options: ["is", "are", "does", "has"], correct: 0,
+              explanation: ["野球は「（プレー）される」側 → 受動態（be動詞＋過去分詞 played）。by two teams「2つのチームによって」も目印", "「行われます」→ いつものこと → 現在形（is / are）", "主語 Baseball は単数あつかい → is（by の後ろの two teams は主語ではない）"] },
+            { type: 'passive', typeName: '受動態', sentence: "French ___ taught at this school.", hint: "「この学校ではフランス語が教えられています」", options: ["is", "are", "does", "has"], correct: 0,
+              explanation: ["フランス語は「教えられる」側 → 受動態（be動詞＋過去分詞 taught）。does や has は be動詞ではないので×", "「教えられています」→ 今の事実 → 現在形（is / are）", "French（フランス語）は単数あつかい → is"] },
+            { type: 'passive', typeName: '受動態', sentence: "The presents ___ given to the children at the party yesterday.", hint: "「プレゼントは昨日のパーティーで子供たちに与えられました」", options: ["were", "was", "are", "is"], correct: 0,
+              explanation: ["プレゼントは「あげられる」側 → 受動態（be動詞＋過去分詞 given）", "yesterday「昨日」→ 過去（was / were）", "主語 The presents は複数 → were"] },
+            { type: 'passive', typeName: '受動態', sentence: "The house ___ painted white last month.", hint: "「その家は先月白く塗られました」", options: ["was", "is", "were", "are"], correct: 0,
+              explanation: ["家は「塗られる」側 → 受動態（be動詞＋過去分詞 painted）", "last month「先月」→ 過去（was / were）", "主語 The house は単数 → was（were は主語が複数のとき）"] },
+            { type: 'passive', typeName: '受動態', sentence: "This temple ___ built in 1200.", hint: "「この寺は1200年に建てられました」", options: ["was", "is", "were", "are"], correct: 0,
+              explanation: ["寺は「建てられる」側 → 受動態（be動詞＋過去分詞 built）", "in 1200「1200年に」→ 過去（was / were）", "主語 This temple は単数 → was"] },
+            { type: 'passive', typeName: '受動態', sentence: "Coffee ___ grown in Brazil.", hint: "「コーヒーはブラジルで栽培されています」", options: ["is", "are", "does", "do"], correct: 0,
+              explanation: ["コーヒーは「育てられる（栽培される）」側 → 受動態（be動詞＋過去分詞 grown）。do や does は be動詞ではないので×", "「栽培されています」→ 今の事実 → 現在形（is / are）", "Coffee は数えられない名詞で単数あつかい → is"] },
+            { type: 'passive', typeName: '受動態', sentence: "The newspaper ___ delivered every morning.", hint: "「新聞は毎朝配達されます」", options: ["is", "are", "was", "were"], correct: 0,
+              explanation: ["新聞は「配達される」側 → 受動態（be動詞＋過去分詞 delivered）", "every morning「毎朝」→ 現在形（is / are）", "主語 The newspaper は単数 → is"] },
+            { type: 'passive', typeName: '受動態', sentence: "The computer ___ used by many students in this class.", hint: "「そのコンピューターはこのクラスの多くの生徒に使われています」", options: ["is", "are", "does", "has"], correct: 0,
+              explanation: ["コンピューターは「使われる」側 → 受動態（be動詞＋過去分詞 used）。does や has は be動詞ではないので×", "「使われています」→ 今のこと → 現在形（is / are）", "主語 The computer は単数 → is（by の後ろの many students は主語ではない）"] },
+            { type: 'passive', typeName: '受動態', sentence: "Many trees ___ planted in this park last year.", hint: "「この公園には去年多くの木が植えられました」", options: ["were", "was", "are", "is"], correct: 0,
+              explanation: ["木は「植えられる」側 → 受動態（be動詞＋過去分詞 planted）", "last year「去年」→ 過去（was / were）", "主語 Many trees は複数 → were"] },
+            { type: 'passive', typeName: '受動態', sentence: "The room ___ cleaned every day.", hint: "「その部屋は毎日掃除されます」", options: ["is", "are", "was", "were"], correct: 0,
+              explanation: ["部屋は「掃除される」側 → 受動態（be動詞＋過去分詞 cleaned）", "every day「毎日」→ 現在形（is / are）", "主語 The room は単数 → is"] },
+            { type: 'passive', typeName: '受動態', sentence: "These pictures ___ taken by my father during the trip last year.", hint: "「これらの写真は去年の旅行中に父によって撮られました」", options: ["were", "was", "are", "is"], correct: 0,
+              explanation: ["写真は「撮られる」側 → 受動態（be動詞＋過去分詞 taken）", "last year「去年」→ 過去（was / were）", "主語 These pictures は複数 → were（by の後ろの my father は主語ではない）"] },
+            { type: 'passive', typeName: '受動態', sentence: "Rice ___ eaten in many Asian countries.", hint: "「米は多くのアジアの国で食べられています」", options: ["is", "are", "does", "has"], correct: 0,
+              explanation: ["米は「食べられる」側 → 受動態（be動詞＋過去分詞 eaten）。does や has は be動詞ではないので×", "「食べられています」→ 今の事実 → 現在形（is / are）", "Rice は数えられない名詞で単数あつかい → is"] },
+            { type: 'passive', typeName: '受動態', sentence: "The concert ___ held in the park last Sunday.", hint: "「コンサートは先週の日曜日に公園で開催されました」", options: ["was", "is", "were", "are"], correct: 0,
+              explanation: ["コンサートは「開かれる」側 → 受動態（be動詞＋過去分詞 held。hold–held–held）", "last Sunday「先週の日曜日」→ 過去（was / were）", "主語 The concert は単数 → was"] },
+            { type: 'passive', typeName: '受動態', sentence: "The homework ___ done by the students yesterday.", hint: "「その宿題は昨日、生徒たちによって行われました」", options: ["was", "is", "were", "are"], correct: 0,
+              explanation: ["宿題は「される」側 → 受動態（be動詞＋過去分詞 done）", "yesterday「昨日」→ 過去（was / were）", "homework は数えられない名詞で単数あつかい → was（by の後ろの the students は主語ではない）"] },
+            { type: 'passive', typeName: '受動態', sentence: "German ___ spoken in Germany and Austria.", hint: "「ドイツ語はドイツとオーストリアで話されています」", options: ["is", "are", "does", "has"], correct: 0,
+              explanation: ["ドイツ語は「話される」側 → 受動態（be動詞＋過去分詞 spoken）。does や has は be動詞ではないので×", "「話されています」→ 今の事実 → 現在形（is / are）", "German（ドイツ語）は単数あつかい → is"] },
+            { type: 'passive', typeName: '受動態', sentence: "The letter ___ sent yesterday.", hint: "「その手紙は昨日送られました」", options: ["was", "is", "were", "are"], correct: 0,
+              explanation: ["手紙は「送られる」側 → 受動態（be動詞＋過去分詞 sent。send–sent–sent）", "yesterday「昨日」→ 過去（was / were）", "主語 The letter は単数 → was"] },
+            { type: 'passive', typeName: '受動態', sentence: "These cars ___ made in Japan.", hint: "「これらの車は日本で作られています」", options: ["are", "is", "do", "have"], correct: 0,
+              explanation: ["車は「作られる」側 → 受動態（be動詞＋過去分詞 made）。do や have は be動詞ではないので×", "「作られています」→ 今の事実 → 現在形（is / are）", "主語 These cars は複数 → are"] },
+            { type: 'passive', typeName: '受動態', sentence: "The children ___ taught by Mr. Smith every week.", hint: "「子供たちは毎週スミス先生に教えられています」", options: ["are", "is", "was", "were"], correct: 0,
+              explanation: ["子どもたちは「教えられる」側 → 受動態（be動詞＋過去分詞 taught）。by Mr. Smith「スミス先生によって」も目印", "every week「毎週」→ 現在形（is / are）", "children は child の複数形 → are"] },
+            { type: 'passive', typeName: '受動態', sentence: "The book ___ written in 1990.", hint: "「その本は1990年に書かれました」", options: ["was", "is", "were", "are"], correct: 0,
+              explanation: ["本は「書かれる」側 → 受動態（be動詞＋過去分詞 written）", "in 1990「1990年に」→ 過去（was / were）", "主語 The book は単数 → was"] }
         ];
 
         // ========== State ==========
@@ -1010,15 +1207,60 @@ window.WiseGame.init({ gameId: 'eiken-grammar-game' });
         let score = 0;
         let questionCount = 20;
         let stats = { 'present-perfect': { correct: 0, total: 0 }, 'past': { correct: 0, total: 0 }, 'passive': { correct: 0, total: 0 } };
-        let sessionWrongAnswers = [];
+        let sessionWrongAnswers = [];   // 送信用（B2標準形式: q / correct / chosen / tag）
+        let sessionWrongDisplay = [];   // 結果画面の表示用
         let soundEnabled = true;
+        let selectedUnit = 'mix';       // 'mix' | 'present-perfect' | 'past' | 'passive'
+        let sessionLabel = 'まぜこぜ';
+        let combo = 0;
+        let maxCombo = 0;
+
+        const UNITS = {
+            'mix': 'まぜこぜ',
+            'present-perfect': '現在完了',
+            'past': '過去形',
+            'passive': '受動態'
+        };
+        const PORTAL_URL = 'https://wise-english-portal.vercel.app';
+
+        function escapeHtml(s) {
+            return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        }
+
+        // 空所に答えを入れた完成文を作る。「have, been」のような2語の答えは空所ごとに順に入れる
+        function fillSentence(sentence, answer, wrap) {
+            const blanks = (sentence.match(/_+/g) || []).length;
+            const parts = blanks > 1 ? String(answer).split(/\s*,\s*/) : [String(answer)];
+            let i = 0;
+            return sentence.split(/_+/).map(escapeHtml).reduce((acc, seg) => {
+                const part = parts[Math.min(i++, parts.length - 1)];
+                return acc + (wrap ? wrap(escapeHtml(part)) : part) + seg;
+            });
+        }
+        function fillSentencePlain(sentence, answer) {
+            const blanks = (sentence.match(/_+/g) || []).length;
+            const parts = blanks > 1 ? String(answer).split(/\s*,\s*/) : [String(answer)];
+            let i = 0;
+            return sentence.replace(/_+/g, () => parts[Math.min(i++, parts.length - 1)]);
+        }
+
+        // 解説（ステップの配列。旧データの文字列にも対応）を HTML にする
+        function explanationHtml(explanation, cls) {
+            const steps = Array.isArray(explanation) ? explanation : [explanation];
+            return '<ol' + (cls ? ' class="' + cls + '"' : '') + '>' + steps.filter(Boolean).map(s => '<li>' + escapeHtml(s) + '</li>').join('') + '</ol>';
+        }
+
+        function poolFor(unit) {
+            return unit === 'mix' ? questions : questions.filter(q => q.type === unit);
+        }
 
         // ========== localStorage helpers ==========
         const STORAGE_KEYS = {
             HISTORY: 'eiken-grammar-history',
             WRONG: 'eiken-grammar-wrong-answers',
             SOUND: 'eiken-grammar-sound',
-            QUESTION_COUNT: 'eiken-grammar-question-count'
+            QUESTION_COUNT: 'eiken-grammar-question-count',
+            UNIT: 'eiken-grammar-unit'
         };
 
         function loadFromStorage(key, fallback) {
@@ -1084,7 +1326,7 @@ window.WiseGame.init({ gameId: 'eiken-grammar-game' });
             if (!('speechSynthesis' in window)) return;
             const q = currentQuestions[currentIndex];
             if (!q) return;
-            const text = q.sentence.replace(/_+/g, q.options[q.correct]);
+            const text = fillSentencePlain(q.sentence, q.options[q.correct]);
             const utterance = new SpeechSynthesisUtterance(text);
             utterance.lang = 'en-US';
             utterance.rate = 0.85;
@@ -1141,6 +1383,7 @@ window.WiseGame.init({ gameId: 'eiken-grammar-game' });
             const history = getHistory();
             history.unshift({
                 date: new Date().toISOString(),
+                label: sessionLabel,
                 score: scoreVal,
                 total: total,
                 stats: JSON.parse(JSON.stringify(statsObj))
@@ -1172,7 +1415,7 @@ window.WiseGame.init({ gameId: 'eiken-grammar-game' });
                 const d = new Date(h.date);
                 const dateStr = `${d.getMonth()+1}/${d.getDate()} ${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`;
                 const pct = Math.round((h.score / h.total) * 100);
-                return `<div class="history-item"><span class="hi-date">${dateStr}</span><span class="hi-score">${h.score}/${h.total} (${pct}%)</span></div>`;
+                return `<div class="history-item"><span class="hi-date">${dateStr}${h.label ? ' ・' + escapeHtml(h.label) : ''}</span><span class="hi-score">${h.score}/${h.total} (${pct}%)</span></div>`;
             }).join('');
         }
 
@@ -1205,14 +1448,19 @@ window.WiseGame.init({ gameId: 'eiken-grammar-game' });
                     explanation: w.explanation
                 };
             });
+            window.__wiseStartTime = Date.now();
+            sessionLabel = '苦手復習';
             currentQuestions = shuffle(weakQuestions);
             currentIndex = 0;
             score = 0;
+            combo = 0; maxCombo = 0;
             sessionWrongAnswers = [];
+            sessionWrongDisplay = [];
             stats = { 'present-perfect': { correct: 0, total: 0 }, 'past': { correct: 0, total: 0 }, 'passive': { correct: 0, total: 0 } };
             document.getElementById('startScreen').style.display = 'none';
             document.getElementById('gameScreen').classList.add('active');
             document.getElementById('resultScreen').classList.remove('active');
+            document.getElementById('nextBtn').textContent = '次へ →';
             showQuestion();
         }
 
@@ -1221,24 +1469,54 @@ window.WiseGame.init({ gameId: 'eiken-grammar-game' });
             soundEnabled = loadFromStorage(STORAGE_KEYS.SOUND, true);
             document.getElementById('soundToggle').textContent = soundEnabled ? '🔊' : '🔇';
 
-            const savedCount = loadFromStorage(STORAGE_KEYS.QUESTION_COUNT, 20);
-            questionCount = savedCount;
-            document.querySelectorAll('.count-btn').forEach(b => {
-                b.classList.remove('selected');
-                if (parseInt(b.dataset.count) === savedCount) b.classList.add('selected');
-            });
+            const savedCount = parseInt(loadFromStorage(STORAGE_KEYS.QUESTION_COUNT, 20), 10);
+            questionCount = savedCount > 0 ? savedCount : 20;
+            const savedUnit = loadFromStorage(STORAGE_KEYS.UNIT, 'mix');
+            selectedUnit = UNITS[savedUnit] ? savedUnit : 'mix';
+            refreshSelectors();
 
             renderHistory();
             updateWeakQuestionsBtn();
         }
 
         // ========== Event Listeners ==========
+        // 単元・出題数ボタンの表示を現在の選択に合わせる
+        function refreshSelectors() {
+            const poolSize = poolFor(selectedUnit).length;
+            document.querySelectorAll('.unit-btn').forEach(b => {
+                b.classList.toggle('selected', b.dataset.unit === selectedUnit);
+            });
+            document.querySelectorAll('.count-btn').forEach(b => {
+                const c = parseInt(b.dataset.count, 10);
+                b.disabled = c > poolSize;
+                b.classList.toggle('selected', c === questionCount && c <= poolSize);
+            });
+            // 単元の問題数より多い出題数が選ばれていたら、選べる最大のボタンに合わせる
+            if (questionCount > poolSize) {
+                const fits = [...document.querySelectorAll('.count-btn')].filter(b => !b.disabled);
+                const last = fits[fits.length - 1];
+                if (last) { questionCount = parseInt(last.dataset.count, 10); last.classList.add('selected'); }
+            }
+            const note = document.getElementById('totalQuestionsNote');
+            note.textContent = (selectedUnit === 'mix' ? '3単元 全' : UNITS[selectedUnit] + ' 全') + poolSize + '問からランダム出題・時間制限なし';
+        }
+
         document.querySelectorAll('.count-btn').forEach(btn => {
             btn.addEventListener('click', function() {
-                document.querySelectorAll('.count-btn').forEach(b => b.classList.remove('selected'));
-                this.classList.add('selected');
-                questionCount = parseInt(this.dataset.count);
+                questionCount = parseInt(this.dataset.count, 10);
                 saveToStorage(STORAGE_KEYS.QUESTION_COUNT, questionCount);
+                refreshSelectors();
+            });
+        });
+
+        document.querySelectorAll('.unit-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                selectedUnit = this.dataset.unit;
+                saveToStorage(STORAGE_KEYS.UNIT, selectedUnit);
+                // 単元を変えたら、保存してある出題数の希望にもどしてから調整する
+                const saved = parseInt(loadFromStorage(STORAGE_KEYS.QUESTION_COUNT, 20), 10);
+                if (saved > 0) questionCount = saved;
+                refreshSelectors();
             });
         });
 
@@ -1253,10 +1531,15 @@ window.WiseGame.init({ gameId: 'eiken-grammar-game' });
 
         function startGame() {
             window.__wiseStartTime = Date.now();
-            currentQuestions = shuffle(questions).slice(0, questionCount);
+            const pool = poolFor(selectedUnit);
+            sessionLabel = UNITS[selectedUnit];
+            currentQuestions = shuffle(pool).slice(0, Math.max(1, Math.min(questionCount, pool.length)));
             currentIndex = 0;
             score = 0;
+            combo = 0; maxCombo = 0;
             sessionWrongAnswers = [];
+            sessionWrongDisplay = [];
+            document.getElementById('nextBtn').textContent = '次へ →';
             stats = { 'present-perfect': { correct: 0, total: 0 }, 'past': { correct: 0, total: 0 }, 'passive': { correct: 0, total: 0 } };
             document.getElementById('startScreen').style.display = 'none';
             document.getElementById('gameScreen').classList.add('active');
@@ -1298,7 +1581,10 @@ window.WiseGame.init({ gameId: 'eiken-grammar-game' });
             });
 
             document.getElementById('feedback').classList.remove('show', 'correct', 'incorrect');
-            stats[q.type].total++;
+            if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+            const badge = document.getElementById('comboBadge');
+            if (combo >= 2) { badge.style.display = 'block'; badge.firstElementChild.textContent = '🔥 ' + combo + '問連続正解！'; }
+            else { badge.style.display = 'none'; }
         }
 
         function selectAnswer(selected, correctIndex, shuffledOptions) {
@@ -1307,6 +1593,9 @@ window.WiseGame.init({ gameId: 'eiken-grammar-game' });
             const feedback = document.getElementById('feedback');
 
             buttons.forEach(btn => btn.disabled = true);
+            if (!stats[q.type]) stats[q.type] = { correct: 0, total: 0 };
+            stats[q.type].total++;
+            const correctText = shuffledOptions[correctIndex].opt;
 
             if (selected === correctIndex) {
                 buttons[selected].classList.add('correct');
@@ -1314,6 +1603,8 @@ window.WiseGame.init({ gameId: 'eiken-grammar-game' });
                 document.getElementById('feedbackIcon').textContent = '🎉';
                 document.getElementById('feedbackText').textContent = '正解！';
                 score++;
+                combo++;
+                if (combo > maxCombo) maxCombo = combo;
                 stats[q.type].correct++;
                 playCorrectSound();
                 // If answered correctly, remove from wrong answers list
@@ -1324,6 +1615,7 @@ window.WiseGame.init({ gameId: 'eiken-grammar-game' });
                 feedback.classList.add('incorrect');
                 document.getElementById('feedbackIcon').textContent = '😅';
                 document.getElementById('feedbackText').textContent = '残念...';
+                combo = 0;
                 playWrongSound();
                 // Track wrong answer
                 const yourAnswer = shuffledOptions[selected].opt;
@@ -1338,9 +1630,18 @@ window.WiseGame.init({ gameId: 'eiken-grammar-game' });
                     chosen: yourAnswer,
                     tag: tagMap[q.type] || 'other_grammar'
                 });
+                sessionWrongDisplay.push({
+                    typeName: q.typeName, sentence: q.sentence, hint: q.hint,
+                    yourAnswer: yourAnswer, correctAnswer: correctAnswer, explanation: q.explanation
+                });
             }
 
-            document.getElementById('explanation').textContent = q.explanation;
+            // 完成文（答えを入れた形）と、根拠を順に示す解説
+            document.getElementById('completedSentence').innerHTML = fillSentence(q.sentence, correctText, s => '<b>' + s + '</b>');
+            document.getElementById('completedJa').textContent = q.hint || '';
+            document.getElementById('ttsBtn').disabled = false;
+            document.getElementById('ttsBtn').style.display = ('speechSynthesis' in window) ? '' : 'none';
+            document.getElementById('explanation').innerHTML = explanationHtml(q.explanation);
             document.getElementById('score').textContent = score;
             feedback.classList.add('show');
 
@@ -1380,9 +1681,15 @@ window.WiseGame.init({ gameId: 'eiken-grammar-game' });
             document.getElementById('statPresentPerfect').textContent = `${stats['present-perfect'].correct}/${stats['present-perfect'].total}`;
             document.getElementById('statPast').textContent = `${stats['past'].correct}/${stats['past'].total}`;
             document.getElementById('statPassive').textContent = `${stats['passive'].correct}/${stats['passive'].total}`;
+            // 出題されなかった単元のカードは出さない
+            document.getElementById('statCardPresentPerfect').style.display = stats['present-perfect'].total ? '' : 'none';
+            document.getElementById('statCardPast').style.display = stats['past'].total ? '' : 'none';
+            document.getElementById('statCardPassive').style.display = stats['passive'].total ? '' : 'none';
+            document.querySelector('.result-title').textContent = '結果発表（' + sessionLabel + '）';
+            if ('speechSynthesis' in window) window.speechSynthesis.cancel();
 
             // WiseXP: report game result
-            if(window.WiseXP) window.WiseXP.reportGame({score:Math.round(percentage), correct:score, total:currentQuestions.length, maxCombo:0, grade:scoreClass});
+            if(window.WiseXP) window.WiseXP.reportGame({score:Math.round(percentage), correct:score, total:currentQuestions.length, maxCombo:maxCombo, grade:scoreClass});
 
             // → MoWISE portal へスコア送信 (WiseGame Bridge)
             try {
@@ -1390,6 +1697,7 @@ window.WiseGame.init({ gameId: 'eiken-grammar-game' });
                     score: Math.round(percentage), maxScore: 100, accuracy: Math.round(percentage),
                     timeSpent: Math.round((Date.now() - (window.__wiseStartTime || Date.now())) / 1000),
                     metadata: {
+                        unit: sessionLabel,
                         byType: stats,
                         wrongAnswers: sessionWrongAnswers.slice(-20)
                     }
@@ -1402,14 +1710,14 @@ window.WiseGame.init({ gameId: 'eiken-grammar-game' });
             // Show wrong answers for this session
             const wrongSection = document.getElementById('wrongAnswersSection');
             const wrongList = document.getElementById('wrongAnswersList');
-            if (sessionWrongAnswers.length > 0) {
+            if (sessionWrongDisplay.length > 0) {
                 wrongSection.style.display = 'block';
-                wrongList.innerHTML = sessionWrongAnswers.map(w =>
+                wrongList.innerHTML = sessionWrongDisplay.map(w =>
                     `<div class="wrong-answer-item">
-                        <div class="wa-sentence">[${w.typeName}] ${w.sentence}</div>
-                        <div class="wa-detail">${w.hint}</div>
-                        <div class="wa-detail">あなたの答え: <span class="wa-your-answer">${w.yourAnswer}</span> → 正解: <span class="wa-correct-answer">${w.correctAnswer}</span></div>
-                        <div class="wa-detail" style="margin-top:4px; font-size:0.8rem; color:#888;">${w.explanation}</div>
+                        <div class="wa-sentence">[${escapeHtml(w.typeName)}] ${fillSentence(w.sentence, w.correctAnswer, s => '<b>' + s + '</b>')}</div>
+                        <div class="wa-detail">${escapeHtml(w.hint)}</div>
+                        <div class="wa-detail">あなたの答え: <span class="wa-your-answer">${escapeHtml(w.yourAnswer)}</span> → 正解: <span class="wa-correct-answer">${escapeHtml(w.correctAnswer)}</span></div>
+                        <div class="wa-detail" style="margin-top:4px; font-size:0.8rem; color:#888;">${explanationHtml(w.explanation, 'wa-steps')}</div>
                     </div>`
                 ).join('');
             } else {
@@ -1427,6 +1735,7 @@ window.WiseGame.init({ gameId: 'eiken-grammar-game' });
 
         function backToStart() {
             if (confirm('スタート画面に戻りますか？\n（現在の進捗は失われます）')) {
+                if ('speechSynthesis' in window) window.speechSynthesis.cancel();
                 document.getElementById('gameScreen').classList.remove('active');
                 document.getElementById('startScreen').style.display = 'block';
                 renderHistory();
@@ -1434,12 +1743,45 @@ window.WiseGame.init({ gameId: 'eiken-grammar-game' });
             }
         }
 
+        // ========== ディープリンク（ポータルの「今日の10分コース」などから直接起動） ==========
+        //   ?unit=present-perfect | past | passive | mix   … 単元（別名: pp / perfect / 1, 2, 3, passive-voice, all / 0 など）
+        //   ?count=10                                      … 問題数（1〜その単元の全問題数。超えたら全問）
+        //   ?start=0                                       … 自動スタートせず、選択だけ反映してスタート画面を出す
+        // unit か count があれば、その設定ですぐに1問目を開く。保存済みの設定（localStorage）は書きかえない。
+        function applyDeepLink() {
+            let params;
+            try { params = new URLSearchParams(window.location.search); } catch (e) { return; }
+            const unitAliases = {
+                'mix': 'mix', 'mixed': 'mix', 'all': 'mix', '0': 'mix', 'mazekoze': 'mix',
+                'present-perfect': 'present-perfect', 'present_perfect': 'present-perfect', 'presentperfect': 'present-perfect', 'perfect': 'present-perfect', 'pp': 'present-perfect', '1': 'present-perfect',
+                'past': 'past', '2': 'past',
+                'passive': 'passive', 'passive-voice': 'passive', '3': 'passive'
+            };
+            const rawUnit = (params.get('unit') || '').trim().toLowerCase();
+            const rawCount = parseInt(params.get('count'), 10);
+            const unit = unitAliases[rawUnit];
+            const hasCount = Number.isFinite(rawCount) && rawCount > 0;
+            if (!unit && !hasCount) return;
+            if (unit) selectedUnit = unit;
+            if (hasCount) questionCount = Math.min(rawCount, poolFor(selectedUnit).length);
+            refreshSelectors();
+            if (hasCount) questionCount = Math.min(rawCount, poolFor(selectedUnit).length); // ボタンに無い数（例: 7）もそのまま使う
+            if (params.get('start') !== '0') startGame();
+        }
+
         // Initialize on load
         initFromStorage();
-
-        // WiseXP SDK init
-        if(window.WiseXP) window.WiseXP.init('eiken-grammar-game');
+        applyDeepLink();
     </script>
 <script src="https://cdn.jsdelivr.net/gh/winniek75/wise-xp-sdk@main/wise-xp.js"></script>
+<script>
+    // WiseXP SDK init（SDK の読み込み後に呼ぶ。読み込めなくてもゲームは動く）
+    try {
+        if (window.WiseXP && window.WiseXP.init) {
+            var __wxp = window.WiseXP.init('eiken-grammar-game');
+            if (__wxp && __wxp.catch) __wxp.catch(function () {});
+        }
+    } catch (e) {}
+</script>
 </body>
 </html>
