@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>英検3級 文法マスター</title>
+    <title>英検 文法マスター</title>
     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;900&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -112,6 +112,10 @@
             color: var(--dark);
             font-weight: 600;
         }
+        .grade-tab.active { color: white !important; }
+        #gradeTab5.active { background: #4ade80 !important; border-color: #4ade80 !important; }
+        #gradeTab4.active { background: #60a5fa !important; border-color: #60a5fa !important; }
+        #gradeTab3.active { background: #a78bfa !important; border-color: #a78bfa !important; }
         .unit-btn {
             padding: 9px 16px;
             border: 3px solid #E8ECF0;
@@ -886,15 +890,16 @@ window.WiseGame.init({ gameId: 'eiken-grammar-game' });
     <div class="container">
         <div class="start-screen" id="startScreen">
             <div class="logo">📚</div>
-            <h1 class="title">英検3級 文法マスター</h1>
-            <p class="subtitle">現在完了・過去形・受動態をマスターしよう！</p>
+            <h1 class="title">英検 文法マスター</h1>
+            <p class="subtitle" id="gradeSubtitle">級をえらんで文法を練習しよう！</p>
+            <div style="display:flex;gap:8px;justify-content:center;margin-bottom:12px;">
+                <button class="grade-tab" id="gradeTab5" onclick="selectGrade('5')" style="padding:10px 20px;border-radius:12px;border:2px solid #4ade80;background:white;color:#4ade80;font-weight:900;font-size:1rem;cursor:pointer;">5級</button>
+                <button class="grade-tab" id="gradeTab4" onclick="selectGrade('4')" style="padding:10px 20px;border-radius:12px;border:2px solid #60a5fa;background:white;color:#60a5fa;font-weight:900;font-size:1rem;cursor:pointer;">4級</button>
+                <button class="grade-tab" id="gradeTab3" onclick="selectGrade('3')" style="padding:10px 20px;border-radius:12px;border:2px solid #a78bfa;background:white;color:#a78bfa;font-weight:900;font-size:1rem;cursor:pointer;">3級</button>
+            </div>
             <div class="unit-selector">
                 <label>単元を選んでください</label>
-                <div class="grammar-tags" style="margin-bottom:0;">
-                    <button class="unit-btn present-perfect" data-unit="present-perfect">現在完了</button>
-                    <button class="unit-btn past" data-unit="past">過去形</button>
-                    <button class="unit-btn passive" data-unit="passive">受動態</button>
-                    <button class="unit-btn mix selected" data-unit="mix">🔀 まぜこぜ</button>
+                <div class="grammar-tags" style="margin-bottom:0;" id="unitButtons">
                 </div>
                 <p class="unit-note">はじめは単元を1つずつ → なれたら「まぜこぜ」がおすすめ</p>
             </div>
@@ -966,20 +971,7 @@ window.WiseGame.init({ gameId: 'eiken-grammar-game' });
             <div id="nearMissFeedback"></div>
             <div class="result-score" id="resultScore">8/10</div>
             <p class="result-message" id="resultMessage">素晴らしい！よく頑張りました！</p>
-            <div class="stats-grid">
-                <div class="stat-card" id="statCardPresentPerfect">
-                    <div class="stat-label">現在完了</div>
-                    <div class="stat-value present-perfect" id="statPresentPerfect">0/0</div>
-                </div>
-                <div class="stat-card" id="statCardPast">
-                    <div class="stat-label">過去形</div>
-                    <div class="stat-value past" id="statPast">0/0</div>
-                </div>
-                <div class="stat-card" id="statCardPassive">
-                    <div class="stat-label">受動態</div>
-                    <div class="stat-value passive" id="statPassive">0/0</div>
-                </div>
-            </div>
+            <div class="stats-grid" id="statsGrid"></div>
             <button class="restart-btn" onclick="restartGame()">もう一度挑戦</button>
             <div><a class="home-link" href="https://wise-english-portal.vercel.app">🏠 学習ホームにもどる</a></div>
 
@@ -993,7 +985,359 @@ window.WiseGame.init({ gameId: 'eiken-grammar-game' });
     <script>
         // 問題データベース (100問)
         // explanation は「根拠 → 結論」を順に並べたステップの配列（画面では ①②③ で表示）
-        const questions = [
+        // ========== 5級 問題データベース (160問) ==========
+        const grade5Questions = [
+            // ========== 疑問詞 (25問) ==========
+            { type: 'interrogative', typeName: '疑問詞', sentence: '___ is your name?', hint: '「あなたの名前は何ですか」', options: ['What', 'Who', 'Where', 'When'], correct: 0, explanation: '名前を尋ねるときは What（何）を使います。' },
+            { type: 'interrogative', typeName: '疑問詞', sentence: '___ is that girl?', hint: '「あの女の子は誰ですか」', options: ['Which', 'What', 'Who', 'Where'], correct: 2, explanation: '人が誰かを尋ねるときは Who（誰）を使います。' },
+            { type: 'interrogative', typeName: '疑問詞', sentence: '___ do you live?', hint: '「あなたはどこに住んでいますか」', options: ['When', 'Where', 'What', 'Who'], correct: 1, explanation: '場所を尋ねるときは Where（どこ）を使います。' },
+            { type: 'interrogative', typeName: '疑問詞', sentence: '___ is your birthday?', hint: '「あなたの誕生日はいつですか」', options: ['Where', 'What', 'When', 'Who'], correct: 2, explanation: '時を尋ねるときは When（いつ）を使います。' },
+            { type: 'interrogative', typeName: '疑問詞', sentence: '___ bag is this?', hint: '「これは誰のかばんですか」', options: ['Who', 'What', 'Whose', 'Which'], correct: 2, explanation: '持ち主を尋ねるときは Whose（誰の）を使います。' },
+            { type: 'interrogative', typeName: '疑問詞', sentence: '___ color do you like?', hint: '「あなたは何色が好きですか」', options: ['What', 'Who', 'Where', 'When'], correct: 0, explanation: '色の種類を尋ねるときは What（何の）を使います。What color で「何色」です。' },
+            { type: 'interrogative', typeName: '疑問詞', sentence: '___ do you go to school?', hint: '「あなたはどうやって学校に行きますか」', options: ['What', 'Where', 'Who', 'How'], correct: 3, explanation: '方法・手段を尋ねるときは How（どのように）を使います。' },
+            { type: 'interrogative', typeName: '疑問詞', sentence: '___ many books do you have?', hint: '「あなたは本を何冊持っていますか」', options: ['How', 'What', 'Where', 'Which'], correct: 0, explanation: '数を尋ねるときは How many（いくつ）を使います。' },
+            { type: 'interrogative', typeName: '疑問詞', sentence: '___ old are you?', hint: '「あなたは何歳ですか」', options: ['What', 'How', 'Who', 'When'], correct: 1, explanation: '年齢を尋ねるときは How old（何歳）を使います。' },
+            { type: 'interrogative', typeName: '疑問詞', sentence: '___ is this pen?', hint: '「このペンはいくらですか」', options: ['How many', 'How old', 'How much', 'How long'], correct: 2, explanation: '値段を尋ねるときは How much（いくら）を使います。' },
+            { type: 'interrogative', typeName: '疑問詞', sentence: '___ subject do you like the best?', hint: '「あなたはどの教科が一番好きですか」', options: ['Who', 'Which', 'When', 'Where'], correct: 1, explanation: '選択肢の中から選ぶときは Which（どの、どちら）を使います。' },
+            { type: 'interrogative', typeName: '疑問詞', sentence: '___ is the post office?', hint: '「郵便局はどこですか」', options: ['What', 'When', 'Where', 'Who'], correct: 2, explanation: '場所を尋ねるときは Where（どこ）を使います。' },
+            { type: 'interrogative', typeName: '疑問詞', sentence: '___ do you get up every morning?', hint: '「あなたは毎朝何時に起きますか」', options: ['What time', 'How many', 'Where', 'Who'], correct: 0, explanation: '時間を尋ねるときは What time（何時）を使います。' },
+            { type: 'interrogative', typeName: '疑問詞', sentence: '___ sport do you like?', hint: '「あなたはどのスポーツが好きですか」', options: ['When', 'Who', 'Where', 'What'], correct: 3, explanation: '種類を尋ねるときは What（何の）を使います。' },
+            { type: 'interrogative', typeName: '疑問詞', sentence: '___ teaches English at your school?', hint: '「あなたの学校で誰が英語を教えていますか」', options: ['What', 'Where', 'Who', 'When'], correct: 2, explanation: '人（主語）を尋ねるときは Who（誰が）を使います。' },
+            { type: 'interrogative', typeName: '疑問詞', sentence: '___ pencils do you need?', hint: '「鉛筆は何本必要ですか」', options: ['How much', 'How old', 'How many', 'How long'], correct: 2, explanation: '数えられるものの数を尋ねるときは How many を使います。' },
+            { type: 'interrogative', typeName: '疑問詞', sentence: '___ is your favorite season?', hint: '「あなたの好きな季節は何ですか」', options: ['What', 'Who', 'When', 'Where'], correct: 0, explanation: '好きなものを聞くときは What を使います。' },
+            { type: 'interrogative', typeName: '疑問詞', sentence: '___ do you eat lunch?', hint: '「あなたはいつ昼食を食べますか」', options: ['What', 'Where', 'When', 'How'], correct: 2, explanation: '時を尋ねるときは When（いつ）を使います。' },
+            { type: 'interrogative', typeName: '疑問詞', sentence: '___ is your English teacher?', hint: '「あなたの英語の先生は誰ですか」', options: ['Where', 'Who', 'When', 'What'], correct: 1, explanation: '人について尋ねるときは Who（誰）を使います。' },
+            { type: 'interrogative', typeName: '疑問詞', sentence: '___ is the weather today?', hint: '「今日の天気はどうですか」', options: ['What', 'How', 'Where', 'When'], correct: 1, explanation: '天気の状態を尋ねるときは How（どう）を使います。' },
+            { type: 'interrogative', typeName: '疑問詞', sentence: '___ is your school?', hint: '「あなたの学校はどこですか」', options: ['Who', 'When', 'What', 'Where'], correct: 3, explanation: '場所を尋ねるときは Where（どこ）を使います。' },
+            { type: 'interrogative', typeName: '疑問詞', sentence: '___ do you want for your birthday?', hint: '「誕生日に何がほしいですか」', options: ['What', 'When', 'Who', 'Where'], correct: 0, explanation: '欲しいもの（何）を尋ねるときは What を使います。' },
+            { type: 'interrogative', typeName: '疑問詞', sentence: '___ is this book?', hint: '「この本はいくらですか」', options: ['How old', 'How many', 'How long', 'How much'], correct: 3, explanation: '値段を尋ねるときは How much（いくら）を使います。' },
+            { type: 'interrogative', typeName: '疑問詞', sentence: "___ umbrella is this? It's mine.", hint: '「これは誰の傘ですか？ 私のです」', options: ['What', 'Which', 'Whose', 'Who'], correct: 2, explanation: '持ち主を尋ねるときは Whose（誰の）を使います。' },
+            { type: 'interrogative', typeName: '疑問詞', sentence: '___ do you come to school?  By bus.', hint: '「どうやって学校に来ますか？ バスです」', options: ['Where', 'When', 'How', 'What'], correct: 2, explanation: '手段・方法を尋ねるときは How（どのように）を使います。' },
+            // ========== 命令文 (20問) ==========
+            { type: 'imperative', typeName: '命令文', sentence: '___ run in the hallway.', hint: '「廊下を走ってはいけません」', options: ['Do', "Don't", "Let's", "Doesn't"], correct: 1, explanation: "禁止を表す否定の命令文は Don't + 動詞の原形 です。" },
+            { type: 'imperative', typeName: '命令文', sentence: '___ go to the park together.', hint: '「一緒に公園に行きましょう」', options: ["Don't", 'Do', "Let's", 'Please'], correct: 2, explanation: "「〜しましょう」と誘うときは Let's + 動詞の原形 を使います。" },
+            { type: 'imperative', typeName: '命令文', sentence: '___ the window, please.', hint: '「窓を開けてください」', options: ['Open', 'Opens', 'Opening', 'Opened'], correct: 0, explanation: '命令文は動詞の原形で始めます。please をつけると丁寧になります。' },
+            { type: 'imperative', typeName: '命令文', sentence: '___ quiet in the library.', hint: '「図書館では静かにしなさい」', options: ['Are', 'Be', 'Is', 'Do'], correct: 1, explanation: 'be動詞の命令文は Be + 形容詞 の形です。' },
+            { type: 'imperative', typeName: '命令文', sentence: "___ touch that. It's dangerous.", hint: '「それに触ってはいけません。危険です」', options: ['Do', 'Please', "Let's", "Don't"], correct: 3, explanation: "禁止を表す否定の命令文は Don't + 動詞の原形 です。" },
+            { type: 'imperative', typeName: '命令文', sentence: '___ play soccer after school.', hint: '「放課後サッカーをしましょう」', options: ["Don't", "Let's", 'Do', 'Be'], correct: 1, explanation: "「〜しましょう」と誘うときは Let's + 動詞の原形 を使います。" },
+            { type: 'imperative', typeName: '命令文', sentence: '___ your homework before dinner.', hint: '「夕食前に宿題をしなさい」', options: ['Do', "Don't", 'Does', 'Doing'], correct: 0, explanation: '命令文は動詞の原形で始めます。Do your homework で「宿題をしなさい」です。' },
+            { type: 'imperative', typeName: '命令文', sentence: '___ eat too much candy.', hint: '「あまりたくさんお菓子を食べてはいけません」', options: ["Let's", 'Do', "Don't", 'Please'], correct: 2, explanation: "禁止を表す否定の命令文は Don't + 動詞の原形 です。" },
+            { type: 'imperative', typeName: '命令文', sentence: '___ careful when you cross the street.', hint: '「道路を渡るときは気をつけなさい」', options: ['Is', 'Are', 'Be', 'Do'], correct: 2, explanation: 'be動詞の命令文は Be + 形容詞 の形です。Be careful で「気をつけなさい」です。' },
+            { type: 'imperative', typeName: '命令文', sentence: '___ have lunch together.', hint: '「一緒にお昼ごはんを食べましょう」', options: ["Don't", 'Do', 'Be', "Let's"], correct: 3, explanation: "「〜しましょう」と誘うときは Let's を使います。" },
+            { type: 'imperative', typeName: '命令文', sentence: '___ sit down, please.', hint: '「どうぞ座ってください」', options: ['Please', 'Sit', "Don't", "Let's"], correct: 0, explanation: 'Please + 動詞の原形 で丁寧な命令文になります。' },
+            { type: 'imperative', typeName: '命令文', sentence: '___ your hands before lunch.', hint: '「昼食の前に手を洗いなさい」', options: ['Washing', 'Washes', 'Wash', 'Washed'], correct: 2, explanation: '命令文は動詞の原形で始めます。' },
+            { type: 'imperative', typeName: '命令文', sentence: '___ kind to your friends.', hint: '「友達に親切にしなさい」', options: ['Are', 'Is', 'Do', 'Be'], correct: 3, explanation: 'be動詞の命令文は Be + 形容詞 の形です。' },
+            { type: 'imperative', typeName: '命令文', sentence: '___ use your phone in class.', hint: '「授業中に電話を使ってはいけません」', options: ["Let's", 'Please', "Don't", 'Do'], correct: 2, explanation: "禁止を表す否定の命令文は Don't + 動詞の原形 です。" },
+            { type: 'imperative', typeName: '命令文', sentence: '___ make a cake for Mom.', hint: '「お母さんのためにケーキを作りましょう」', options: ["Don't", 'Be', "Let's", 'Do'], correct: 2, explanation: "「〜しましょう」と誘うときは Let's + 動詞の原形 を使います。" },
+            { type: 'imperative', typeName: '命令文', sentence: '___ at the picture on the board.', hint: '「黒板の絵を見なさい」', options: ['Looks', 'Look', 'Looking', 'Looked'], correct: 1, explanation: '命令文は動詞の原形で始めます。Look at ~ で「〜を見なさい」です。' },
+            { type: 'imperative', typeName: '命令文', sentence: '___ late for school.', hint: '「学校に遅刻してはいけません」', options: ["Don't be", 'Be', 'Not be', "Isn't"], correct: 0, explanation: "be動詞の否定命令文は Don't be + 形容詞 です。" },
+            { type: 'imperative', typeName: '命令文', sentence: "___ this book. It's very good.", hint: '「この本を読みなさい。とてもいい本です」', options: ['Reading', 'Reads', 'Read', 'Readed'], correct: 2, explanation: '命令文は動詞の原形で始めます。' },
+            { type: 'imperative', typeName: '命令文', sentence: '___ sing a song together.', hint: '「一緒に歌を歌いましょう」', options: ["Let's", "Don't", 'Be', 'Please'], correct: 0, explanation: "「〜しましょう」と誘うときは Let's + 動詞の原形 を使います。" },
+            { type: 'imperative', typeName: '命令文', sentence: "___ swim in this river. It's dangerous.", hint: '「この川で泳いではいけません。危険です」', options: ["Let's", 'Please', 'Do', "Don't"], correct: 3, explanation: "禁止を表す否定の命令文は Don't + 動詞の原形 です。" },
+            // ========== 現在進行形 (25問) ==========
+            { type: 'progressive', typeName: '現在進行形', sentence: 'She ___ reading a book now.', hint: '「彼女は今本を読んでいます」', options: ['is', 'are', 'am', 'does'], correct: 0, explanation: '現在進行形は be動詞 + ~ing です。主語が She なので is を使います。' },
+            { type: 'progressive', typeName: '現在進行形', sentence: 'I ___ studying English now.', hint: '「私は今英語を勉強しています」', options: ['is', 'am', 'are', 'do'], correct: 1, explanation: '現在進行形は be動詞 + ~ing です。主語が I なので am を使います。' },
+            { type: 'progressive', typeName: '現在進行形', sentence: 'They ___ playing soccer in the park.', hint: '「彼らは公園でサッカーをしています」', options: ['is', 'am', 'are', 'does'], correct: 2, explanation: '現在進行形は be動詞 + ~ing です。主語が They なので are を使います。' },
+            { type: 'progressive', typeName: '現在進行形', sentence: 'We are ___ lunch now.', hint: '「私たちは今昼食を食べています」', options: ['eat', 'eating', 'eats', 'ate'], correct: 1, explanation: '現在進行形は be動詞 + ~ing です。eat の ing 形は eating です。' },
+            { type: 'progressive', typeName: '現在進行形', sentence: 'He is ___ to music.', hint: '「彼は音楽を聴いています」', options: ['listens', 'listened', 'listening', 'listen'], correct: 2, explanation: '現在進行形は be動詞 + ~ing です。listen の ing 形は listening です。' },
+            { type: 'progressive', typeName: '現在進行形', sentence: 'My mother is ___ dinner in the kitchen.', hint: '「母は台所で夕食を作っています」', options: ['cook', 'cooking', 'cooks', 'cooked'], correct: 1, explanation: '現在進行形は be動詞 + ~ing です。' },
+            { type: 'progressive', typeName: '現在進行形', sentence: '___ you watching TV now?', hint: '「あなたは今テレビを見ていますか」', options: ['Do', 'Are', 'Is', 'Does'], correct: 1, explanation: '現在進行形の疑問文は be動詞を前に置きます。主語が you なので Are です。' },
+            { type: 'progressive', typeName: '現在進行形', sentence: '___ he sleeping now?', hint: '「彼は今寝ていますか」', options: ['Does', 'Are', 'Is', 'Do'], correct: 2, explanation: '現在進行形の疑問文。主語が he なので Is を使います。' },
+            { type: 'progressive', typeName: '現在進行形', sentence: 'She is not ___ now.', hint: '「彼女は今走っていません」', options: ['runs', 'running', 'run', 'ran'], correct: 1, explanation: '否定文は be動詞 + not + ~ing です。run → running（nを重ねる）。' },
+            { type: 'progressive', typeName: '現在進行形', sentence: 'Tom is ___ a letter to his friend.', hint: '「トムは友人に手紙を書いています」', options: ['write', 'writes', 'writing', 'wrote'], correct: 2, explanation: 'write → writing（eを取って ing）。' },
+            { type: 'progressive', typeName: '現在進行形', sentence: 'The baby ___ crying.', hint: '「赤ちゃんが泣いています」', options: ['is', 'are', 'am', 'do'], correct: 0, explanation: '主語が The baby（三人称単数）なので is を使います。' },
+            { type: 'progressive', typeName: '現在進行形', sentence: 'I am not ___ games now.', hint: '「私は今ゲームをしていません」', options: ['play', 'playing', 'plays', 'played'], correct: 1, explanation: '現在進行形の否定文は be動詞 + not + ~ing です。' },
+            { type: 'progressive', typeName: '現在進行形', sentence: 'Look! The cat ___ sleeping on the sofa.', hint: '「見て！猫がソファで寝ています」', options: ['are', 'is', 'am', 'does'], correct: 1, explanation: '主語が The cat（単数）なので is。Look! は進行形とよく使われます。' },
+            { type: 'progressive', typeName: '現在進行形', sentence: 'The children are ___ in the pool.', hint: '「子供たちはプールで泳いでいます」', options: ['swim', 'swims', 'swam', 'swimming'], correct: 3, explanation: 'swim → swimming（mを重ねる）。' },
+            { type: 'progressive', typeName: '現在進行形', sentence: 'What ___ you doing now?', hint: '「あなたは今何をしていますか」', options: ['do', 'is', 'are', 'does'], correct: 2, explanation: '現在進行形の疑問文です。主語が you なので are を使います。' },
+            { type: 'progressive', typeName: '現在進行形', sentence: 'My father is ___ the newspaper.', hint: '「父は新聞を読んでいます」', options: ['reads', 'read', 'reading', 'readed'], correct: 2, explanation: '現在進行形は be動詞 + ~ing です。' },
+            { type: 'progressive', typeName: '現在進行形', sentence: 'It ___ raining outside.', hint: '「外で雨が降っています」', options: ['are', 'is', 'am', 'does'], correct: 1, explanation: '主語が It なので is を使います。' },
+            { type: 'progressive', typeName: '現在進行形', sentence: 'She ___ not studying right now.', hint: '「彼女は今勉強していません」', options: ['is', 'are', 'am', 'does'], correct: 0, explanation: '主語が She なので is を使います。' },
+            { type: 'progressive', typeName: '現在進行形', sentence: 'We are ___ to the station now.', hint: '「私たちは今駅に向かって歩いています」', options: ['walk', 'walks', 'walked', 'walking'], correct: 3, explanation: '現在進行形は be動詞 + ~ing です。' },
+            { type: 'progressive', typeName: '現在進行形', sentence: '___ the students cleaning the classroom?', hint: '「生徒たちは教室を掃除していますか」', options: ['Is', 'Do', 'Are', 'Does'], correct: 2, explanation: '主語が the students（複数）なので Are を使います。' },
+            { type: 'progressive', typeName: '現在進行形', sentence: 'My sister is ___ a cake.', hint: '「姉はケーキを作っています」', options: ['makes', 'making', 'make', 'made'], correct: 1, explanation: 'make → making（eを取って ing）。' },
+            { type: 'progressive', typeName: '現在進行形', sentence: 'He is ___ his dog in the park.', hint: '「彼は公園で犬を散歩させています」', options: ['walk', 'walks', 'walking', 'walked'], correct: 2, explanation: '現在進行形は be動詞 + ~ing です。' },
+            { type: 'progressive', typeName: '現在進行形', sentence: 'I ___ having breakfast now.', hint: '「私は今朝食をとっています」', options: ['is', 'are', 'am', 'do'], correct: 2, explanation: '主語が I なので am を使います。' },
+            { type: 'progressive', typeName: '現在進行形', sentence: 'Who ___ singing in the room?', hint: '「部屋で誰が歌っていますか」', options: ['are', 'is', 'am', 'do'], correct: 1, explanation: 'Who を主語にした進行形の疑問文では is を使います。' },
+            { type: 'progressive', typeName: '現在進行形', sentence: 'The birds ___ flying in the sky.', hint: '「鳥たちが空を飛んでいます」', options: ['is', 'am', 'are', 'does'], correct: 2, explanation: '主語が The birds（複数）なので are を使います。' },
+            // ========== can (20問) ==========
+            { type: 'can', typeName: 'can', sentence: 'He ___ swim very fast.', hint: '「彼はとても速く泳ぐことができます」', options: ['can', 'cans', 'is can', 'does can'], correct: 0, explanation: 'can は「〜できる」という助動詞です。主語に関係なく形は変わりません。' },
+            { type: 'can', typeName: 'can', sentence: 'I ___ speak English a little.', hint: '「私は少し英語を話すことができます」', options: ['am can', 'can', 'cans', 'does can'], correct: 1, explanation: 'can は「〜できる」です。can の後には動詞の原形が来ます。' },
+            { type: 'can', typeName: 'can', sentence: 'She ___ play the piano very well.', hint: '「彼女はとても上手にピアノを弾けます」', options: ['cans', 'is can', 'can', 'does'], correct: 2, explanation: 'can は主語が何であっても形が変わりません。' },
+            { type: 'can', typeName: 'can', sentence: '___ you help me?', hint: '「手伝ってもらえますか」', options: ['Do', 'Are', 'Can', 'Does'], correct: 2, explanation: 'Can you ~? で「〜してもらえますか」という依頼の表現です。' },
+            { type: 'can', typeName: 'can', sentence: 'I ___ ride a bike.', hint: '「私は自転車に乗れません」', options: ["can't", "don't can", 'am not can', 'not can'], correct: 0, explanation: "can の否定形は can't（cannot）です。" },
+            { type: 'can', typeName: 'can', sentence: '___ she cook?  Yes, she ___.', hint: '「彼女は料理できますか？ はい」', options: ['Can, can', 'Does, does', 'Is, is', 'Can, does'], correct: 0, explanation: 'Can の疑問文には can で答えます。' },
+            { type: 'can', typeName: 'can', sentence: 'My brother can ___ very fast.', hint: '「兄はとても速く走れます」', options: ['runs', 'run', 'running', 'ran'], correct: 1, explanation: 'can の後には動詞の原形が来ます。' },
+            { type: 'can', typeName: 'can', sentence: 'We ___ see the stars tonight.', hint: '「今夜は星が見えます」', options: ['are', 'can', 'do', 'cans'], correct: 1, explanation: 'can は「〜が見える」という意味でも使います。' },
+            { type: 'can', typeName: 'can', sentence: 'Tom ___ speak Japanese.', hint: '「トムは日本語を話せません」', options: ['can not', "can't", "doesn't can", "don't can"], correct: 1, explanation: "can の否定形は can't（cannot）です。" },
+            { type: 'can', typeName: 'can', sentence: '___ I use your pen?', hint: '「あなたのペンを使ってもいいですか」', options: ['Do', 'Am', 'Can', 'Does'], correct: 2, explanation: 'Can I ~? で「〜してもいいですか」という許可を求める表現です。' },
+            { type: 'can', typeName: 'can', sentence: 'My dog can ___ tricks.', hint: '「私の犬は芸ができます」', options: ['does', 'do', 'doing', 'did'], correct: 1, explanation: 'can の後には動詞の原形が来ます。' },
+            { type: 'can', typeName: 'can', sentence: 'She can ___ English and French.', hint: '「彼女は英語とフランス語を話せます」', options: ['speaks', 'speaking', 'speak', 'spoke'], correct: 2, explanation: 'can の後には動詞の原形が来ます。' },
+            { type: 'can', typeName: 'can', sentence: "We can't ___ the movie tonight.", hint: '「私たちは今夜その映画を見られません」', options: ['watching', 'watches', 'watched', 'watch'], correct: 3, explanation: "can't の後にも動詞の原形が来ます。" },
+            { type: 'can', typeName: 'can', sentence: '___ your father drive a car?', hint: '「お父さんは車を運転できますか」', options: ['Does', 'Is', 'Can', 'Do'], correct: 2, explanation: 'Can + 主語 + 動詞の原形? で能力を尋ねます。' },
+            { type: 'can', typeName: 'can', sentence: 'I can ___ the guitar.', hint: '「私はギターを弾けます」', options: ['plays', 'play', 'playing', 'played'], correct: 1, explanation: 'can の後には動詞の原形が来ます。' },
+            { type: 'can', typeName: 'can', sentence: 'He ___ read this kanji.', hint: '「彼はこの漢字を読めません」', options: ["doesn't can", "can't", "isn't can", 'not can'], correct: 1, explanation: "can の否定形は can't（cannot）です。" },
+            { type: 'can', typeName: 'can', sentence: 'Can you ___ the door, please?', hint: '「ドアを開けてもらえますか」', options: ['opens', 'opening', 'open', 'opened'], correct: 2, explanation: 'Can you ~? の後は動詞の原形です。' },
+            { type: 'can', typeName: 'can', sentence: 'My little sister ___ count to 100.', hint: '「妹は100まで数えられます」', options: ['can', 'cans', 'is can', 'can to'], correct: 0, explanation: 'can は主語に関係なく形は変わりません。' },
+            { type: 'can', typeName: 'can', sentence: 'You ___ take pictures here.', hint: '「ここで写真を撮ってはいけません」', options: ["don't", "aren't", "can't", "isn't"], correct: 2, explanation: "can't は「〜してはいけない」の意味でも使います。" },
+            { type: 'can', typeName: 'can', sentence: '___ you come to my party?', hint: '「私のパーティーに来られますか」', options: ['Are', 'Do', 'Does', 'Can'], correct: 3, explanation: 'Can you ~? で「〜できますか」です。' },
+            // ========== 代名詞 (25問) ==========
+            { type: 'pronoun', typeName: '代名詞', sentence: 'This book is ___.', hint: '「この本は私のものです」', options: ['mine', 'my', 'me', 'I'], correct: 0, explanation: '「〜のもの」を表す所有代名詞は mine です。' },
+            { type: 'pronoun', typeName: '代名詞', sentence: 'I like ___. He is very kind.', hint: '「私は彼が好きです」', options: ['he', 'his', 'him', 'her'], correct: 2, explanation: '動詞 like の後に来る目的格は him です。' },
+            { type: 'pronoun', typeName: '代名詞', sentence: '___ name is Yuki.', hint: '「彼女の名前はユキです」', options: ['She', 'Her', 'Hers', 'Him'], correct: 1, explanation: '名詞の前に来る所有格は Her です。' },
+            { type: 'pronoun', typeName: '代名詞', sentence: 'Please help ___.', hint: '「私を助けてください」', options: ['I', 'my', 'me', 'mine'], correct: 2, explanation: '動詞 help の目的語には目的格 me を使います。' },
+            { type: 'pronoun', typeName: '代名詞', sentence: 'Is this pen ___?', hint: '「このペンはあなたのものですか」', options: ['you', 'your', 'yours', 'yourself'], correct: 2, explanation: '「あなたのもの」を表す所有代名詞は yours です。' },
+            { type: 'pronoun', typeName: '代名詞', sentence: '___ are good friends.', hint: '「私たちはよい友達です」', options: ['Our', 'Us', 'We', 'Ours'], correct: 2, explanation: '主語として使うのは主格の We です。' },
+            { type: 'pronoun', typeName: '代名詞', sentence: 'I know ___. They live near my house.', hint: '「私は彼らを知っています」', options: ['they', 'their', 'them', 'theirs'], correct: 2, explanation: '動詞 know の後に来る目的格は them です。' },
+            { type: 'pronoun', typeName: '代名詞', sentence: 'That cat is ___.', hint: '「あの猫は彼のものです」', options: ['he', 'him', 'his', 'her'], correct: 2, explanation: 'his は所有格と所有代名詞の両方の形です。' },
+            { type: 'pronoun', typeName: '代名詞', sentence: '___ is a very tall building.', hint: '「それはとても高い建物です」', options: ['Its', 'It', 'He', 'They'], correct: 1, explanation: '主語として使うのは主格の It です。' },
+            { type: 'pronoun', typeName: '代名詞', sentence: 'Do you know ___ sister?', hint: '「彼の姉を知っていますか」', options: ['he', 'him', 'his', 'her'], correct: 2, explanation: '名詞の前に来る所有格は his です。' },
+            { type: 'pronoun', typeName: '代名詞', sentence: 'The red bike is ___.', hint: '「赤い自転車は彼女のものです」', options: ['she', 'her', 'hers', 'him'], correct: 2, explanation: '「彼女のもの」を表す所有代名詞は hers です。' },
+            { type: 'pronoun', typeName: '代名詞', sentence: '___ mother is a teacher.', hint: '「私の母は先生です」', options: ['I', 'Me', 'Mine', 'My'], correct: 3, explanation: '名詞 mother の前に来る所有格は My です。' },
+            { type: 'pronoun', typeName: '代名詞', sentence: 'Give ___ some water, please.', hint: '「私たちに水をください」', options: ['we', 'our', 'us', 'ours'], correct: 2, explanation: '動詞 give の後に来る目的格は us です。' },
+            { type: 'pronoun', typeName: '代名詞', sentence: '___ house is very big.', hint: '「彼らの家はとても大きいです」', options: ['They', 'Them', 'Their', 'Theirs'], correct: 2, explanation: '名詞の前に来る所有格は Their です。' },
+            { type: 'pronoun', typeName: '代名詞', sentence: "This desk is not ___. It's Tom's.", hint: '「この机は私のものではありません」', options: ['I', 'my', 'me', 'mine'], correct: 3, explanation: '所有代名詞は mine です。' },
+            { type: 'pronoun', typeName: '代名詞', sentence: '___ likes baseball very much.', hint: '「彼は野球がとても好きです」', options: ['Him', 'His', 'He', 'Her'], correct: 2, explanation: '主語として使うのは主格の He です。' },
+            { type: 'pronoun', typeName: '代名詞', sentence: 'Look at ___.', hint: '「彼女を見てください」', options: ['she', 'her', 'hers', 'his'], correct: 1, explanation: '前置詞 at の後に来る目的格は her です。' },
+            { type: 'pronoun', typeName: '代名詞', sentence: 'The dog is wagging ___ tail.', hint: '「犬はしっぽを振っています」', options: ['it', "it's", 'its', 'their'], correct: 2, explanation: "「それの」を表す所有格は its です。it's は it is の短縮形です。" },
+            { type: 'pronoun', typeName: '代名詞', sentence: '___ love our school.', hint: '「私たちは学校が大好きです」', options: ['Us', 'Our', 'We', 'Ours'], correct: 2, explanation: '主語として使うのは主格の We です。' },
+            { type: 'pronoun', typeName: '代名詞', sentence: 'This is a present for ___.', hint: '「これはあなたへのプレゼントです」', options: ['your', 'yours', 'you', 'yourself'], correct: 2, explanation: '前置詞 for の後の目的格は you です。' },
+            { type: 'pronoun', typeName: '代名詞', sentence: 'Are these shoes ___?', hint: '「これらの靴はあなたのものですか」', options: ['you', 'your', 'yours', 'yourself'], correct: 2, explanation: '所有代名詞は yours です。' },
+            { type: 'pronoun', typeName: '代名詞', sentence: 'Tell ___ about your trip.', hint: '「彼女に旅行について話してください」', options: ['she', 'hers', 'her', 'his'], correct: 2, explanation: '動詞 tell の後に来る目的格は her です。' },
+            { type: 'pronoun', typeName: '代名詞', sentence: '___ like to play tennis on Sundays.', hint: '「彼らは日曜日にテニスをするのが好きです」', options: ['Them', 'Their', 'Theirs', 'They'], correct: 3, explanation: '主語として使うのは主格の They です。' },
+            { type: 'pronoun', typeName: '代名詞', sentence: '___ name is Ken.', hint: '「私の名前はケンです」', options: ['Me', 'I', 'My', 'Mine'], correct: 2, explanation: '名詞 name の前に来る所有格は My です。' },
+            { type: 'pronoun', typeName: '代名詞', sentence: 'The teacher showed ___ a new game.', hint: '「先生は私たちに新しいゲームを見せてくれました」', options: ['we', 'our', 'ours', 'us'], correct: 3, explanation: '動詞 showed の後の目的格は us です。' },
+            // ========== 名詞の複数形 (20問) ==========
+            { type: 'plural', typeName: '名詞の複数形', sentence: 'There are three ___ in the park.', hint: '「公園に子供が3人います」', options: ['children', 'childs', 'childrens', 'child'], correct: 0, explanation: 'child の複数形は不規則変化で children です。' },
+            { type: 'plural', typeName: '名詞の複数形', sentence: 'I have two ___.', hint: '「猫を2匹飼っています」', options: ['cat', 'cats', 'cates', 'caties'], correct: 1, explanation: '規則変化で -s をつけます。cat → cats。' },
+            { type: 'plural', typeName: '名詞の複数形', sentence: 'She brushes her ___ every morning.', hint: '「彼女は毎朝歯を磨きます」', options: ['tooth', 'tooths', 'teeth', 'teeths'], correct: 2, explanation: 'tooth の複数形は不規則変化で teeth です。' },
+            { type: 'plural', typeName: '名詞の複数形', sentence: 'There are many ___ in the pond.', hint: '「池に魚がたくさんいます」', options: ['fishs', 'fishes', 'fish', 'fishies'], correct: 2, explanation: 'fish の複数形は fish です。単数形と同じです。' },
+            { type: 'plural', typeName: '名詞の複数形', sentence: 'Those ___ are very tall.', hint: '「あの男性たちはとても背が高いです」', options: ['man', 'mans', 'mens', 'men'], correct: 3, explanation: 'man の複数形は不規則変化で men です。' },
+            { type: 'plural', typeName: '名詞の複数形', sentence: 'I washed the ___ after dinner.', hint: '「夕食後にお皿を洗いました」', options: ['dish', 'dishs', 'dishes', 'dishies'], correct: 2, explanation: 'sh で終わる名詞は -es をつけます。dish → dishes。' },
+            { type: 'plural', typeName: '名詞の複数形', sentence: 'My ___ hurt after running.', hint: '「走った後、足が痛いです」', options: ['foot', 'foots', 'feet', 'feets'], correct: 2, explanation: 'foot の複数形は不規則変化で feet です。' },
+            { type: 'plural', typeName: '名詞の複数形', sentence: 'The ___ are playing outside.', hint: '「赤ちゃんたちが外で遊んでいます」', options: ['babys', 'babies', 'babyes', 'baby'], correct: 1, explanation: '子音+y で終わる名詞は y→i に変えて -es。baby → babies。' },
+            { type: 'plural', typeName: '名詞の複数形', sentence: 'There are two ___ on the table.', hint: '「テーブルにナイフが2本あります」', options: ['knife', 'knifes', 'knives', 'knifs'], correct: 2, explanation: 'fe で終わる名詞は fe → ves。knife → knives。' },
+            { type: 'plural', typeName: '名詞の複数形', sentence: 'We need four ___ for the salad.', hint: '「サラダにトマトが4つ必要です」', options: ['tomatos', 'tomatoes', 'tomatoies', 'tomato'], correct: 1, explanation: 'o で終わる一部の名詞は -es をつけます。tomato → tomatoes。' },
+            { type: 'plural', typeName: '名詞の複数形', sentence: 'The ___ are in the box.', hint: '「時計が箱の中にあります」', options: ['watch', 'watchs', 'watches', 'watchies'], correct: 2, explanation: 'ch で終わる名詞は -es をつけます。watch → watches。' },
+            { type: 'plural', typeName: '名詞の複数形', sentence: 'Five ___ work at this hospital.', hint: '「5人の女性が働いています」', options: ['woman', 'womans', 'womens', 'women'], correct: 3, explanation: 'woman の複数形は不規則変化で women です。' },
+            { type: 'plural', typeName: '名詞の複数形', sentence: 'Look at those ___ in the sky.', hint: '「空の鳥たちを見てください」', options: ['bird', 'birdes', 'birds', 'birdies'], correct: 2, explanation: '規則変化で -s をつけます。bird → birds。' },
+            { type: 'plural', typeName: '名詞の複数形', sentence: 'I ate three ___ for lunch.', hint: '「サンドイッチを3つ食べました」', options: ['sandwich', 'sandwiches', 'sandwichs', 'sandwichies'], correct: 1, explanation: 'ch で終わる名詞は -es をつけます。sandwich → sandwiches。' },
+            { type: 'plural', typeName: '名詞の複数形', sentence: 'She has many ___ in her room.', hint: '「部屋にたくさんの本があります」', options: ['book', 'bookes', 'books', 'bookies'], correct: 2, explanation: '規則変化で -s をつけます。book → books。' },
+            { type: 'plural', typeName: '名詞の複数形', sentence: 'The ___ are very red and big.', hint: '「そのリンゴはとても赤くて大きいです」', options: ['apple', 'apples', 'applees', 'applies'], correct: 1, explanation: '規則変化で -s をつけます。apple → apples。' },
+            { type: 'plural', typeName: '名詞の複数形', sentence: 'We saw two ___ at the zoo.', hint: '「動物園でシカを2頭見ました」', options: ['deers', 'deeres', 'deer', 'deeries'], correct: 2, explanation: 'deer の複数形は deer です。単数形と同じです。' },
+            { type: 'plural', typeName: '名詞の複数形', sentence: 'There are many ___ in the garden.', hint: '「庭にたくさんの葉があります」', options: ['leaf', 'leafs', 'leaves', 'leafes'], correct: 2, explanation: 'f で終わる名詞は f → ves。leaf → leaves。' },
+            { type: 'plural', typeName: '名詞の複数形', sentence: 'She put two ___ in the bag.', hint: '「かばんに箱を2つ入れました」', options: ['box', 'boxs', 'boxies', 'boxes'], correct: 3, explanation: 'x で終わる名詞は -es をつけます。box → boxes。' },
+            { type: 'plural', typeName: '名詞の複数形', sentence: 'I can see three ___ on the bus.', hint: '「バスに男の人が3人見えます」', options: ['man', 'mans', 'men', 'mens'], correct: 2, explanation: 'man の複数形は不規則変化で men です。' },
+            // ========== 前置詞 (25問) ==========
+            { type: 'preposition', typeName: '前置詞', sentence: 'I go to school ___ bus.', hint: '「バスで学校に行きます」', options: ['by', 'with', 'on', 'in'], correct: 0, explanation: '交通手段は by を使います。by bus で「バスで」。' },
+            { type: 'preposition', typeName: '前置詞', sentence: 'She lives ___ Tokyo.', hint: '「彼女は東京に住んでいます」', options: ['at', 'in', 'on', 'to'], correct: 1, explanation: '都市や国などの広い場所には in を使います。' },
+            { type: 'preposition', typeName: '前置詞', sentence: 'The book is ___ the desk.', hint: '「本は机の上にあります」', options: ['in', 'at', 'on', 'by'], correct: 2, explanation: '〜の上に（接触して）は on を使います。' },
+            { type: 'preposition', typeName: '前置詞', sentence: 'I get up ___ seven every morning.', hint: '「毎朝7時に起きます」', options: ['in', 'on', 'at', 'by'], correct: 2, explanation: '時刻の前には at を使います。' },
+            { type: 'preposition', typeName: '前置詞', sentence: 'This present is ___ you.', hint: '「このプレゼントはあなたのためです」', options: ['to', 'for', 'with', 'by'], correct: 1, explanation: '「〜のために」は for を使います。' },
+            { type: 'preposition', typeName: '前置詞', sentence: 'I come ___ Japan.', hint: '「私は日本から来ました」', options: ['of', 'to', 'from', 'at'], correct: 2, explanation: '出身・起点は from を使います。come from ~ で「〜出身」。' },
+            { type: 'preposition', typeName: '前置詞', sentence: 'I play tennis ___ my friend.', hint: '「友達とテニスをします」', options: ['by', 'to', 'with', 'for'], correct: 2, explanation: '「〜と一緒に」は with を使います。' },
+            { type: 'preposition', typeName: '前置詞', sentence: 'We have math ___ Monday.', hint: '「月曜日に数学があります」', options: ['in', 'on', 'at', 'by'], correct: 1, explanation: '曜日の前には on を使います。' },
+            { type: 'preposition', typeName: '前置詞', sentence: 'The cat is ___ the box.', hint: '「猫は箱の中にいます」', options: ['on', 'at', 'in', 'to'], correct: 2, explanation: '「〜の中に」は in を使います。' },
+            { type: 'preposition', typeName: '前置詞', sentence: "Let's talk ___ our plans.", hint: '「計画について話しましょう」', options: ['for', 'about', 'with', 'to'], correct: 1, explanation: '「〜について」は about を使います。' },
+            { type: 'preposition', typeName: '前置詞', sentence: "I go to bed ___ ten o'clock.", hint: '「10時前に寝ます」', options: ['after', 'in', 'before', 'on'], correct: 2, explanation: '「〜の前に」は before を使います。' },
+            { type: 'preposition', typeName: '前置詞', sentence: "We eat dinner ___ six o'clock.", hint: '「6時の後に夕食を食べます」', options: ['before', 'after', 'on', 'in'], correct: 1, explanation: '「〜の後に」は after を使います。' },
+            { type: 'preposition', typeName: '前置詞', sentence: 'The bank is ___ the post office and the library.', hint: '「銀行は郵便局と図書館の間にあります」', options: ['by', 'with', 'between', 'from'], correct: 2, explanation: '「AとBの間に」は between A and B。' },
+            { type: 'preposition', typeName: '前置詞', sentence: 'I was born ___ March.', hint: '「3月に生まれました」', options: ['on', 'at', 'in', 'by'], correct: 2, explanation: '月の前には in を使います。' },
+            { type: 'preposition', typeName: '前置詞', sentence: 'She is waiting ___ the bus stop.', hint: '「バス停で待っています」', options: ['in', 'on', 'at', 'by'], correct: 2, explanation: '地点には at を使います。' },
+            { type: 'preposition', typeName: '前置詞', sentence: 'He goes ___ school at 8 a.m.', hint: '「午前8時に学校に行きます」', options: ['in', 'for', 'at', 'to'], correct: 3, explanation: '方向・目的地は to を使います。go to school で「学校に行く」。' },
+            { type: 'preposition', typeName: '前置詞', sentence: 'There is a picture ___ the wall.', hint: '「壁に絵がかかっています」', options: ['in', 'on', 'at', 'by'], correct: 1, explanation: '壁にかかっている（接触）は on を使います。' },
+            { type: 'preposition', typeName: '前置詞', sentence: 'I go swimming ___ summer.', hint: '「夏に泳ぎに行きます」', options: ['on', 'at', 'in', 'by'], correct: 2, explanation: '季節の前には in を使います。' },
+            { type: 'preposition', typeName: '前置詞', sentence: 'She is good ___ English.', hint: '「英語が得意です」', options: ['in', 'at', 'for', 'with'], correct: 1, explanation: 'be good at ~ で「〜が得意だ」。' },
+            { type: 'preposition', typeName: '前置詞', sentence: 'This is a photo ___ my family.', hint: '「家族の写真です」', options: ['by', 'with', 'of', 'for'], correct: 2, explanation: '「〜の」は of を使います。a photo of ~。' },
+            { type: 'preposition', typeName: '前置詞', sentence: 'We have no school ___ Saturday and Sunday.', hint: '「土日は学校がありません」', options: ['in', 'at', 'on', 'by'], correct: 2, explanation: '曜日の前には on を使います。' },
+            { type: 'preposition', typeName: '前置詞', sentence: 'The cat jumped ___ the table.', hint: '「猫はテーブルから飛び降りました」', options: ['on', 'in', 'from', 'at'], correct: 2, explanation: '「〜から」は from を使います。' },
+            { type: 'preposition', typeName: '前置詞', sentence: "I'm interested ___ music.", hint: '「音楽に興味があります」', options: ['at', 'for', 'in', 'with'], correct: 2, explanation: 'be interested in ~ で「〜に興味がある」。' },
+            { type: 'preposition', typeName: '前置詞', sentence: 'He arrived ___ school at 8:30.', hint: '「8時30分に学校に着きました」', options: ['to', 'at', 'in', 'on'], correct: 1, explanation: 'arrive at ~ で「〜に着く」。地点には at。' },
+            { type: 'preposition', typeName: '前置詞', sentence: 'I will meet you ___ the afternoon.', hint: '「午後にあなたに会います」', options: ['on', 'at', 'in', 'by'], correct: 2, explanation: '午前・午後・晩には in を使います。' }
+        ];
+
+        // ========== 4級 問題データベース (170問) ==========
+        const grade4Questions = [
+            // ========== 過去進行形 (20問) ==========
+            { type: 'past-progressive', typeName: '過去進行形', sentence: 'I ___ playing soccer at that time.', hint: '「私はその時サッカーをしていました」', options: ['was', 'were', 'am', 'is'], correct: 0, explanation: '過去進行形は「was/were + ~ing」で表します。主語が I なので was を使います。' },
+            { type: 'past-progressive', typeName: '過去進行形', sentence: 'They ___ watching TV when I came home.', hint: '「私が帰宅した時、彼らはテレビを見ていました」', options: ['were', 'was', 'are', 'did'], correct: 0, explanation: '過去進行形です。主語が They（複数）なので were を使います。' },
+            { type: 'past-progressive', typeName: '過去進行形', sentence: 'She ___ reading a book at 8 p.m. last night.', hint: '「彼女は昨夜8時に本を読んでいました」', options: ['is', 'was', 'were', 'did'], correct: 1, explanation: '過去の特定の時点で進行中だった動作を表します。主語が She なので was を使います。' },
+            { type: 'past-progressive', typeName: '過去進行形', sentence: 'We ___ studying English at that time.', hint: '「私たちはその時英語を勉強していました」', options: ['are', 'is', 'was', 'were'], correct: 3, explanation: '過去進行形です。主語が We（複数）なので were を使います。' },
+            { type: 'past-progressive', typeName: '過去進行形', sentence: 'He was ___ when the phone rang.', hint: '「電話が鳴った時、彼は寝ていました」', options: ['sleep', 'slept', 'sleeping', 'sleeps'], correct: 2, explanation: '過去進行形は「was/were + ~ing」です。sleep の~ing形は sleeping です。' },
+            { type: 'past-progressive', typeName: '過去進行形', sentence: '___ you studying at 9 p.m. yesterday?', hint: '「昨日の午後9時に勉強していましたか」', options: ['Were', 'Was', 'Did', 'Are'], correct: 0, explanation: '過去進行形の疑問文です。主語が you なので Were を使います。' },
+            { type: 'past-progressive', typeName: '過去進行形', sentence: 'I was ___ dinner when she called.', hint: '「彼女が電話した時、私は夕食を作っていました」', options: ['make', 'making', 'made', 'makes'], correct: 1, explanation: '過去進行形は「was + ~ing」です。make の~ing形は making です。' },
+            { type: 'past-progressive', typeName: '過去進行形', sentence: 'The children ___ playing in the park then.', hint: '「子供たちはその時公園で遊んでいました」', options: ['was', 'is', 'were', 'are'], correct: 2, explanation: '過去進行形です。主語が The children（複数）なので were を使います。' },
+            { type: 'past-progressive', typeName: '過去進行形', sentence: 'It ___ raining when we left the house.', hint: '「私たちが家を出た時、雨が降っていました」', options: ['is', 'was', 'were', 'did'], correct: 1, explanation: '過去進行形です。主語が It なので was を使います。' },
+            { type: 'past-progressive', typeName: '過去進行形', sentence: 'She was not ___ at that moment.', hint: '「彼女はその瞬間笑っていませんでした」', options: ['laughing', 'laugh', 'laughed', 'laughs'], correct: 0, explanation: '過去進行形の否定文は「was/were + not + ~ing」です。' },
+            { type: 'past-progressive', typeName: '過去進行形', sentence: 'My mother ___ cooking breakfast at 7 a.m.', hint: '「母は午前7時に朝食を作っていました」', options: ['is', 'were', 'was', 'did'], correct: 2, explanation: '過去進行形です。主語が My mother（三人称単数）なので was を使います。' },
+            { type: 'past-progressive', typeName: '過去進行形', sentence: 'What ___ you doing when I called you?', hint: '「私が電話した時、あなたは何をしていましたか」', options: ['did', 'are', 'were', 'was'], correct: 2, explanation: '過去進行形の疑問文です。主語が you なので were を使います。' },
+            { type: 'past-progressive', typeName: '過去進行形', sentence: 'Tom and Ken ___ walking to school together.', hint: '「トムとケンは一緒に学校へ歩いていました」', options: ['was', 'were', 'is', 'are'], correct: 1, explanation: '過去進行形です。主語が Tom and Ken（複数）なので were を使います。' },
+            { type: 'past-progressive', typeName: '過去進行形', sentence: 'The dog was ___ in the garden.', hint: '「犬は庭で走っていました」', options: ['run', 'ran', 'running', 'runs'], correct: 2, explanation: '過去進行形は「was + ~ing」です。run の~ing形は running（nを重ねる）です。' },
+            { type: 'past-progressive', typeName: '過去進行形', sentence: 'I ___ not listening to music then.', hint: '「私はその時音楽を聴いていませんでした」', options: ['was', 'were', 'did', 'am'], correct: 0, explanation: '過去進行形の否定文です。主語が I なので was not を使います。' },
+            { type: 'past-progressive', typeName: '過去進行形', sentence: '___ it snowing yesterday morning?', hint: '「昨日の朝、雪が降っていましたか」', options: ['Did', 'Is', 'Was', 'Were'], correct: 2, explanation: '過去進行形の疑問文です。主語が It なので Was を使います。' },
+            { type: 'past-progressive', typeName: '過去進行形', sentence: 'My sister was ___ a letter to her friend.', hint: '「姉は友人に手紙を書いていました」', options: ['write', 'wrote', 'written', 'writing'], correct: 3, explanation: '過去進行形は「was + ~ing」です。write の~ing形は writing です。' },
+            { type: 'past-progressive', typeName: '過去進行形', sentence: 'The students ___ taking a test at 10 a.m.', hint: '「生徒たちは午前10時にテストを受けていました」', options: ['was', 'were', 'are', 'is'], correct: 1, explanation: '過去進行形です。主語が The students（複数）なので were を使います。' },
+            { type: 'past-progressive', typeName: '過去進行形', sentence: 'He was ___ a picture in the classroom.', hint: '「彼は教室で絵を描いていました」', options: ['draw', 'drew', 'drawing', 'drawn'], correct: 2, explanation: '過去進行形は「was + ~ing」です。draw の~ing形は drawing です。' },
+            { type: 'past-progressive', typeName: '過去進行形', sentence: 'While I ___ sleeping, my father came home.', hint: '「私が寝ている間に、父が帰宅しました」', options: ['am', 'is', 'was', 'were'], correct: 2, explanation: 'while + 過去進行形で「〜している間に」を表します。主語が I なので was です。' },
+            // ========== 未来形 (25問) ==========
+            { type: 'future', typeName: '未来形', sentence: 'She ___ visit Kyoto next week.', hint: '「彼女は来週京都を訪れるでしょう」', options: ['will', 'is', 'does', 'has'], correct: 0, explanation: '未来を表す will + 動詞の原形です。next week は未来を表す語です。' },
+            { type: 'future', typeName: '未来形', sentence: 'I ___ going to study abroad next year.', hint: '「私は来年留学するつもりです」', options: ['will', 'am', 'do', 'have'], correct: 1, explanation: 'be going to + 動詞の原形で「〜するつもりだ」という予定を表します。' },
+            { type: 'future', typeName: '未来形', sentence: 'It ___ be sunny tomorrow.', hint: '「明日は晴れるでしょう」', options: ['is', 'does', 'will', 'has'], correct: 2, explanation: '未来の天気予測は will + 動詞の原形で表します。' },
+            { type: 'future', typeName: '未来形', sentence: 'We are ___ to have a party this weekend.', hint: '「私たちは今週末パーティーをする予定です」', options: ['go', 'going', 'gone', 'went'], correct: 1, explanation: 'be going to + 動詞の原形で予定を表します。' },
+            { type: 'future', typeName: '未来形', sentence: "He ___ not come to school tomorrow.", hint: '「彼は明日学校に来ないでしょう」', options: ['will', 'is', 'does', 'has'], correct: 0, explanation: "未来の否定文は will not + 動詞の原形です。" },
+            { type: 'future', typeName: '未来形', sentence: '___ you be free this afternoon?', hint: '「今日の午後、暇ですか」', options: ['Will', 'Do', 'Are', 'Have'], correct: 0, explanation: '未来の疑問文は Will + 主語 + 動詞の原形です。' },
+            { type: 'future', typeName: '未来形', sentence: 'They are going ___ play baseball after school.', hint: '「彼らは放課後野球をする予定です」', options: ['for', 'at', 'to', 'in'], correct: 2, explanation: 'be going to + 動詞の原形の形です。to が必要です。' },
+            { type: 'future', typeName: '未来形', sentence: 'I will ___ you later.', hint: '「後であなたに電話します」', options: ['calling', 'called', 'calls', 'call'], correct: 3, explanation: 'will の後は動詞の原形を使います。' },
+            { type: 'future', typeName: '未来形', sentence: 'She ___ going to buy a new dress.', hint: '「彼女は新しいドレスを買うつもりです」', options: ['are', 'is', 'am', 'were'], correct: 1, explanation: 'be going to の形です。主語が She（三人称単数）なので is を使います。' },
+            { type: 'future', typeName: '未来形', sentence: '___ it rain tomorrow?', hint: '「明日は雨が降りますか」', options: ['Does', 'Is', 'Will', 'Has'], correct: 2, explanation: '未来の疑問文は Will + 主語 + 動詞の原形です。' },
+            { type: 'future', typeName: '未来形', sentence: 'I am ___ to visit my grandmother this Sunday.', hint: '「私は今度の日曜日に祖母を訪ねる予定です」', options: ['go', 'going', 'gone', 'went'], correct: 1, explanation: 'be going to で予定を表します。' },
+            { type: 'future', typeName: '未来形', sentence: 'We will ___ soccer next Saturday.', hint: '「私たちは次の土曜日にサッカーをします」', options: ['played', 'plays', 'play', 'playing'], correct: 2, explanation: 'will の後は動詞の原形を使います。' },
+            { type: 'future', typeName: '未来形', sentence: 'Tom ___ not going to join the club.', hint: '「トムはそのクラブに入るつもりはありません」', options: ['does', 'is', 'has', 'will'], correct: 1, explanation: 'be going to の否定文は be + not + going to です。Tom は三人称単数なので is です。' },
+            { type: 'future', typeName: '未来形', sentence: 'My father will ___ home at 7 p.m.', hint: '「父は午後7時に帰宅するでしょう」', options: ['comes', 'came', 'coming', 'come'], correct: 3, explanation: 'will の後は動詞の原形 come を使います。' },
+            { type: 'future', typeName: '未来形', sentence: '___ they going to travel to Hokkaido?', hint: '「彼らは北海道に旅行する予定ですか」', options: ['Do', 'Are', 'Will', 'Have'], correct: 1, explanation: 'be going to の疑問文は Be + 主語 + going to の形です。They なので Are です。' },
+            { type: 'future', typeName: '未来形', sentence: 'It will ___ cold next month.', hint: '「来月は寒くなるでしょう」', options: ['is', 'being', 'be', 'been'], correct: 2, explanation: 'will の後は動詞の原形 be を使います。' },
+            { type: 'future', typeName: '未来形', sentence: 'I ___ help you with your homework.', hint: '「あなたの宿題を手伝いましょう」', options: ['am', 'will', 'do', 'have'], correct: 1, explanation: 'その場で決めた意志を表す will です。' },
+            { type: 'future', typeName: '未来形', sentence: 'She is going to ___ a doctor in the future.', hint: '「彼女は将来医者になるつもりです」', options: ['becomes', 'became', 'become', 'becoming'], correct: 2, explanation: 'be going to の後は動詞の原形 become を使います。' },
+            { type: 'future', typeName: '未来形', sentence: 'We ___ not be late for school.', hint: '「私たちは学校に遅刻しないでしょう」', options: ['do', 'are', 'will', 'have'], correct: 2, explanation: '未来の否定文は will not + 動詞の原形です。' },
+            { type: 'future', typeName: '未来形', sentence: 'What ___ you going to do this summer?', hint: '「この夏、何をするつもりですか」', options: ['do', 'will', 'are', 'have'], correct: 2, explanation: 'be going to の疑問文です。主語が you なので are を使います。' },
+            { type: 'future', typeName: '未来形', sentence: 'The train will ___ at 3 p.m.', hint: '「電車は午後3時に到着するでしょう」', options: ['arrives', 'arrived', 'arrive', 'arriving'], correct: 2, explanation: 'will の後は動詞の原形 arrive を使います。' },
+            { type: 'future', typeName: '未来形', sentence: 'I think he ___ pass the exam.', hint: '「彼は試験に受かると思います」', options: ['is', 'does', 'has', 'will'], correct: 3, explanation: 'I think + 主語 + will で「〜だろうと思う」を表します。' },
+            { type: 'future', typeName: '未来形', sentence: '___ she going to cook dinner tonight?', hint: '「彼女は今夜夕食を作る予定ですか」', options: ['Does', 'Will', 'Is', 'Has'], correct: 2, explanation: 'be going to の疑問文です。主語が She なので Is を使います。' },
+            { type: 'future', typeName: '未来形', sentence: 'There ___ be a concert next Friday.', hint: '「次の金曜日にコンサートがあるでしょう」', options: ['is', 'will', 'are', 'has'], correct: 1, explanation: 'There will be ~ で「〜があるでしょう」という未来を表します。' },
+            { type: 'future', typeName: '未来形', sentence: 'My brother is ___ to start a new job next month.', hint: '「兄は来月新しい仕事を始める予定です」', options: ['go', 'going', 'gone', 'went'], correct: 1, explanation: 'be going to で予定を表します。' },
+            // ========== 助動詞 (30問) ==========
+            { type: 'modal', typeName: '助動詞', sentence: 'You ___ study harder for the test.', hint: '「テストのためにもっと勉強すべきです」', options: ['are', 'do', 'should', 'have'], correct: 2, explanation: 'should は「〜すべきだ」という助言を表す助動詞です。' },
+            { type: 'modal', typeName: '助動詞', sentence: 'You ___ not run in the hallway.', hint: '「廊下を走ってはいけません」', options: ['do', 'must', 'are', 'have'], correct: 1, explanation: 'must not は「〜してはいけない」という禁止を表します。' },
+            { type: 'modal', typeName: '助動詞', sentence: 'She ___ speak three languages.', hint: '「彼女は3つの言語を話すことができます」', options: ['must', 'should', 'can', 'shall'], correct: 2, explanation: 'can は「〜できる」という能力を表す助動詞です。' },
+            { type: 'modal', typeName: '助動詞', sentence: '___ I use your pen?', hint: '「あなたのペンを使ってもいいですか」', options: ['Will', 'Must', 'Shall', 'May'], correct: 3, explanation: 'May I ~? は「〜してもいいですか」と許可を求める丁寧な表現です。' },
+            { type: 'modal', typeName: '助動詞', sentence: 'We ___ to finish this work by Friday.', hint: '「私たちは金曜日までにこの仕事を終えなければなりません」', options: ['must', 'should', 'have', 'may'], correct: 2, explanation: 'have to は「〜しなければならない」という義務を表します。' },
+            { type: 'modal', typeName: '助動詞', sentence: 'You ___ be quiet in the library.', hint: '「図書館では静かにしなければなりません」', options: ['can', 'may', 'must', 'shall'], correct: 2, explanation: 'must は「〜しなければならない」という義務を表す助動詞です。' },
+            { type: 'modal', typeName: '助動詞', sentence: '___ you help me carry this box?', hint: '「この箱を運ぶのを手伝ってくれますか」', options: ['Must', 'May', 'Shall', 'Could'], correct: 3, explanation: 'Could you ~? は「〜してくれますか」と丁寧に依頼する表現です。' },
+            { type: 'modal', typeName: '助動詞', sentence: 'He must ___ his homework before dinner.', hint: '「彼は夕食前に宿題を終えなければなりません」', options: ['finishes', 'finished', 'finishing', 'finish'], correct: 3, explanation: '助動詞の後は動詞の原形を使います。' },
+            { type: 'modal', typeName: '助動詞', sentence: 'She ___ not have to come tomorrow.', hint: '「彼女は明日来なくてもよいです」', options: ['do', 'does', 'is', 'has'], correct: 1, explanation: 'does not have to で「〜しなくてもよい」を表します。主語が She なので does です。' },
+            { type: 'modal', typeName: '助動詞', sentence: 'You should ___ more vegetables.', hint: '「もっと野菜を食べるべきです」', options: ['eating', 'ate', 'eat', 'eats'], correct: 2, explanation: '助動詞 should の後は動詞の原形を使います。' },
+            { type: 'modal', typeName: '助動詞', sentence: '___ we go shopping this afternoon?', hint: '「今日の午後買い物に行きましょうか」', options: ['Must', 'Shall', 'May', 'Could'], correct: 1, explanation: 'Shall we ~? は「〜しましょうか」と提案する表現です。' },
+            { type: 'modal', typeName: '助動詞', sentence: 'It ___ rain this afternoon.', hint: '「今日の午後、雨が降るかもしれません」', options: ['must', 'should', 'may', 'shall'], correct: 2, explanation: 'may は「〜かもしれない」という推量を表す助動詞です。' },
+            { type: 'modal', typeName: '助動詞', sentence: 'He ___ swim very fast when he was young.', hint: '「彼は若い頃とても速く泳げました」', options: ['must', 'should', 'could', 'shall'], correct: 2, explanation: 'could は can の過去形で「〜できた」を表します。' },
+            { type: 'modal', typeName: '助動詞', sentence: 'You ___ not eat in the classroom.', hint: '「教室で食べてはいけません」', options: ['do', 'should', 'may', 'must'], correct: 3, explanation: 'must not は「〜してはいけない」という強い禁止を表します。' },
+            { type: 'modal', typeName: '助動詞', sentence: 'We must ___ careful when we cross the street.', hint: '「道を渡る時は気をつけなければなりません」', options: ['are', 'be', 'being', 'been'], correct: 1, explanation: '助動詞 must の後は動詞の原形 be を使います。' },
+            { type: 'modal', typeName: '助動詞', sentence: "She doesn't ___ to wear a uniform on Saturdays.", hint: '「彼女は土曜日に制服を着なくてもよいです」', options: ['must', 'need', 'have', 'should'], correct: 2, explanation: "doesn't have to で「〜しなくてもよい」を表します。" },
+            { type: 'modal', typeName: '助動詞', sentence: '___ I open the window?', hint: '「窓を開けましょうか」', options: ['Must', 'May', 'Shall', 'Could'], correct: 2, explanation: 'Shall I ~? は「（私が）〜しましょうか」と申し出る表現です。' },
+            { type: 'modal', typeName: '助動詞', sentence: 'You should not ___ up late at night.', hint: '「夜遅くまで起きているべきではありません」', options: ['stays', 'stayed', 'stay', 'staying'], correct: 2, explanation: 'should not の後は動詞の原形を使います。' },
+            { type: 'modal', typeName: '助動詞', sentence: 'He ___ to practice the piano every day.', hint: '「彼は毎日ピアノを練習しなければなりません」', options: ['must', 'should', 'has', 'may'], correct: 2, explanation: 'has to は「〜しなければならない」を表します。主語が He なので has です。' },
+            { type: 'modal', typeName: '助動詞', sentence: 'You ___ use a dictionary during the test.', hint: '「テスト中に辞書を使ってはいけません」', options: ['should not', 'do not', 'must not', 'will not'], correct: 2, explanation: 'must not は「〜してはいけない」という禁止を表します。' },
+            { type: 'modal', typeName: '助動詞', sentence: '___ you like some tea?', hint: '「お茶はいかがですか」', options: ['Will', 'Must', 'Shall', 'Would'], correct: 3, explanation: 'Would you like ~? は「〜はいかがですか」と丁寧に勧める表現です。' },
+            { type: 'modal', typeName: '助動詞', sentence: 'She may ___ late for the meeting.', hint: '「彼女は会議に遅れるかもしれません」', options: ['is', 'be', 'being', 'been'], correct: 1, explanation: '助動詞 may の後は動詞の原形 be を使います。' },
+            { type: 'modal', typeName: '助動詞', sentence: 'He could not ___ the answer.', hint: '「彼は答えが分かりませんでした」', options: ['finds', 'found', 'finding', 'find'], correct: 3, explanation: '助動詞 could の後は動詞の原形を使います。' },
+            { type: 'modal', typeName: '助動詞', sentence: "We ___ to go to school on Sundays.", hint: '「私たちは日曜日に学校に行く必要はありません」', options: ["don't have", "mustn't", "shouldn't", "can't"], correct: 0, explanation: "don't have to は「〜しなくてもよい」という不必要を表します。" },
+            { type: 'modal', typeName: '助動詞', sentence: 'You ___ wash your hands before eating.', hint: '「食べる前に手を洗わなければなりません」', options: ['may', 'can', 'shall', 'must'], correct: 3, explanation: 'must は「〜しなければならない」という義務を表します。' },
+            { type: 'modal', typeName: '助動詞', sentence: 'She can ___ the piano very well.', hint: '「彼女はとても上手にピアノを弾けます」', options: ['plays', 'played', 'playing', 'play'], correct: 3, explanation: '助動詞 can の後は動詞の原形を使います。' },
+            { type: 'modal', typeName: '助動詞', sentence: 'I ___ like to have a glass of water.', hint: '「お水を一杯いただきたいのですが」', options: ['will', 'would', 'shall', 'must'], correct: 1, explanation: 'I would like to ~ は「〜したいのですが」と丁寧に希望を伝える表現です。' },
+            { type: 'modal', typeName: '助動詞', sentence: 'You should ___ kind to everyone.', hint: '「みんなに親切にすべきです」', options: ['are', 'is', 'be', 'being'], correct: 2, explanation: '助動詞 should の後は動詞の原形 be を使います。' },
+            { type: 'modal', typeName: '助動詞', sentence: '___ I borrow your textbook?', hint: '「あなたの教科書を借りてもいいですか」', options: ['Must', 'Shall', 'Should', 'May'], correct: 3, explanation: 'May I ~? は許可を求める丁寧な表現です。' },
+            { type: 'modal', typeName: '助動詞', sentence: "He ___ speak English when he was five.", hint: '「彼は5歳の時英語が話せませんでした」', options: ["couldn't", "shouldn't", "mustn't", "wouldn't"], correct: 0, explanation: "couldn't は can の過去形の否定で「〜できなかった」を表します。" },
+            // ========== 比較 (30問) ==========
+            { type: 'comparison', typeName: '比較', sentence: 'Mt. Fuji is the ___ mountain in Japan.', hint: '「富士山は日本で一番高い山です」', options: ['higher', 'high', 'most high', 'highest'], correct: 3, explanation: '最上級は the + ~est の形です。high → highest です。' },
+            { type: 'comparison', typeName: '比較', sentence: 'Tom is ___ than Ken.', hint: '「トムはケンより背が高いです」', options: ['tall', 'tallest', 'taller', 'more tall'], correct: 2, explanation: '比較級は ~er + than の形です。tall → taller です。' },
+            { type: 'comparison', typeName: '比較', sentence: 'This book is as ___ as that one.', hint: '「この本はあの本と同じくらい面白いです」', options: ['interesting', 'more interesting', 'most interesting', 'interestinger'], correct: 0, explanation: 'as ~ as は「同じくらい〜」を表します。間に入るのは原級（元の形）です。' },
+            { type: 'comparison', typeName: '比較', sentence: 'English is ___ difficult than math for me.', hint: '「私にとって英語は数学より難しいです」', options: ['most', 'much', 'more', 'very'], correct: 2, explanation: 'difficult は長い形容詞なので、比較級は more difficult です。' },
+            { type: 'comparison', typeName: '比較', sentence: 'She is the ___ beautiful girl in our class.', hint: '「彼女は私たちのクラスで一番美しい女の子です」', options: ['more', 'most', 'much', 'very'], correct: 1, explanation: 'beautiful は長い形容詞なので、最上級は the most beautiful です。' },
+            { type: 'comparison', typeName: '比較', sentence: 'Which is ___, summer or winter?', hint: '「夏と冬では、どちらが暑いですか」', options: ['hot', 'hotter', 'hottest', 'more hot'], correct: 1, explanation: '2つを比較する時は比較級を使います。hot → hotter（tを重ねる）です。' },
+            { type: 'comparison', typeName: '比較', sentence: 'This is the ___ interesting book I have ever read.', hint: '「これは私が今まで読んだ中で一番面白い本です」', options: ['more', 'much', 'very', 'most'], correct: 3, explanation: '最上級は the most + 長い形容詞です。' },
+            { type: 'comparison', typeName: '比較', sentence: 'My bag is ___ than yours.', hint: '「私のかばんはあなたのより大きいです」', options: ['big', 'biggest', 'bigger', 'more big'], correct: 2, explanation: '比較級は ~er + than です。big → bigger（gを重ねる）です。' },
+            { type: 'comparison', typeName: '比較', sentence: 'He can run ___ than his brother.', hint: '「彼は兄より速く走れます」', options: ['fast', 'fastest', 'faster', 'more fast'], correct: 2, explanation: '副詞の比較級です。fast → faster です。' },
+            { type: 'comparison', typeName: '比較', sentence: 'She sings the ___ in our school.', hint: '「彼女は私たちの学校で一番上手に歌います」', options: ['good', 'better', 'best', 'well'], correct: 2, explanation: 'well（上手に）の最上級は best です。the best の形で使います。' },
+            { type: 'comparison', typeName: '比較', sentence: 'This test was ___ than the last one.', hint: '「このテストは前回より簡単でした」', options: ['easy', 'easiest', 'more easy', 'easier'], correct: 3, explanation: '比較級です。easy → easier（yをiに変えてer）です。' },
+            { type: 'comparison', typeName: '比較', sentence: 'He is one of the ___ players on the team.', hint: '「彼はチームで最も優秀な選手の一人です」', options: ['good', 'better', 'best', 'well'], correct: 2, explanation: 'one of the + 最上級 + 複数名詞 で「最も〜な…の一つ」です。good の最上級は best です。' },
+            { type: 'comparison', typeName: '比較', sentence: 'Today is ___ than yesterday.', hint: '「今日は昨日より寒いです」', options: ['cold', 'coldest', 'colder', 'more cold'], correct: 2, explanation: '比較級は ~er + than です。cold → colder です。' },
+            { type: 'comparison', typeName: '比較', sentence: 'She is not as ___ as her sister.', hint: '「彼女は姉ほど背が高くありません」', options: ['taller', 'tallest', 'tall', 'more tall'], correct: 2, explanation: 'not as ~ as は「…ほど〜ではない」です。間に入るのは原級です。' },
+            { type: 'comparison', typeName: '比較', sentence: 'Which do you like ___, dogs or cats?', hint: '「犬と猫では、どちらが好きですか」', options: ['good', 'well', 'best', 'better'], correct: 3, explanation: '2つを比較する時は比較級を使います。well/good の比較級は better です。' },
+            { type: 'comparison', typeName: '比較', sentence: 'This flower is ___ beautiful than that one.', hint: '「この花はあの花より美しいです」', options: ['most', 'much', 'more', 'very'], correct: 2, explanation: 'beautiful は長い形容詞なので比較級は more beautiful です。' },
+            { type: 'comparison', typeName: '比較', sentence: 'Math is the ___ difficult subject for me.', hint: '「数学は私にとって一番難しい教科です」', options: ['more', 'very', 'most', 'much'], correct: 2, explanation: 'difficult は長い形容詞なので最上級は the most difficult です。' },
+            { type: 'comparison', typeName: '比較', sentence: 'He is ___ than any other student in the class.', hint: '「彼はクラスの他のどの生徒よりも賢いです」', options: ['smart', 'smartest', 'smarter', 'more smart'], correct: 2, explanation: '比較級 + than any other ~ で最上級と同じ意味を表します。' },
+            { type: 'comparison', typeName: '比較', sentence: 'My sister is three years ___ than me.', hint: '「姉は私より3歳年上です」', options: ['old', 'oldest', 'older', 'more old'], correct: 2, explanation: '比較級 + than で「〜より」を表します。old → older です。' },
+            { type: 'comparison', typeName: '比較', sentence: 'What is the ___ popular sport in Japan?', hint: '「日本で最も人気のあるスポーツは何ですか」', options: ['more', 'most', 'much', 'very'], correct: 1, explanation: 'popular は長い形容詞なので最上級は the most popular です。' },
+            { type: 'comparison', typeName: '比較', sentence: 'This river is ___ than that river.', hint: '「この川はあの川より長いです」', options: ['long', 'longest', 'longer', 'more long'], correct: 2, explanation: '比較級は ~er + than です。long → longer です。' },
+            { type: 'comparison', typeName: '比較', sentence: 'She speaks English ___ than I do.', hint: '「彼女は私より上手に英語を話します」', options: ['good', 'well', 'best', 'better'], correct: 3, explanation: '副詞 well の比較級は better です。' },
+            { type: 'comparison', typeName: '比較', sentence: 'This movie is as ___ as the book.', hint: '「この映画は本と同じくらい良いです」', options: ['better', 'best', 'good', 'well'], correct: 2, explanation: 'as ~ as は原級を使います。good をそのまま使います。' },
+            { type: 'comparison', typeName: '比較', sentence: 'Which is the ___ season of the four?', hint: '「4つの季節の中でどれが一番好きですか」', options: ['better', 'good', 'well', 'best'], correct: 3, explanation: '3つ以上の中から選ぶときは最上級を使います。good の最上級は best です。' },
+            { type: 'comparison', typeName: '比較', sentence: 'He studied ___ than usual for the exam.', hint: '「彼は試験のためにいつもより一生懸命勉強しました」', options: ['hard', 'hardest', 'harder', 'more hard'], correct: 2, explanation: '副詞の比較級です。hard → harder です。' },
+            { type: 'comparison', typeName: '比較', sentence: 'Tokyo is ___ than Osaka.', hint: '「東京は大阪より大きいです」', options: ['large', 'largest', 'larger', 'more large'], correct: 2, explanation: '比較級は ~er + than です。large → larger です。' },
+            { type: 'comparison', typeName: '比較', sentence: 'This question is the ___ of the three.', hint: '「この問題は3つの中で一番簡単です」', options: ['easy', 'easier', 'easiest', 'more easy'], correct: 2, explanation: '最上級は the + ~est です。easy → easiest です。' },
+            { type: 'comparison', typeName: '比較', sentence: 'My house is ___ from the station than yours.', hint: '「私の家はあなたの家より駅から遠いです」', options: ['far', 'farthest', 'farther', 'more far'], correct: 2, explanation: 'far の比較級は farther です。不規則に変化します。' },
+            { type: 'comparison', typeName: '比較', sentence: 'He is the ___ boy in his family.', hint: '「彼は家族の中で一番若い男の子です」', options: ['young', 'younger', 'youngest', 'more young'], correct: 2, explanation: '最上級は the + ~est です。young → youngest です。' },
+            { type: 'comparison', typeName: '比較', sentence: 'She got up ___ than her mother this morning.', hint: '「彼女は今朝、母より早く起きました」', options: ['early', 'earliest', 'earlier', 'more early'], correct: 2, explanation: '副詞の比較級です。early → earlier（yをiに変えてer）です。' },
+            // ========== There is / are (20問) ==========
+            { type: 'there-is', typeName: 'There is/are', sentence: 'There ___ a cat under the table.', hint: '「テーブルの下に猫が1匹います」', options: ['is', 'are', 'has', 'have'], correct: 0, explanation: 'a cat は単数なので There is を使います。' },
+            { type: 'there-is', typeName: 'There is/are', sentence: 'There ___ many books on the shelf.', hint: '「棚の上にたくさんの本があります」', options: ['is', 'are', 'has', 'have'], correct: 1, explanation: 'many books は複数なので There are を使います。' },
+            { type: 'there-is', typeName: 'There is/are', sentence: '___ there a park near your house?', hint: '「あなたの家の近くに公園はありますか」', options: ['Is', 'Are', 'Do', 'Does'], correct: 0, explanation: 'a park は単数なので Is there ~? の形になります。' },
+            { type: 'there-is', typeName: 'There is/are', sentence: 'There ___ not any milk in the fridge.', hint: '「冷蔵庫に牛乳がありません」', options: ['is', 'are', 'has', 'have'], correct: 0, explanation: 'milk は数えられない名詞なので is を使います。' },
+            { type: 'there-is', typeName: 'There is/are', sentence: 'There ___ two dogs in the yard.', hint: '「庭に犬が2匹います」', options: ['is', 'was', 'are', 'has'], correct: 2, explanation: 'two dogs は複数なので There are を使います。' },
+            { type: 'there-is', typeName: 'There is/are', sentence: 'There ___ a big tree in front of my house.', hint: '「私の家の前に大きな木があります」', options: ['are', 'is', 'have', 'has'], correct: 1, explanation: 'a big tree は単数なので There is を使います。' },
+            { type: 'there-is', typeName: 'There is/are', sentence: '___ there any students in the classroom?', hint: '「教室に生徒はいますか」', options: ['Is', 'Are', 'Do', 'Does'], correct: 1, explanation: 'students は複数なので Are there ~? の形になります。' },
+            { type: 'there-is', typeName: 'There is/are', sentence: 'There ___ a hospital on this street.', hint: '「この通りに病院があります」', options: ['have', 'has', 'are', 'is'], correct: 3, explanation: 'a hospital は単数なので There is を使います。' },
+            { type: 'there-is', typeName: 'There is/are', sentence: 'There ___ no water in the bottle.', hint: '「ボトルに水がありません」', options: ['is', 'are', 'has', 'have'], correct: 0, explanation: 'water は数えられない名詞なので is を使います。' },
+            { type: 'there-is', typeName: 'There is/are', sentence: 'There ___ three apples on the table.', hint: '「テーブルの上にリンゴが3つあります」', options: ['is', 'has', 'have', 'are'], correct: 3, explanation: 'three apples は複数なので There are を使います。' },
+            { type: 'there-is', typeName: 'There is/are', sentence: 'There ___ a library near the station.', hint: '「駅の近くに図書館があります」', options: ['are', 'is', 'have', 'has'], correct: 1, explanation: 'a library は単数なので There is を使います。' },
+            { type: 'there-is', typeName: 'There is/are', sentence: 'There ___ a lot of people at the festival.', hint: '「お祭りにたくさんの人がいました」', options: ['was', 'were', 'is', 'has'], correct: 1, explanation: 'a lot of people は複数で、過去のことなので There were を使います。' },
+            { type: 'there-is', typeName: 'There is/are', sentence: '___ there a convenience store near here?', hint: '「この近くにコンビニはありますか」', options: ['Are', 'Do', 'Is', 'Does'], correct: 2, explanation: 'a convenience store は単数なので Is there ~? の形です。' },
+            { type: 'there-is', typeName: 'There is/are', sentence: 'There ___ some flowers in the garden.', hint: '「庭にいくつかの花があります」', options: ['is', 'has', 'are', 'have'], correct: 2, explanation: 'some flowers は複数なので There are を使います。' },
+            { type: 'there-is', typeName: 'There is/are', sentence: 'There ___ a test yesterday.', hint: '「昨日テストがありました」', options: ['is', 'was', 'were', 'are'], correct: 1, explanation: '過去のことなので was を使います。a test は単数です。' },
+            { type: 'there-is', typeName: 'There is/are', sentence: 'There ___ not any chairs in the room.', hint: '「部屋には椅子が一つもありません」', options: ['is', 'are', 'has', 'have'], correct: 1, explanation: 'chairs は複数なので are を使います。' },
+            { type: 'there-is', typeName: 'There is/are', sentence: 'There ___ a picture on the wall.', hint: '「壁に絵が1枚あります」', options: ['are', 'have', 'is', 'has'], correct: 2, explanation: 'a picture は単数なので There is を使います。' },
+            { type: 'there-is', typeName: 'There is/are', sentence: 'How many students ___ there in your class?', hint: '「あなたのクラスには何人の生徒がいますか」', options: ['is', 'are', 'has', 'have'], correct: 1, explanation: 'students は複数なので are を使います。' },
+            { type: 'there-is', typeName: 'There is/are', sentence: 'There ___ a lot of snow last winter.', hint: '「去年の冬はたくさんの雪がありました」', options: ['is', 'were', 'was', 'are'], correct: 2, explanation: '過去のことで、snow は数えられない名詞なので was を使います。' },
+            { type: 'there-is', typeName: 'There is/are', sentence: 'There ___ something wrong with my computer.', hint: '「私のコンピューターに何か問題があります」', options: ['are', 'have', 'has', 'is'], correct: 3, explanation: 'something は単数扱いなので There is を使います。' },
+            // ========== 接続詞 (25問) ==========
+            { type: 'conjunction', typeName: '接続詞', sentence: 'I was sleeping ___ you called me.', hint: '「あなたが電話した時、私は寝ていました」', options: ['when', 'but', 'and', 'so'], correct: 0, explanation: 'when は「〜した時」という時を表す接続詞です。' },
+            { type: 'conjunction', typeName: '接続詞', sentence: '___ it rains tomorrow, we will stay home.', hint: '「もし明日雨が降ったら、家にいます」', options: ['When', 'Because', 'If', 'That'], correct: 2, explanation: 'if は「もし〜なら」という条件を表す接続詞です。' },
+            { type: 'conjunction', typeName: '接続詞', sentence: 'I was late ___ I missed the bus.', hint: '「バスに乗り遅れたので、遅刻しました」', options: ['if', 'when', 'that', 'because'], correct: 3, explanation: 'because は「〜なので」という理由を表す接続詞です。' },
+            { type: 'conjunction', typeName: '接続詞', sentence: 'I think ___ he is a good teacher.', hint: '「彼はいい先生だと思います」', options: ['when', 'if', 'that', 'because'], correct: 2, explanation: 'that は「〜ということ」を表す接続詞です。' },
+            { type: 'conjunction', typeName: '接続詞', sentence: 'Wash your hands ___ you eat lunch.', hint: '「昼食を食べる前に手を洗いなさい」', options: ['after', 'before', 'when', 'because'], correct: 1, explanation: 'before は「〜する前に」という時を表す接続詞です。' },
+            { type: 'conjunction', typeName: '接続詞', sentence: 'I took a shower ___ I came home.', hint: '「帰宅した後、シャワーを浴びました」', options: ['before', 'because', 'after', 'if'], correct: 2, explanation: 'after は「〜した後に」という時を表す接続詞です。' },
+            { type: 'conjunction', typeName: '接続詞', sentence: '___ he was tired, he kept studying.', hint: '「疲れていたけれど、彼は勉強し続けました」', options: ['Because', 'Though', 'If', 'When'], correct: 1, explanation: 'though は「〜だけれど」という譲歩を表す接続詞です。' },
+            { type: 'conjunction', typeName: '接続詞', sentence: 'Please call me ___ you arrive at the station.', hint: '「駅に着いたら電話してください」', options: ['because', 'that', 'when', 'though'], correct: 2, explanation: 'when は「〜した時」を表す接続詞です。' },
+            { type: 'conjunction', typeName: '接続詞', sentence: 'She was reading ___ her brother was watching TV.', hint: '「兄がテレビを見ている間、彼女は本を読んでいました」', options: ['because', 'if', 'that', 'while'], correct: 3, explanation: 'while は「〜している間」という時を表す接続詞です。' },
+            { type: 'conjunction', typeName: '接続詞', sentence: 'I know ___ she likes music.', hint: '「彼女が音楽を好きなことを知っています」', options: ['when', 'because', 'if', 'that'], correct: 3, explanation: 'that は「〜ということ」を表す接続詞です。' },
+            { type: 'conjunction', typeName: '接続詞', sentence: '___ you study hard, you will pass the test.', hint: '「一生懸命勉強すれば、テストに受かるでしょう」', options: ['Because', 'Though', 'When', 'If'], correct: 3, explanation: 'if は「もし〜なら」という条件を表す接続詞です。' },
+            { type: 'conjunction', typeName: '接続詞', sentence: 'He went to bed early ___ he was very tired.', hint: '「とても疲れていたので、彼は早く寝ました」', options: ['if', 'though', 'because', 'while'], correct: 2, explanation: 'because は「〜なので」という理由を表す接続詞です。' },
+            { type: 'conjunction', typeName: '接続詞', sentence: 'I will wait here ___ you come back.', hint: '「あなたが戻ってくるまでここで待ちます」', options: ['before', 'until', 'because', 'though'], correct: 1, explanation: 'until は「〜するまで」という時を表す接続詞です。' },
+            { type: 'conjunction', typeName: '接続詞', sentence: 'Finish your homework ___ you go out.', hint: '「外出する前に宿題を終えなさい」', options: ['after', 'when', 'before', 'because'], correct: 2, explanation: 'before は「〜する前に」を表す接続詞です。' },
+            { type: 'conjunction', typeName: '接続詞', sentence: 'She smiled ___ she saw her friends.', hint: '「友達を見た時、彼女は微笑みました」', options: ['because', 'if', 'when', 'though'], correct: 2, explanation: 'when は「〜した時」という時を表す接続詞です。' },
+            { type: 'conjunction', typeName: '接続詞', sentence: 'I hope ___ it will be sunny tomorrow.', hint: '「明日晴れることを願っています」', options: ['when', 'that', 'if', 'because'], correct: 1, explanation: 'that は「〜ということ」を表す接続詞です。' },
+            { type: 'conjunction', typeName: '接続詞', sentence: '___ it was cold, he went out without a jacket.', hint: '「寒かったのに、彼はジャケットなしで外出しました」', options: ['Because', 'If', 'When', 'Though'], correct: 3, explanation: 'though は「〜だけれども」という譲歩を表す接続詞です。' },
+            { type: 'conjunction', typeName: '接続詞', sentence: 'I was doing my homework ___ my mother came home.', hint: '「母が帰宅した時、私は宿題をしていました」', options: ['because', 'though', 'if', 'when'], correct: 3, explanation: 'when は「〜した時」を表す接続詞です。' },
+            { type: 'conjunction', typeName: '接続詞', sentence: 'She studied hard ___ she wanted to pass the exam.', hint: '「試験に受かりたかったので、彼女は一生懸命勉強しました」', options: ['though', 'because', 'while', 'if'], correct: 1, explanation: 'because は「〜なので」という理由を表す接続詞です。' },
+            { type: 'conjunction', typeName: '接続詞', sentence: "___ you don't hurry, you will be late.", hint: '「急がないと遅刻しますよ」', options: ['Because', 'When', 'Though', 'If'], correct: 3, explanation: 'if は「もし〜なら」という条件を表す接続詞です。' },
+            { type: 'conjunction', typeName: '接続詞', sentence: 'I will call you ___ I finish my work.', hint: '「仕事が終わったら電話します」', options: ['because', 'though', 'after', 'if'], correct: 2, explanation: 'after は「〜した後に」を表す接続詞です。' },
+            { type: 'conjunction', typeName: '接続詞', sentence: 'He was happy ___ he got a good score.', hint: '「良い点数を取ったので、彼は嬉しかったです」', options: ['though', 'if', 'while', 'because'], correct: 3, explanation: 'because は「〜なので」という理由を表す接続詞です。' },
+            { type: 'conjunction', typeName: '接続詞', sentence: "Don't cross the street ___ the light is red.", hint: '「信号が赤の間は道を渡ってはいけません」', options: ['because', 'while', 'after', 'if'], correct: 1, explanation: 'while は「〜の間」を表す接続詞です。' },
+            { type: 'conjunction', typeName: '接続詞', sentence: 'She was cooking ___ he was cleaning the room.', hint: '「彼が部屋を掃除している間、彼女は料理をしていました」', options: ['because', 'if', 'while', 'that'], correct: 2, explanation: 'while は「〜している間」を表す接続詞です。' },
+            { type: 'conjunction', typeName: '接続詞', sentence: 'I believe ___ he will come tomorrow.', hint: '「彼が明日来ると信じています」', options: ['when', 'because', 'that', 'if'], correct: 2, explanation: 'that は「〜ということ」を表す接続詞です。' },
+            // ========== SVOO・SVC (20問) ==========
+            { type: 'sentence-pattern', typeName: 'SVOO・SVC', sentence: 'She looks ___.', hint: '「彼女は幸せそうに見えます」', options: ['happy', 'happily', 'happiness', 'to happy'], correct: 0, explanation: 'look は SVC の文型をとり、補語に形容詞を使います。' },
+            { type: 'sentence-pattern', typeName: 'SVOO・SVC', sentence: 'He gave ___ a present.', hint: '「彼は彼女にプレゼントをあげました」', options: ['she', 'her', 'hers', 'herself'], correct: 1, explanation: 'SVOO の文型です。give + 人（目的格）+ もの の形です。' },
+            { type: 'sentence-pattern', typeName: 'SVOO・SVC', sentence: 'This soup tastes ___.', hint: '「このスープは美味しい味がします」', options: ['deliciously', 'delicious', 'deliciousness', 'to delicious'], correct: 1, explanation: 'taste は SVC の文型をとり、補語に形容詞を使います。' },
+            { type: 'sentence-pattern', typeName: 'SVOO・SVC', sentence: 'My mother made ___ a cake.', hint: '「母は私にケーキを作ってくれました」', options: ['I', 'my', 'mine', 'me'], correct: 3, explanation: 'SVOO の文型です。make + 人（目的格）+ もの の形です。' },
+            { type: 'sentence-pattern', typeName: 'SVOO・SVC', sentence: 'The music sounds ___.', hint: '「その音楽は美しく聞こえます」', options: ['beauty', 'beautiful', 'beautifully', 'to beautiful'], correct: 1, explanation: 'sound は SVC の文型をとり、補語に形容詞を使います。' },
+            { type: 'sentence-pattern', typeName: 'SVOO・SVC', sentence: 'Please show ___ your notebook.', hint: '「あなたのノートを私に見せてください」', options: ['I', 'my', 'me', 'mine'], correct: 2, explanation: 'SVOO の文型です。show + 人（目的格）+ もの の形です。' },
+            { type: 'sentence-pattern', typeName: 'SVOO・SVC', sentence: 'He became a ___ last year.', hint: '「彼は去年医者になりました」', options: ['doctor', 'doctorly', 'doctors', 'doctoring'], correct: 0, explanation: 'become は SVC の文型をとります。補語に名詞を使い「〜になる」を表します。' },
+            { type: 'sentence-pattern', typeName: 'SVOO・SVC', sentence: 'She told ___ an interesting story.', hint: '「彼女は私たちに面白い話をしてくれました」', options: ['we', 'our', 'ours', 'us'], correct: 3, explanation: 'SVOO の文型です。tell + 人（目的格）+ もの の形です。' },
+            { type: 'sentence-pattern', typeName: 'SVOO・SVC', sentence: 'This flower smells ___.', hint: '「この花は良い匂いがします」', options: ['nicely', 'nice', 'niceness', 'to nice'], correct: 1, explanation: 'smell は SVC の文型をとり、補語に形容詞を使います。' },
+            { type: 'sentence-pattern', typeName: 'SVOO・SVC', sentence: 'My father bought ___ a new bag.', hint: '「父は私に新しいかばんを買ってくれました」', options: ['I', 'my', 'me', 'mine'], correct: 2, explanation: 'SVOO の文型です。buy + 人（目的格）+ もの の形です。' },
+            { type: 'sentence-pattern', typeName: 'SVOO・SVC', sentence: 'She felt ___ after the test.', hint: '「テストの後、彼女は安心しました」', options: ['relief', 'relieved', 'relieving', 'reliefed'], correct: 1, explanation: 'feel は SVC の文型をとり、補語に形容詞を使います。' },
+            { type: 'sentence-pattern', typeName: 'SVOO・SVC', sentence: 'He teaches ___ English.', hint: '「彼は私たちに英語を教えてくれます」', options: ['we', 'our', 'us', 'ours'], correct: 2, explanation: 'SVOO の文型です。teach + 人（目的格）+ もの の形です。' },
+            { type: 'sentence-pattern', typeName: 'SVOO・SVC', sentence: 'The sky looks ___ today.', hint: '「今日の空はきれいに見えます」', options: ['clearly', 'clear', 'clearness', 'to clear'], correct: 1, explanation: 'look は SVC の文型をとり、補語に形容詞を使います。' },
+            { type: 'sentence-pattern', typeName: 'SVOO・SVC', sentence: 'She sent ___ a birthday card.', hint: '「彼女は彼に誕生日カードを送りました」', options: ['he', 'his', 'him', 'himself'], correct: 2, explanation: 'SVOO の文型です。send + 人（目的格）+ もの の形です。' },
+            { type: 'sentence-pattern', typeName: 'SVOO・SVC', sentence: 'He became ___ after exercising.', hint: '「運動した後、彼は疲れた状態になりました」', options: ['tiredly', 'tired', 'tiring', 'to tired'], correct: 1, explanation: 'become は SVC の文型をとり、補語に形容詞を使います。' },
+            { type: 'sentence-pattern', typeName: 'SVOO・SVC', sentence: 'I will show ___ the way to the station.', hint: '「駅への道を教えましょう」', options: ['your', 'yours', 'you', 'yourself'], correct: 2, explanation: 'SVOO の文型です。show + 人（目的格）+ もの の形です。' },
+            { type: 'sentence-pattern', typeName: 'SVOO・SVC', sentence: 'The cake looks ___.', hint: '「そのケーキはおいしそうに見えます」', options: ['deliciously', 'delicious', 'deliciousness', 'to delicious'], correct: 1, explanation: 'look は SVC の文型をとり、補語に形容詞を使います。' },
+            { type: 'sentence-pattern', typeName: 'SVOO・SVC', sentence: 'She gave ___ some advice.', hint: '「彼女は私にアドバイスをくれました」', options: ['I', 'my', 'mine', 'me'], correct: 3, explanation: 'SVOO の文型です。give + 人（目的格）+ もの の形です。' },
+            { type: 'sentence-pattern', typeName: 'SVOO・SVC', sentence: 'The story sounds ___.', hint: '「その話は面白そうに聞こえます」', options: ['interestingly', 'interesting', 'interest', 'to interesting'], correct: 1, explanation: 'sound は SVC の文型をとり、補語に形容詞を使います。' },
+            { type: 'sentence-pattern', typeName: 'SVOO・SVC', sentence: 'He made ___ a cup of tea.', hint: '「彼は彼女にお茶を一杯入れてあげました」', options: ['she', 'her', 'hers', 'herself'], correct: 1, explanation: 'SVOO の文型です。make + 人（目的格）+ もの の形です。' }
+        ];
+
+        const grade3Questions = [
             // ========== 現在完了 (34問) ==========
             { type: 'present-perfect', typeName: '現在完了', sentence: "I ___ never ___ to Kyoto.", hint: "「私は京都に行ったことがありません」", options: ["have, been", "has, been", "have, went", "was, been"], correct: 0,
               explanation: ["「行ったことがない」＝今までの経験 → 現在完了（have / has ＋ 過去分詞）", "主語が I → have（has は he / she / it のとき）", "「〜へ行ったことがある」は have been to。went は過去形なので have の後ろには置けない"] },
@@ -1198,7 +1542,99 @@ window.WiseGame.init({ gameId: 'eiken-grammar-game' });
             { type: 'passive', typeName: '受動態', sentence: "The children ___ taught by Mr. Smith every week.", hint: "「子供たちは毎週スミス先生に教えられています」", options: ["are", "is", "was", "were"], correct: 0,
               explanation: ["子どもたちは「教えられる」側 → 受動態（be動詞＋過去分詞 taught）。by Mr. Smith「スミス先生によって」も目印", "every week「毎週」→ 現在形（is / are）", "children は child の複数形 → are"] },
             { type: 'passive', typeName: '受動態', sentence: "The book ___ written in 1990.", hint: "「その本は1990年に書かれました」", options: ["was", "is", "were", "are"], correct: 0,
-              explanation: ["本は「書かれる」側 → 受動態（be動詞＋過去分詞 written）", "in 1990「1990年に」→ 過去（was / were）", "主語 The book は単数 → was"] }
+              explanation: ["本は「書かれる」側 → 受動態（be動詞＋過去分詞 written）", "in 1990「1990年に」→ 過去（was / were）", "主語 The book は単数 → was"] },
+            // ========== 現在完了進行形 (20問) ==========
+            { type: 'present-perfect-progressive', typeName: '現在完了進行形', sentence: 'I ___ been waiting for an hour.', hint: '「私は1時間ずっと待っています」', options: ['have', 'has', 'am', 'was'], correct: 0, explanation: '現在完了進行形は「have/has been + ~ing」で「ずっと〜し続けている」という意味です。主語が I なので have を使います。' },
+            { type: 'present-perfect-progressive', typeName: '現在完了進行形', sentence: 'She ___ been studying English since this morning.', hint: '「彼女は今朝からずっと英語を勉強しています」', options: ['have', 'has', 'is', 'was'], correct: 1, explanation: '主語が She（三人称単数）なので has been ~ing の形になります。since は「〜以来」です。' },
+            { type: 'present-perfect-progressive', typeName: '現在完了進行形', sentence: 'They have been ___ soccer for two hours.', hint: '「彼らは2時間ずっとサッカーをしています」', options: ['playing', 'play', 'played', 'to play'], correct: 0, explanation: '現在完了進行形では have/has been のあとに動詞の ing 形を使います。' },
+            { type: 'present-perfect-progressive', typeName: '現在完了進行形', sentence: 'It has been ___ since yesterday.', hint: '「昨日からずっと雨が降っています」', options: ['rain', 'rained', 'raining', 'to rain'], correct: 2, explanation: 'have/has been のあとには ~ing 形が来ます。rain → raining です。' },
+            { type: 'present-perfect-progressive', typeName: '現在完了進行形', sentence: 'We ___ been living in this city for five years.', hint: '「私たちは5年間この街に住んでいます」', options: ['have', 'has', 'are', 'were'], correct: 0, explanation: '主語が We なので have been ~ing の形です。for five years は期間を表します。' },
+            { type: 'present-perfect-progressive', typeName: '現在完了進行形', sentence: 'How long have you been ___ here?', hint: '「どのくらいここで待っていますか」', options: ['wait', 'waited', 'to wait', 'waiting'], correct: 3, explanation: 'How long + have/has been ~ing で「どのくらいの間〜し続けていますか」と尋ねます。' },
+            { type: 'present-perfect-progressive', typeName: '現在完了進行形', sentence: 'He has been ___ the piano since he was five.', hint: '「彼は5歳からずっとピアノを弾いています」', options: ['playing', 'play', 'played', 'plays'], correct: 0, explanation: 'has been のあとには動詞の ing 形が来ます。since は「〜以来」です。' },
+            { type: 'present-perfect-progressive', typeName: '現在完了進行形', sentence: 'My mother has ___ cooking dinner for an hour.', hint: '「母は1時間ずっと夕食を作っています」', options: ['be', 'been', 'being', 'is'], correct: 1, explanation: '現在完了進行形は「has/have + been + ~ing」です。been が正解です。' },
+            { type: 'present-perfect-progressive', typeName: '現在完了進行形', sentence: 'I have been ___ this book all day.', hint: '「私は一日中この本を読んでいます」', options: ['reading', 'read', 'reads', 'to read'], correct: 0, explanation: 'have been のあとには ~ing 形を使います。read → reading です。' },
+            { type: 'present-perfect-progressive', typeName: '現在完了進行形', sentence: '___ she been working at this company for a long time?', hint: '「彼女は長い間この会社で働いていますか」', options: ['Has', 'Have', 'Is', 'Does'], correct: 0, explanation: '現在完了進行形の疑問文は「Has/Have + 主語 + been + ~ing」です。主語が she なので Has を使います。' },
+            { type: 'present-perfect-progressive', typeName: '現在完了進行形', sentence: 'The children have been ___ in the park since noon.', hint: '「子供たちは正午からずっと公園で遊んでいます」', options: ['playing', 'play', 'played', 'to play'], correct: 0, explanation: 'have been のあとには ~ing 形を使います。since noon は「正午から」です。' },
+            { type: 'present-perfect-progressive', typeName: '現在完了進行形', sentence: 'He ___ been running for 30 minutes.', hint: '「彼は30分間ずっと走っています」', options: ['is', 'was', 'has', 'have'], correct: 2, explanation: '主語が He（三人称単数）なので has been ~ing の形です。' },
+            { type: 'present-perfect-progressive', typeName: '現在完了進行形', sentence: 'We have ___ talking about this problem all week.', hint: '「私たちは一週間ずっとこの問題について話しています」', options: ['been', 'be', 'being', 'are'], correct: 0, explanation: '「have + been + ~ing」が現在完了進行形の形です。' },
+            { type: 'present-perfect-progressive', typeName: '現在完了進行形', sentence: 'How long has it been ___?', hint: '「どのくらいの間雪が降っていますか」', options: ['snow', 'snowed', 'snows', 'snowing'], correct: 3, explanation: 'has been のあとには ~ing 形が来ます。snow → snowing です。' },
+            { type: 'present-perfect-progressive', typeName: '現在完了進行形', sentence: 'She has been ___ a lot of water today.', hint: '「彼女は今日たくさん水を飲んでいます」', options: ['drinking', 'drink', 'drank', 'drinks'], correct: 0, explanation: 'has been のあとには ~ing 形を使います。drink → drinking です。' },
+            { type: 'present-perfect-progressive', typeName: '現在完了進行形', sentence: 'My father ___ been sleeping since 9 p.m.', hint: '「父は午後9時からずっと寝ています」', options: ['is', 'has', 'was', 'have'], correct: 1, explanation: '主語が My father（三人称単数）なので has を使います。' },
+            { type: 'present-perfect-progressive', typeName: '現在完了進行形', sentence: 'I have been ___ for a new job recently.', hint: '「私は最近ずっと新しい仕事を探しています」', options: ['look', 'looked', 'looking', 'looks'], correct: 2, explanation: 'have been のあとには ~ing 形を使います。look → looking です。' },
+            { type: 'present-perfect-progressive', typeName: '現在完了進行形', sentence: 'They ___ been building this bridge for three years.', hint: '「彼らは3年間ずっとこの橋を建設しています」', options: ['have', 'has', 'are', 'were'], correct: 0, explanation: '主語が They なので have been ~ing の形です。for three years は期間を表します。' },
+            { type: 'present-perfect-progressive', typeName: '現在完了進行形', sentence: '___ you been feeling sick all day?', hint: '「一日中ずっと気分が悪いのですか」', options: ['Have', 'Has', 'Are', 'Do'], correct: 0, explanation: '疑問文は「Have/Has + 主語 + been + ~ing」の形です。主語が you なので Have です。' },
+            { type: 'present-perfect-progressive', typeName: '現在完了進行形', sentence: 'The dog has been ___ all morning.', hint: '「その犬は午前中ずっと吠えています」', options: ['barking', 'bark', 'barked', 'barks'], correct: 0, explanation: 'has been のあとには ~ing 形を使います。bark → barking です。' },
+
+            // ========== 間接疑問文 (25問) ==========
+            { type: 'indirect-question', typeName: '間接疑問文', sentence: 'Do you know where he ___?', hint: '「彼がどこに住んでいるか知っていますか」', options: ['lives', 'live', 'does live', 'living'], correct: 0, explanation: '間接疑問文では「疑問詞 + 主語 + 動詞」の語順になります。he は三人称単数なので lives です。' },
+            { type: 'indirect-question', typeName: '間接疑問文', sentence: 'I don\'t know what she ___ yesterday.', hint: '「彼女が昨日何を買ったか知りません」', options: ['buy', 'did buy', 'buys', 'bought'], correct: 3, explanation: '間接疑問文の中では「疑問詞 + 主語 + 動詞」の語順です。yesterday があるので過去形 bought を使います。' },
+            { type: 'indirect-question', typeName: '間接疑問文', sentence: 'Can you tell me when the movie ___?', hint: '「映画がいつ始まるか教えてくれますか」', options: ['does start', 'starts', 'start', 'starting'], correct: 1, explanation: '間接疑問文では疑問詞のあとは「主語 + 動詞」の語順です。the movie は三人称単数なので starts です。' },
+            { type: 'indirect-question', typeName: '間接疑問文', sentence: 'I wonder who ___ the window.', hint: '「誰が窓を壊したのだろう」', options: ['broke', 'did break', 'break', 'does break'], correct: 0, explanation: 'who が主語の間接疑問文では「who + 動詞」の語順です。過去の出来事なので broke を使います。' },
+            { type: 'indirect-question', typeName: '間接疑問文', sentence: 'Please tell me how ___ get to the station.', hint: '「駅への行き方を教えてください」', options: ['I can', 'do I', 'to', 'can'], correct: 2, explanation: '「how to + 動詞の原形」で「〜の仕方」という意味になります。tell me how to get は常套句です。' },
+            { type: 'indirect-question', typeName: '間接疑問文', sentence: 'Do you know how old she ___?', hint: '「彼女が何歳か知っていますか」', options: ['is', 'does', 'has', 'are'], correct: 0, explanation: '間接疑問文では「疑問詞 + 主語 + 動詞」の語順です。she は三人称単数なので is を使います。' },
+            { type: 'indirect-question', typeName: '間接疑問文', sentence: 'I don\'t understand why he ___ angry.', hint: '「なぜ彼が怒っているのか分かりません」', options: ['is', 'does', 'are', 'has'], correct: 0, explanation: '間接疑問文では「疑問詞 + 主語 + 動詞」の語順です。he のあとには is が来ます。' },
+            { type: 'indirect-question', typeName: '間接疑問文', sentence: 'Could you tell me where the library ___?', hint: '「図書館がどこにあるか教えていただけますか」', options: ['does', 'are', 'has', 'is'], correct: 3, explanation: '間接疑問文では do/does は使わず、普通の語順「主語 + 動詞」になります。' },
+            { type: 'indirect-question', typeName: '間接疑問文', sentence: 'I want to know what time the bus ___.', hint: '「バスが何時に来るか知りたいです」', options: ['come', 'comes', 'does come', 'coming'], correct: 1, explanation: '間接疑問文では「疑問詞 + 主語 + 動詞」の語順です。the bus は三人称単数なので comes です。' },
+            { type: 'indirect-question', typeName: '間接疑問文', sentence: 'Nobody knows where he ___ now.', hint: '「彼が今どこにいるか誰も知りません」', options: ['is', 'does', 'are', 'be'], correct: 0, explanation: '間接疑問文の語順は「疑問詞 + 主語 + 動詞」です。he のあとには is を使います。' },
+            { type: 'indirect-question', typeName: '間接疑問文', sentence: 'Do you know ___ wrote this book?', hint: '「誰がこの本を書いたか知っていますか」', options: ['who', 'who did', 'whom', 'whose'], correct: 0, explanation: 'who が主語の場合は「who + 動詞」の語順で、do/did は不要です。' },
+            { type: 'indirect-question', typeName: '間接疑問文', sentence: 'I\'m not sure ___ she will come to the party.', hint: '「彼女がパーティーに来るかどうか分かりません」', options: ['what', 'who', 'whether', 'where'], correct: 2, explanation: '「〜かどうか」は whether（または if）を使って表します。' },
+            { type: 'indirect-question', typeName: '間接疑問文', sentence: 'Can you tell me how much this bag ___?', hint: '「このカバンがいくらか教えてくれますか」', options: ['costs', 'cost', 'does cost', 'costing'], correct: 0, explanation: '間接疑問文では「疑問詞 + 主語 + 動詞」の語順です。this bag は三人称単数なので costs です。' },
+            { type: 'indirect-question', typeName: '間接疑問文', sentence: 'I don\'t know where ___ put my keys.', hint: '「鍵をどこに置いたか分かりません」', options: ['I', 'did I', 'do I', 'me'], correct: 0, explanation: '間接疑問文では「疑問詞 + 主語 + 動詞」の語順です。do/did は使いません。' },
+            { type: 'indirect-question', typeName: '間接疑問文', sentence: 'She asked me what I ___ for lunch.', hint: '「彼女は私に昼食に何を食べたか聞きました」', options: ['did have', 'have', 'do have', 'had'], correct: 3, explanation: '間接疑問文では「疑問詞 + 主語 + 動詞」の語順で、asked（過去形）に合わせて had を使います。' },
+            { type: 'indirect-question', typeName: '間接疑問文', sentence: 'Tell me ___ you like the best.', hint: '「何が一番好きか教えてください」', options: ['what', 'that', 'how', 'which do'], correct: 0, explanation: '「何が一番好きか」は what を使います。間接疑問文では「疑問詞 + 主語 + 動詞」の語順です。' },
+            { type: 'indirect-question', typeName: '間接疑問文', sentence: 'I wonder how many people ___ at the concert.', hint: '「コンサートに何人いたのか気になります」', options: ['were', 'was', 'did', 'have'], correct: 0, explanation: '間接疑問文では「疑問詞 + 主語 + 動詞」の語順です。people は複数なので were を使います。' },
+            { type: 'indirect-question', typeName: '間接疑問文', sentence: 'Do you know ___ long it takes to get there?', hint: '「そこに着くのにどのくらいかかるか知っていますか」', options: ['how', 'what', 'which', 'where'], correct: 0, explanation: '「どのくらい長く」は how long で表します。間接疑問文の一部です。' },
+            { type: 'indirect-question', typeName: '間接疑問文', sentence: 'I have no idea ___ he said that.', hint: '「なぜ彼がそう言ったか全く分かりません」', options: ['why', 'what', 'how', 'who'], correct: 0, explanation: '「なぜ」は why を使います。I have no idea why ... は「なぜ〜か全く分からない」という意味です。' },
+            { type: 'indirect-question', typeName: '間接疑問文', sentence: 'Can you tell me which train ___ to Tokyo?', hint: '「どの電車が東京に行くか教えてくれますか」', options: ['go', 'does go', 'goes', 'going'], correct: 2, explanation: 'which train が主語なので「which train + 動詞」の語順です。三人称単数なので goes です。' },
+            { type: 'indirect-question', typeName: '間接疑問文', sentence: 'I\'d like to know ___ she is coming back.', hint: '「彼女がいつ戻ってくるか知りたいです」', options: ['when', 'what', 'who', 'where'], correct: 0, explanation: '「いつ」は when を使います。間接疑問文では「when + 主語 + 動詞」の語順です。' },
+            { type: 'indirect-question', typeName: '間接疑問文', sentence: 'He asked me where I ___ from.', hint: '「彼は私にどこの出身か聞きました」', options: ['was', 'am', 'did', 'do'], correct: 0, explanation: '間接疑問文で、asked（過去形）に合わせて was を使います（時制の一致）。' },
+            { type: 'indirect-question', typeName: '間接疑問文', sentence: 'Do you know what ___ means?', hint: '「この単語が何を意味するか知っていますか」', options: ['this word', 'does this word', 'this word does', 'is this word'], correct: 0, explanation: '間接疑問文では「疑問詞 + 主語 + 動詞」の語順です。do/does は使いません。' },
+            { type: 'indirect-question', typeName: '間接疑問文', sentence: 'I forgot ___ I should bring to the party.', hint: '「パーティーに何を持って行くべきか忘れました」', options: ['what', 'that', 'how', 'where'], correct: 0, explanation: '「何を」は what を使います。間接疑問文の語順は「what + 主語 + 動詞」です。' },
+            { type: 'indirect-question', typeName: '間接疑問文', sentence: 'She didn\'t tell me ___ she had been.', hint: '「彼女はどこに行っていたか教えてくれませんでした」', options: ['where', 'what', 'who', 'when'], correct: 0, explanation: '「どこに」は where を使います。間接疑問文の語順は「where + 主語 + 動詞」です。' },
+
+            // ========== SVOC (20問) ==========
+            { type: 'svoc', typeName: 'SVOC', sentence: 'The news made her ___.', hint: '「そのニュースは彼女を幸せにしました」', options: ['happy', 'happily', 'to happy', 'happiness'], correct: 0, explanation: 'make + O + C（形容詞）で「OをCにする」という意味です。happy は形容詞なのでそのまま使います。' },
+            { type: 'svoc', typeName: 'SVOC', sentence: 'We call him ___.', hint: '「私たちは彼をケンと呼んでいます」', options: ['to Ken', 'Ken', 'for Ken', 'as Ken'], correct: 1, explanation: 'call + O + C で「OをCと呼ぶ」という意味です。補語には名前がそのまま来ます。' },
+            { type: 'svoc', typeName: 'SVOC', sentence: 'She named her cat ___.', hint: '「彼女は猫にタマという名前をつけました」', options: ['Tama', 'to Tama', 'for Tama', 'as Tama'], correct: 0, explanation: 'name + O + C で「OにCという名前をつける」という意味です。' },
+            { type: 'svoc', typeName: 'SVOC', sentence: 'Please keep the door ___.', hint: '「ドアを開けたままにしてください」', options: ['opening', 'to open', 'opened', 'open'], correct: 3, explanation: 'keep + O + C（形容詞）で「OをCの状態に保つ」という意味です。open は形容詞として使えます。' },
+            { type: 'svoc', typeName: 'SVOC', sentence: 'I found the book ___.', hint: '「私はその本が面白いと思いました」', options: ['interesting', 'interestingly', 'to interesting', 'interest'], correct: 0, explanation: 'find + O + C（形容詞）で「OがCだと気づく・思う」という意味です。interesting は形容詞です。' },
+            { type: 'svoc', typeName: 'SVOC', sentence: 'The music makes me ___.', hint: '「その音楽は私を悲しくさせます」', options: ['sadly', 'sad', 'sadness', 'to sad'], correct: 1, explanation: 'make + O + C（形容詞）で「OをCにする」という意味です。sad は形容詞です。' },
+            { type: 'svoc', typeName: 'SVOC', sentence: 'They elected him ___.', hint: '「彼らは彼をキャプテンに選びました」', options: ['captain', 'to captain', 'as captain', 'for captain'], correct: 0, explanation: 'elect + O + C で「OをCに選ぶ」という意味です。補語は名詞がそのまま来ます。' },
+            { type: 'svoc', typeName: 'SVOC', sentence: 'The cold weather made the water ___.', hint: '「寒い天気で水が凍りました」', options: ['freezing', 'to freeze', 'freeze', 'frozen'], correct: 2, explanation: 'make + O + 動詞の原形で「Oに〜させる」という使役の意味です。make のあとは原形です。' },
+            { type: 'svoc', typeName: 'SVOC', sentence: 'She always keeps her room ___.', hint: '「彼女はいつも部屋をきれいにしています」', options: ['clean', 'cleanly', 'cleaning', 'to clean'], correct: 0, explanation: 'keep + O + C（形容詞）で「OをCの状態に保つ」という意味です。clean は形容詞として使えます。' },
+            { type: 'svoc', typeName: 'SVOC', sentence: 'The story made the children ___.', hint: '「その話は子供たちを笑わせました」', options: ['laughing', 'to laugh', 'laughed', 'laugh'], correct: 3, explanation: 'make + O + 動詞の原形で「Oに〜させる」という使役の意味です。' },
+            { type: 'svoc', typeName: 'SVOC', sentence: 'I found the test ___.', hint: '「私はそのテストが難しいと思いました」', options: ['difficult', 'difficulty', 'difficultly', 'to difficult'], correct: 0, explanation: 'find + O + C（形容詞）で「OがCだと思う」という意味です。difficult は形容詞です。' },
+            { type: 'svoc', typeName: 'SVOC', sentence: 'We call this flower ___.', hint: '「この花をサクラと呼びます」', options: ['sakura', 'to sakura', 'as sakura', 'for sakura'], correct: 0, explanation: 'call + O + C で「OをCと呼ぶ」という意味です。' },
+            { type: 'svoc', typeName: 'SVOC', sentence: 'The teacher made us ___ the textbook.', hint: '「先生は私たちにその教科書を読ませました」', options: ['to read', 'read', 'reading', 'reads'], correct: 1, explanation: 'make + O + 動詞の原形で「Oに〜させる」という使役の意味です。make のあとは to なしの原形です。' },
+            { type: 'svoc', typeName: 'SVOC', sentence: 'Don\'t leave the window ___.', hint: '「窓を開けっぱなしにしないでください」', options: ['open', 'opening', 'opened', 'to open'], correct: 0, explanation: 'leave + O + C（形容詞）で「OをCのままにする」という意味です。' },
+            { type: 'svoc', typeName: 'SVOC', sentence: 'The movie made me ___.', hint: '「その映画は私を泣かせました」', options: ['cry', 'to cry', 'crying', 'cried'], correct: 0, explanation: 'make + O + 動詞の原形で「Oに〜させる」です。make の使役では to は不要です。' },
+            { type: 'svoc', typeName: 'SVOC', sentence: 'They painted the wall ___.', hint: '「彼らは壁を白く塗りました」', options: ['whitely', 'whiteness', 'white', 'to white'], correct: 2, explanation: 'paint + O + C（色・形容詞）で「OをCに塗る」という意味です。' },
+            { type: 'svoc', typeName: 'SVOC', sentence: 'His joke made everyone ___.', hint: '「彼の冗談はみんなを幸せにしました」', options: ['happy', 'happily', 'happiness', 'to happy'], correct: 0, explanation: 'make + O + C（形容詞）で「OをCにする」です。happy は形容詞です。' },
+            { type: 'svoc', typeName: 'SVOC', sentence: 'I keep my desk ___.', hint: '「私は机をきちんと整頓しています」', options: ['tidy', 'tidily', 'tidiness', 'to tidy'], correct: 0, explanation: 'keep + O + C（形容詞）で「OをCの状態に保つ」です。tidy は形容詞です。' },
+            { type: 'svoc', typeName: 'SVOC', sentence: 'She found the problem ___.', hint: '「彼女はその問題が簡単だと思いました」', options: ['easy', 'easily', 'easiness', 'to easy'], correct: 0, explanation: 'find + O + C（形容詞）で「OがCだと思う」です。easy は形容詞です。' },
+            { type: 'svoc', typeName: 'SVOC', sentence: 'My mother named me ___.', hint: '「母は私にユミという名前をつけました」', options: ['Yumi', 'to Yumi', 'for Yumi', 'as Yumi'], correct: 0, explanation: 'name + O + C で「OにCという名前をつける」です。' },
+
+            // ========== 仮定法過去 (20問) ==========
+            { type: 'subjunctive', typeName: '仮定法過去', sentence: 'If I ___ a bird, I could fly.', hint: '「もし私が鳥だったら、飛べるのに」', options: ['were', 'am', 'was being', 'will be'], correct: 0, explanation: '仮定法過去では、be動詞は主語に関係なく were を使います。「もし〜だったら」という現実と違う仮定です。' },
+            { type: 'subjunctive', typeName: '仮定法過去', sentence: 'I wish I ___ speak English well.', hint: '「英語を上手に話せたらなあ」', options: ['can', 'could', 'will', 'am'], correct: 1, explanation: 'I wish + 主語 + 過去形で「〜だったらなあ」という願望を表します。can の過去形 could を使います。' },
+            { type: 'subjunctive', typeName: '仮定法過去', sentence: 'If I ___ a lot of money, I would travel around the world.', hint: '「もしたくさんお金があれば、世界中を旅行するのに」', options: ['have', 'has', 'had', 'will have'], correct: 2, explanation: '仮定法過去では動詞を過去形にします。have → had です。現実には持っていないことを仮定しています。' },
+            { type: 'subjunctive', typeName: '仮定法過去', sentence: 'If she ___ here, she would help us.', hint: '「もし彼女がここにいたら、助けてくれるのに」', options: ['were', 'is', 'will be', 'has been'], correct: 0, explanation: '仮定法過去では be動詞は were を使います。彼女は今ここにいないという現実と違う仮定です。' },
+            { type: 'subjunctive', typeName: '仮定法過去', sentence: 'I wish I ___ taller.', hint: '「もっと背が高かったらなあ」', options: ['am', 'will be', 'have been', 'were'], correct: 3, explanation: 'I wish + 主語 + 過去形で願望を表します。be動詞は were を使います。' },
+            { type: 'subjunctive', typeName: '仮定法過去', sentence: 'If I ___ you, I would study harder.', hint: '「もし私があなただったら、もっと一生懸命勉強するのに」', options: ['were', 'am', 'was being', 'will be'], correct: 0, explanation: '仮定法過去の定番表現「If I were you（もし私があなただったら）」では were を使います。' },
+            { type: 'subjunctive', typeName: '仮定法過去', sentence: 'If it ___ sunny, we could go to the beach.', hint: '「もし晴れていたら、ビーチに行けるのに」', options: ['were', 'is', 'will be', 'has been'], correct: 0, explanation: '仮定法過去では be動詞は were を使います。実際には晴れていないことを仮定しています。' },
+            { type: 'subjunctive', typeName: '仮定法過去', sentence: 'She wishes she ___ a car.', hint: '「彼女は車を持っていたらなあと思っています」', options: ['has', 'had', 'have', 'will have'], correct: 1, explanation: 'wish + 主語 + 過去形で「〜だったらなあ」を表します。have → had です。' },
+            { type: 'subjunctive', typeName: '仮定法過去', sentence: 'If I ___ the answer, I would tell you.', hint: '「もし答えを知っていたら、教えるのに」', options: ['knew', 'know', 'knows', 'will know'], correct: 0, explanation: '仮定法過去では動詞を過去形にします。know → knew です。' },
+            { type: 'subjunctive', typeName: '仮定法過去', sentence: 'If he ___ harder, he would pass the test.', hint: '「もし彼がもっと頑張れば、テストに受かるのに」', options: ['studies', 'study', 'studied', 'will study'], correct: 2, explanation: '仮定法過去では動詞を過去形にします。study → studied です。' },
+            { type: 'subjunctive', typeName: '仮定法過去', sentence: 'I wish it ___ raining.', hint: '「雨が降っていなければなあ」', options: ['weren\'t', 'isn\'t', 'won\'t', 'doesn\'t'], correct: 0, explanation: 'I wish + 仮定法で「〜でなければなあ」を表します。be動詞の否定は weren\'t です。' },
+            { type: 'subjunctive', typeName: '仮定法過去', sentence: 'If I ___ how to cook, I would make dinner for you.', hint: '「もし料理の仕方を知っていたら、夕食を作るのに」', options: ['knew', 'know', 'knows', 'will know'], correct: 0, explanation: '仮定法過去では動詞を過去形にします。know → knew です。' },
+            { type: 'subjunctive', typeName: '仮定法過去', sentence: 'If we ___ more time, we could visit Kyoto.', hint: '「もっと時間があれば、京都を訪れられるのに」', options: ['have', 'has', 'will have', 'had'], correct: 3, explanation: '仮定法過去では動詞を過去形にします。実際には時間がないことを仮定しています。' },
+            { type: 'subjunctive', typeName: '仮定法過去', sentence: 'He wishes he ___ play the guitar.', hint: '「彼はギターが弾けたらなあと思っています」', options: ['can', 'could', 'will', 'may'], correct: 1, explanation: 'wish + 主語 + 過去形で願望を表します。can → could です。' },
+            { type: 'subjunctive', typeName: '仮定法過去', sentence: 'If I ___ a teacher, I would teach English.', hint: '「もし先生だったら、英語を教えるのに」', options: ['were', 'am', 'will be', 'being'], correct: 0, explanation: '仮定法過去では be動詞は were を使います。実際には先生ではない仮定です。' },
+            { type: 'subjunctive', typeName: '仮定法過去', sentence: 'I wish I ___ in Tokyo.', hint: '「東京に住んでいたらなあ」', options: ['lived', 'live', 'lives', 'will live'], correct: 0, explanation: 'I wish + 主語 + 過去形で「〜だったらなあ」です。live → lived です。' },
+            { type: 'subjunctive', typeName: '仮定法過去', sentence: 'If it ___ so cold, we would go outside.', hint: '「こんなに寒くなかったら、外に出るのに」', options: ['weren\'t', 'isn\'t', 'won\'t be', 'doesn\'t'], correct: 0, explanation: '仮定法過去の否定では be動詞は weren\'t を使います。' },
+            { type: 'subjunctive', typeName: '仮定法過去', sentence: 'She wishes she ___ more friends.', hint: '「彼女はもっと友達がいたらなあと思っています」', options: ['has', 'have', 'will have', 'had'], correct: 3, explanation: 'wish + 主語 + 過去形で願望を表します。have → had です。' },
+            { type: 'subjunctive', typeName: '仮定法過去', sentence: 'If I ___ rich, I ___ buy a big house.', hint: '「もしお金持ちだったら、大きな家を買うのに」', options: ['were, would', 'am, will', 'was, can', 'be, could'], correct: 0, explanation: '仮定法過去は「If + 主語 + 過去形, 主語 + would + 原形」の形です。be動詞は were を使います。' },
+            { type: 'subjunctive', typeName: '仮定法過去', sentence: 'I wish I ___ have to go to school today.', hint: '「今日学校に行かなくていいならなあ」', options: ['didn\'t', 'don\'t', 'won\'t', 'can\'t'], correct: 0, explanation: 'I wish + 主語 + 過去形で「〜でなければなあ」です。否定は didn\'t を使います。' }
         ];
 
         // ========== State ==========
@@ -1206,21 +1642,28 @@ window.WiseGame.init({ gameId: 'eiken-grammar-game' });
         let currentIndex = 0;
         let score = 0;
         let questionCount = 20;
-        let stats = { 'present-perfect': { correct: 0, total: 0 }, 'past': { correct: 0, total: 0 }, 'passive': { correct: 0, total: 0 } };
-        let sessionWrongAnswers = [];   // 送信用（B2標準形式: q / correct / chosen / tag）
-        let sessionWrongDisplay = [];   // 結果画面の表示用
+        let sessionWrongAnswers = [];
+        let sessionWrongDisplay = [];
         let soundEnabled = true;
-        let selectedUnit = 'mix';       // 'mix' | 'present-perfect' | 'past' | 'passive'
+        let selectedUnit = 'mix';
         let sessionLabel = 'まぜこぜ';
         let combo = 0;
         let maxCombo = 0;
 
-        const UNITS = {
-            'mix': 'まぜこぜ',
-            'present-perfect': '現在完了',
-            'past': '過去形',
-            'passive': '受動態'
+        // ── 級ごとの設定 ──
+        const GRADE_DATA = {
+            '5': { pool: grade5Questions, units: { mix:'まぜこぜ', interrogative:'疑問詞', imperative:'命令文', progressive:'現在進行形', can:'can', pronoun:'代名詞', plural:'複数形', preposition:'前置詞' } },
+            '4': { pool: grade4Questions, units: { mix:'まぜこぜ', 'past-progressive':'過去進行形', future:'未来形', modal:'助動詞', comparison:'比較', 'there-is':'There is/are', conjunction:'接続詞', 'sentence-pattern':'SVOO・SVC' } },
+            '3': { pool: grade3Questions, units: { mix:'まぜこぜ', 'present-perfect':'現在完了', past:'過去形', passive:'受動態', 'present-perfect-progressive':'現在完了進行形', 'indirect-question':'間接疑問文', svoc:'SVOC', subjunctive:'仮定法過去' } },
         };
+        let currentGrade = localStorage.getItem('eiken-grammar-grade') || '3';
+        let UNITS = GRADE_DATA[currentGrade].units;
+        function initStats() {
+            const s = {};
+            Object.keys(UNITS).filter(k => k !== 'mix').forEach(k => s[k] = { correct: 0, total: 0 });
+            return s;
+        }
+        let stats = initStats();
         const PORTAL_URL = 'https://wise-english-portal.vercel.app';
 
         function escapeHtml(s) {
@@ -1251,7 +1694,46 @@ window.WiseGame.init({ gameId: 'eiken-grammar-game' });
         }
 
         function poolFor(unit) {
-            return unit === 'mix' ? questions : questions.filter(q => q.type === unit);
+            const pool = GRADE_DATA[currentGrade].pool;
+            return unit === 'mix' ? pool : pool.filter(q => q.type === unit);
+        }
+
+        function selectGrade(grade) {
+            currentGrade = grade;
+            localStorage.setItem('eiken-grammar-grade', grade);
+            UNITS = GRADE_DATA[grade].units;
+            stats = initStats();
+            selectedUnit = 'mix';
+            sessionLabel = 'まぜこぜ';
+            document.querySelectorAll('.grade-tab').forEach(t => t.classList.remove('active'));
+            const tab = document.getElementById('gradeTab' + grade);
+            if (tab) tab.classList.add('active');
+            rebuildUnitButtons();
+            const pool = GRADE_DATA[grade].pool;
+            document.getElementById('totalQuestionsNote').textContent = `全${pool.length}問からランダム出題・時間制限なし`;
+        }
+
+        function rebuildUnitButtons() {
+            const container = document.getElementById('unitButtons');
+            if (!container) return;
+            container.innerHTML = '';
+            Object.entries(UNITS).forEach(([key, label]) => {
+                const btn = document.createElement('button');
+                btn.className = 'unit-btn' + (key === selectedUnit ? ' selected' : '');
+                btn.dataset.unit = key;
+                btn.textContent = (key === 'mix' ? '🔀 ' : '') + label;
+                btn.onclick = () => {
+                    selectedUnit = key;
+                    sessionLabel = label;
+                    saveToStorage(STORAGE_KEYS.UNIT, selectedUnit);
+                    document.querySelectorAll('.unit-btn').forEach(b => b.classList.remove('selected'));
+                    btn.classList.add('selected');
+                    const saved = parseInt(loadFromStorage(STORAGE_KEYS.QUESTION_COUNT, 20), 10);
+                    if (saved > 0) questionCount = saved;
+                    if (typeof refreshSelectors === 'function') refreshSelectors();
+                };
+                container.appendChild(btn);
+            });
         }
 
         // ========== localStorage helpers ==========
@@ -1456,7 +1938,7 @@ window.WiseGame.init({ gameId: 'eiken-grammar-game' });
             combo = 0; maxCombo = 0;
             sessionWrongAnswers = [];
             sessionWrongDisplay = [];
-            stats = { 'present-perfect': { correct: 0, total: 0 }, 'past': { correct: 0, total: 0 }, 'passive': { correct: 0, total: 0 } };
+            stats = initStats();
             document.getElementById('startScreen').style.display = 'none';
             document.getElementById('gameScreen').classList.add('active');
             document.getElementById('resultScreen').classList.remove('active');
@@ -1498,7 +1980,8 @@ window.WiseGame.init({ gameId: 'eiken-grammar-game' });
                 if (last) { questionCount = parseInt(last.dataset.count, 10); last.classList.add('selected'); }
             }
             const note = document.getElementById('totalQuestionsNote');
-            note.textContent = (selectedUnit === 'mix' ? '3単元 全' : UNITS[selectedUnit] + ' 全') + poolSize + '問からランダム出題・時間制限なし';
+            const unitCount = Object.keys(UNITS).filter(k => k !== 'mix').length;
+            note.textContent = (selectedUnit === 'mix' ? unitCount + '単元 全' : UNITS[selectedUnit] + ' 全') + poolSize + '問からランダム出題・時間制限なし';
         }
 
         document.querySelectorAll('.count-btn').forEach(btn => {
@@ -1509,16 +1992,8 @@ window.WiseGame.init({ gameId: 'eiken-grammar-game' });
             });
         });
 
-        document.querySelectorAll('.unit-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                selectedUnit = this.dataset.unit;
-                saveToStorage(STORAGE_KEYS.UNIT, selectedUnit);
-                // 単元を変えたら、保存してある出題数の希望にもどしてから調整する
-                const saved = parseInt(loadFromStorage(STORAGE_KEYS.QUESTION_COUNT, 20), 10);
-                if (saved > 0) questionCount = saved;
-                refreshSelectors();
-            });
-        });
+        // 初期化: 級タブとユニットボタンを構築
+        selectGrade(currentGrade);
 
         function shuffle(array) {
             const newArray = [...array];
@@ -1540,7 +2015,7 @@ window.WiseGame.init({ gameId: 'eiken-grammar-game' });
             sessionWrongAnswers = [];
             sessionWrongDisplay = [];
             document.getElementById('nextBtn').textContent = '次へ →';
-            stats = { 'present-perfect': { correct: 0, total: 0 }, 'past': { correct: 0, total: 0 }, 'passive': { correct: 0, total: 0 } };
+            stats = initStats();
             document.getElementById('startScreen').style.display = 'none';
             document.getElementById('gameScreen').classList.add('active');
             document.getElementById('resultScreen').classList.remove('active');
@@ -1678,9 +2153,16 @@ window.WiseGame.init({ gameId: 'eiken-grammar-game' });
             document.getElementById('resultMessage').textContent = message;
             resultScore.className = 'result-score ' + scoreClass;
 
-            document.getElementById('statPresentPerfect').textContent = `${stats['present-perfect'].correct}/${stats['present-perfect'].total}`;
-            document.getElementById('statPast').textContent = `${stats['past'].correct}/${stats['past'].total}`;
-            document.getElementById('statPassive').textContent = `${stats['passive'].correct}/${stats['passive'].total}`;
+            const grid = document.getElementById('statsGrid');
+            grid.innerHTML = '';
+            Object.entries(UNITS).filter(([k]) => k !== 'mix').forEach(([key, label]) => {
+                const s = stats[key] || { correct: 0, total: 0 };
+                if (s.total === 0) return;
+                const card = document.createElement('div');
+                card.className = 'stat-card';
+                card.innerHTML = `<div class="stat-label">${label}</div><div class="stat-value">${s.correct}/${s.total}</div>`;
+                grid.appendChild(card);
+            });
             // 出題されなかった単元のカードは出さない
             document.getElementById('statCardPresentPerfect').style.display = stats['present-perfect'].total ? '' : 'none';
             document.getElementById('statCardPast').style.display = stats['past'].total ? '' : 'none';
