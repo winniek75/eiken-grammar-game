@@ -306,9 +306,16 @@
         }
 
         @media (max-width: 640px) {
-            .game-screen.active { height: auto; min-height: 100vh; }
-            .game-split { flex-direction: column; overflow: visible; }
+            .game-screen.active { height: auto; min-height: 100vh; min-height: 100dvh; }
+            .game-split { flex-direction: column; overflow: visible; padding: 0 8px 8px; }
             .game-left, .game-right { flex: none; }
+            .question-card { padding: 16px; }
+            .question-text { font-size: 1.05rem; }
+            .options-grid { grid-template-columns: 1fr; gap: 8px; }
+            .option-btn { min-height: 48px; padding: 14px 12px; font-size: 1rem; }
+            .feedback { padding: 14px; margin-top: 10px; }
+            .feedback-icon { font-size: 2rem; }
+            .next-btn { padding: 14px 30px; font-size: 1rem; }
         }
 
         .progress-text {
@@ -860,6 +867,111 @@
             .question-text { font-size: 1.1rem; }
             .start-screen, .result-screen { padding: 30px 20px; }
             .question-card { padding: 25px 20px; }
+        }
+
+        /* ── スマートフォン最適化 ── */
+        @media (max-width: 428px) {
+            body { padding: 0; font-size: 14px; }
+            body:has(.start-screen:not([style*="display: none"])) { padding: 10px; }
+
+            /* スタート画面 */
+            .start-screen {
+                padding: 24px 16px;
+                border-radius: 20px;
+                box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+            }
+            .logo { font-size: 2.8rem; }
+            .title { font-size: 1.5rem; }
+            .subtitle { font-size: 0.88rem; margin-bottom: 18px; }
+            .grammar-tags { gap: 6px; margin-bottom: 18px; }
+            .tag { padding: 6px 12px; font-size: 0.78rem; }
+            .unit-selector { margin-bottom: 14px; }
+            .unit-btn {
+                padding: 10px 14px;
+                font-size: 0.85rem;
+                min-height: 44px;
+            }
+            .count-options { gap: 8px; }
+            .count-btn {
+                padding: 10px 16px;
+                font-size: 0.95rem;
+                min-height: 44px;
+            }
+            .question-count-selector { margin-bottom: 18px; }
+            .start-btn {
+                padding: 16px 36px;
+                font-size: 1.1rem;
+                width: 100%;
+            }
+            .home-link { font-size: 0.8rem; }
+
+            /* 履歴セクション */
+            .history-section { margin-top: 14px; padding-top: 14px; }
+            .history-item { padding: 8px 10px; font-size: 0.8rem; }
+
+            /* ゲーム画面 */
+            .header { padding: 6px 10px; }
+            .progress-text { font-size: 0.8rem; }
+            .score-display { padding: 8px 14px; font-size: 0.85rem; border-radius: 14px; }
+            .score-display span { font-size: 1rem; }
+            .game-split { gap: 8px; padding: 0 6px 6px; }
+            .question-card { padding: 14px; border-radius: 14px; }
+            .question-type { padding: 5px 10px; font-size: 0.75rem; margin-bottom: 10px; }
+            .question-text { font-size: 1rem; line-height: 1.5; }
+            .question-text .blank { min-width: 80px; }
+            .hint { font-size: 0.82rem; }
+            .option-btn {
+                padding: 14px 12px;
+                font-size: 1rem;
+                border-radius: 12px;
+                min-height: 48px;
+                border-width: 2px;
+            }
+            .feedback { padding: 12px; }
+            .feedback-icon { font-size: 1.8rem; margin-bottom: 6px; }
+            .feedback-text { font-size: 0.95rem; }
+            .explanation { font-size: 0.85rem; padding: 10px 12px; }
+            .next-btn { padding: 14px 28px; font-size: 1rem; margin-top: 12px; }
+
+            /* 解説 */
+            .completed-box { padding: 10px 12px; }
+            .completed-sentence { font-size: 1rem; }
+            .completed-ja { font-size: 0.8rem; }
+            .explanation-title { font-size: 0.7rem; }
+
+            /* 結果画面 */
+            .result-screen {
+                padding: 24px 16px;
+                border-radius: 20px;
+                max-height: 100dvh;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            .result-icon { font-size: 3.5rem; margin-bottom: 12px; }
+            .result-title { font-size: 1.5rem; }
+            .result-score { font-size: 2.8rem; margin: 14px 0; }
+            .result-message { font-size: 0.95rem; margin-bottom: 18px; }
+            .stats-grid { gap: 10px; margin-bottom: 18px; }
+            .stat-card { padding: 14px 10px; }
+            .stat-label { font-size: 0.75rem; }
+            .stat-value { font-size: 1.3rem; }
+            .restart-btn { padding: 14px 30px; font-size: 1.05rem; width: 100%; }
+            .weak-questions-btn { padding: 12px 24px; font-size: 0.95rem; width: 100%; }
+            .total-questions { font-size: 0.8rem; }
+            .wrong-answer-item { padding: 12px; }
+            .wrong-answer-item .wa-sentence { font-size: 0.92rem; }
+            .wrong-answer-item .wa-detail { font-size: 0.8rem; }
+
+            /* サウンドトグル */
+            .sound-toggle { top: auto; bottom: 10px; right: 10px; padding: 8px 12px; font-size: 1rem; }
+
+            /* コンボ */
+            .combo-badge-game span { padding: 5px 14px; font-size: 0.82rem; }
+            .adaptive-hint-box { padding: 8px 12px; font-size: 0.8rem; }
+
+            /* 戻るボタン */
+            .back-btn { padding: 8px 14px; font-size: 0.82rem; min-height: 44px; }
+            .tts-btn { padding: 8px 14px; font-size: 0.8rem; min-height: 44px; }
         }
     </style>
 <script>
